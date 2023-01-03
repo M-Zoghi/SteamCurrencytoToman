@@ -5,6 +5,8 @@
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
 // @match              https://store.steampowered.com/*
+// @updateURL          https://github.com/M-Zoghi/SteamARStoToman/raw/main/Steam%20Currency%20Convert%20ARS%20To%20Toman.user.js
+// @downloadURL        https://github.com/M-Zoghi/SteamARStoToman/raw/main/Steam%20Currency%20Convert%20ARS%20To%20Toman.user.js
 // @license            THoF
 // ==/UserScript==
 
