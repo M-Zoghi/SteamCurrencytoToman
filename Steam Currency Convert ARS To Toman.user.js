@@ -5,7 +5,7 @@
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
 // @match              https://store.steampowered.com/*
-// @license            THoF
+// @license            MIT License
 // ==/UserScript==
 
 var keymarket = 340;
