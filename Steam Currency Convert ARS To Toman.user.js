@@ -15,7 +15,6 @@ var labels = [
     'discount_final_price',
     'game_purchase_price',
     'game_area_dlc_price',
-    'global_action_link',
     'salepreviewwidgets_StoreSalePriceBox_3j4dI',
     'cart_estimated_total',
     'price'
