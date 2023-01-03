@@ -9,7 +9,7 @@
 // ==/UserScript==
 
 var keymarket = 340;
-var keytoman = 79;
+var keytoman = 790;
 var labels = [
     'discount_original_price',
     'discount_final_price',
