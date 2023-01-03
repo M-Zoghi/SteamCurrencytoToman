@@ -34,7 +34,7 @@ function ARStoToman(labels){
                     let calpricesteamroundup = Math.ceil(calpricesteam);
                     var calpricefinal = (calpricesteamroundup * keytoman);
                     const calpricefinalcomma = calpricefinal.toLocaleString("en-US");
-                    price[ind].textContent = calpricefinalcomma + " T" + " (" + calpricesteamroundup + "🔑)";
+                    price[ind].textContent = calpricefinalcomma + " T (" + calpricesteamroundup + "🔑)";
                 }
             }
         }
