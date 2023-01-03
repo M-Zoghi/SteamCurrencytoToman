@@ -35,7 +35,6 @@ function moneyExchange(labels){
                     var calpricefinal = (calpricesteamroundup * keytoman);
                     const calpricefinalcomma = calpricefinal.toLocaleString("en-US");
                     price[ind].textContent = calpricefinalcomma + " T" + " (" + calpricesteamroundup + "🔑)";
-                    //price[ind].textContent = (p / keysteam).toFixed(2) + " Toman";
                 }
             }
         }
