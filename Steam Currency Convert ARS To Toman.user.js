@@ -3,7 +3,7 @@
 // @version            1.0
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
-// @namespace          SteamCurrencyConvert
+// @namespace          SteamCurrencyConvertARSToToman
 // @match              https://store.steampowered.com/*
 // @license            THoF
 // ==/UserScript==
@@ -21,7 +21,7 @@ var labels = [
     'price'
 ];
 
-function moneyExchange(labels){
+function ARStoToman(labels){
     var re = /(\D*)(\d\S*)/;
     for(label in labels){
         let price = document.querySelectorAll(`.${labels[label]}`);
@@ -41,4 +41,4 @@ function moneyExchange(labels){
         }
     }
 }
-setTimeout(function(){moneyExchange(labels)}, 1000);
+setTimeout(function(){ARStoToman(labels)}, 1000);
