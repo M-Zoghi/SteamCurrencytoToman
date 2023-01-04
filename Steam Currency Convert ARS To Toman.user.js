@@ -74,11 +74,9 @@ function ARStoToman(labels){
                 let matchItem = re.exec(price[ind].textContent);
                 if(matchItem[1].indexOf('ARS') >= 0){
                     let p = matchItem[2].replace('.','').replace(',','.');
-                    var calpricesteam = (p / marketsteamkeypriceglobal);
-                    let calpricesteamroundup = Math.ceil(calpricesteam);
-                    var calpricefinal = (calpricesteamroundup * irsteamkeypriceglobal);
-                    const calpricefinalcomma = calpricefinal.toLocaleString("en-US");
-                    price[ind].textContent = calpricefinalcomma + " T (" + calpricesteamroundup + "🔑)";
+                    var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
+                    var calpricefinal = (calpricesteam * irsteamkeypriceglobal).toLocaleString("en-US");
+                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
                 }
             }
         }
