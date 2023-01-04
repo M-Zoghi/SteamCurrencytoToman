@@ -82,3 +82,12 @@ function ARStoToman(labels){
         }
     }
 }
+
+document.onkeydown = function(e){
+    e = e || window.event;
+    keycode = e.which || e.keyCode;
+    if(keycode == 82){
+        e.preventDefault();
+        ARStoToman(labels);
+     }
+}
