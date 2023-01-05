@@ -84,6 +84,18 @@ function ARStoToman(labels){
     }
 }
 
+(function() {
+    const findq = document.getElementById('ignoreBtn');
+    if (findq) {
+        var buykeybtn = document.createElement('a');
+        buykeybtn.target= '_blank';
+        buykeybtn.href = 'https://iraniansteam.ir/tf2/';
+        buykeybtn.className = 'btnv6_blue_hoverfade btn_medium';
+        buykeybtn.innerHTML = '<span>' + "Buy 🔑" + '</span>';
+        findq.append(buykeybtn);
+    }
+})();
+
 document.onkeydown = function(e){
     e = e || window.event;
     keycode = e.which || e.keyCode;
