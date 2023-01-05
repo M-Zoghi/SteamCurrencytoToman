@@ -4,6 +4,7 @@
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
+// @icon               http://store.steampowered.com/favicon.ico
 // @match              http*://store.steampowered.com/*
 // @require            http://code.jquery.com/jquery.min.js
 // @grant              GM_xmlhttpRequest
