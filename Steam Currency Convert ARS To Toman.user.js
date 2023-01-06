@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency Convert ARS To Toman
-// @version            1.2
+// @version            1.3
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -14,6 +14,7 @@
 // ==/UserScript==
 
 var irsteamkeypriceglobal;
+var irsteamkeypricecheck = false; 
 var marketsteamkeypriceglobal;
 
 function GetKeyPriceIR() {
@@ -32,6 +33,7 @@ function LoadIRSteam (irsteamobject) {
     irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',','.'));
     console.log("Key Price: " + irsteamkeypriceglobal + " Toman");
     ARStoToman(labels);
+	irsteamkeypricecheck = true;							
 }
 
 GetKeyPriceIR();
@@ -51,6 +53,7 @@ function LoadMarketSteam (marketsteamobject) {
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
     marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ','').replace(',','.') * 0.87);
     console.log("Market Price: ARS$ " + marketsteamkeypriceglobal);
+				
 }
 
 GetKeyPriceMarket();
@@ -96,11 +99,9 @@ function ARStoToman(labels){
     }
 })();
 
-document.onkeydown = function(e){
-    e = e || window.event;
-    keycode = e.which || e.keyCode;
-    if(keycode == 20){
-        e.preventDefault();
-        ARStoToman(labels);
-     }
+$(window).on("scroll", function() {
+if(irsteamkeypricecheck===true){
+   ARStoToman(labels);
 }
+
+})
