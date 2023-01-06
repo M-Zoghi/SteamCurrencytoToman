@@ -99,7 +99,7 @@ function ARStoToman(labels){
 document.onkeydown = function(e){
     e = e || window.event;
     keycode = e.which || e.keyCode;
-    if(keycode == 82){
+    if(keycode == 20){
         e.preventDefault();
         ARStoToman(labels);
      }
