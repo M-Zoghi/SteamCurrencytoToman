@@ -14,46 +14,46 @@
 // ==/UserScript==
 
 var irsteamkeypriceglobal;
-var irsteamkeypricecheck = false; 
+var irsteamkeypricecheck = false;
 var marketsteamkeypriceglobal;
 
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
-          method: 'GET',
-          url: 'https://iraniansteam.ir/tf2',
-          dataType: 'json',
-          onload: LoadIRSteam,
+        method: 'GET',
+        url: 'https://iraniansteam.ir/tf2',
+        dataType: 'json',
+        onload: LoadIRSteam,
     })
 }
 
-function LoadIRSteam (irsteamobject) {
-    var irsteamparser = new DOMParser ();
-    var irsteamresponseDoc = irsteamparser.parseFromString (irsteamobject.responseText, "text/html");
+function LoadIRSteam(irsteamobject) {
+    var irsteamparser = new DOMParser();
+    var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
-    irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',','.'));
+    irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
     console.log("Key Price: " + irsteamkeypriceglobal + " Toman");
     ARStoToman(labels);
-	irsteamkeypricecheck = true;							
+    irsteamkeypricecheck = true;
 }
 
 GetKeyPriceIR();
 
 function GetKeyPriceMarket() {
     GM_xmlhttpRequest({
-          method: 'GET',
-          url: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=34',
-          dataType: 'json',
-          onload: LoadMarketSteam,
+        method: 'GET',
+        url: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=34',
+        dataType: 'json',
+        onload: LoadMarketSteam,
     })
 }
 
-function LoadMarketSteam (marketsteamobject) {
-    var marketsteamparser = new DOMParser ();
-    var marketsteamresponseDoc = marketsteamparser.parseFromString (marketsteamobject.responseText, "text/html");
+function LoadMarketSteam(marketsteamobject) {
+    var marketsteamparser = new DOMParser();
+    var marketsteamresponseDoc = marketsteamparser.parseFromString(marketsteamobject.responseText, "text/html");
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
-    marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ','').replace(',','.') * 0.87);
+    marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ', '').replace(',', '.') * 0.87);
     console.log("Market Price: ARS$ " + marketsteamkeypriceglobal);
-				
+
 }
 
 GetKeyPriceMarket();
@@ -68,16 +68,17 @@ var labels = [
     'price'
 ];
 
-function ARStoToman(labels){
+function ARStoToman(labels) {
     var re = /(\D*)(\d\S*)/;
-    for(label in labels){
+    for (label in labels) {
         let price = document.querySelectorAll(`.${labels[label]}`);
-        if(price.length == 0) continue;
-        for(ind in price){
-            if(re.test(price[ind].textContent)){
+        if (price.length == 0)
+            continue;
+        for (ind in price) {
+            if (re.test(price[ind].textContent)) {
                 let matchItem = re.exec(price[ind].textContent);
-                if(matchItem[1].indexOf('ARS') >= 0){
-                    let p = matchItem[2].replace('.','').replace(',','.');
+                if (matchItem[1].indexOf('ARS') >= 0) {
+                    let p = matchItem[2].replace('.', '').replace(',', '.');
                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                     var calpricefinal = (calpricesteam * irsteamkeypriceglobal).toLocaleString("en-US");
                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
@@ -87,11 +88,11 @@ function ARStoToman(labels){
     }
 }
 
-(function() {
+(function () {
     const findq = document.getElementById('ignoreBtn');
     if (findq) {
         var buykeybtn = document.createElement('a');
-        buykeybtn.target= '_blank';
+        buykeybtn.target = '_blank';
         buykeybtn.href = 'https://iraniansteam.ir/tf2/';
         buykeybtn.className = 'btnv6_blue_hoverfade btn_medium';
         buykeybtn.innerHTML = '<span>' + "Buy 🔑" + '</span>';
@@ -99,9 +100,8 @@ function ARStoToman(labels){
     }
 })();
 
-$(window).on("scroll", function() {
-if(irsteamkeypricecheck===true){
-   ARStoToman(labels);
-}
-
+$(window).on("scroll", function () {
+    if (irsteamkeypricecheck === true) {
+        ARStoToman(labels);
+    }
 })
