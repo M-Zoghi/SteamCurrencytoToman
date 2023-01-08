@@ -100,7 +100,7 @@ function ARStoToman(labels) {
     }
 })();
 
-function PersianDate() {
+(function () {
     var re = new RegExp("Coming (.*)");
     var re2 = new RegExp("Planned Release Date: (.*)");
     var checkcomingsoon = document.getElementsByClassName("game_area_comingsoon game_area_bubble");
@@ -119,9 +119,7 @@ function PersianDate() {
             }
         }
     }
-}
-
-PersianDate();
+})();
 
 $(window).on("scroll", function () {
     if (irsteamkeypricecheck === true) {
