@@ -107,14 +107,16 @@ function PersianDate() {
     if (checkcomingsoon.length > 0) {
         if (re.test(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)) {
             var findreleasedate = re.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
-            var convertdate = new Date(findreleasedate).toLocaleDateString('fa-IR-u-nu-latn');
-            var appenddate = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Coming " + findreleasedate, "Coming " + findreleasedate + " (" + convertdate + ")");
-            var changedate = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = appenddate;
+            if (!findreleasedate.includes('soon')) {
+                var convertdate = new Date(findreleasedate).toLocaleDateString('fa-IR-u-nu-latn');
+                var appenddate = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Coming " + findreleasedate, "Coming " + findreleasedate + " (" + convertdate + ")");
+            }
         } else if (re2.test(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)) {
-            var findreleasedate = re2.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
-            var convertdate = new Date(findreleasedate).toLocaleDateString('fa-IR-u-nu-latn');
-            var appenddate = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Planned Release Date: <span>" + findreleasedate + "</span>", "Planned Release Date: <span>" + findreleasedate + " (" + convertdate + ")</span>");
-            var changedate = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = appenddate;
+            var findreleasedate2 = re2.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
+            if (!findreleasedate2.includes('TBA')) {
+                var convertdate2 = new Date(findreleasedate2).toLocaleDateString('fa-IR-u-nu-latn');
+                var appenddate2 = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Planned Release Date: <span>" + findreleasedate2 + "</span>", "Planned Release Date: <span>" + findreleasedate2 + " (" + convertdate2 + ")</span>");
+            }
         }
     }
 }
