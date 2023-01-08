@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency Convert ARS To Toman
-// @version            1.3
+// @version            1.4
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -99,6 +99,27 @@ function ARStoToman(labels) {
         findq.append(buykeybtn);
     }
 })();
+
+function PersianDate() {
+    var re = new RegExp("Coming (.*)");
+    var re2 = new RegExp("Planned Release Date: (.*)");
+    var checkcomingsoon = document.getElementsByClassName("game_area_comingsoon game_area_bubble");
+    if (checkcomingsoon.length > 0) {
+        if (re.test(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)) {
+            var findreleasedate = re.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
+            var convertdate = new Date(findreleasedate).toLocaleDateString('fa-IR-u-nu-latn');
+            var appenddate = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Coming " + findreleasedate, "Coming " + findreleasedate + " (" + convertdate + ")");
+            var changedate = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = appenddate;
+        } else if (re2.test(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)) {
+            var findreleasedate = re2.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
+            var convertdate = new Date(findreleasedate).toLocaleDateString('fa-IR-u-nu-latn');
+            var appenddate = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Planned Release Date: <span>" + findreleasedate + "</span>", "Planned Release Date: <span>" + findreleasedate + " (" + convertdate + ")</span>");
+            var changedate = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = appenddate;
+        }
+    }
+}
+
+PersianDate();
 
 $(window).on("scroll", function () {
     if (irsteamkeypricecheck === true) {
