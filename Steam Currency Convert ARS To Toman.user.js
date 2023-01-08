@@ -31,7 +31,7 @@ function LoadIRSteam(irsteamobject) {
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
     irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
-    console.log("%c[ARStoToman] " + "%cKey Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:default");
+    console.log("%c[ARStoToman] " + "%cKey Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     ARStoToman(labels);
     irsteamkeypricecheck = true;
 }
@@ -52,7 +52,7 @@ function LoadMarketSteam(marketsteamobject) {
     var marketsteamresponseDoc = marketsteamparser.parseFromString(marketsteamobject.responseText, "text/html");
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
     marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ', '').replace(',', '.') * 0.87);
-    console.log("%c[ARStoToman] " + "%cMarket Price: ARS$ " + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:default");
+    console.log("%c[ARStoToman] " + "%cMarket Price: ARS$ " + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
 
 }
 
