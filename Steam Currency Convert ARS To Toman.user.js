@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency Convert ARS To Toman
-// @version            1.4
+// @version            1.5
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -114,9 +114,8 @@ function ARStoToman(labels) {
         } else if (re2.test(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)) {
             var findreleasedate2 = re2.exec(document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerText)[1];
             if (!/TBC|TBA|TBD|Q|TO|To|to|soon|Soon|SOON/.test(findreleasedate2)) {
-                //console.log(findreleasedate2)
                 var convertdate2 = new Date(findreleasedate2).toLocaleDateString('fa-IR-u-nu-latn');
-                var appenddate2 = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("Planned Release Date: <span>" + findreleasedate2 + "</span>", "Planned Release Date: <span>" + findreleasedate2 + " (" + convertdate2 + ")</span>");
+                var appenddate2 = document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML = (document.getElementsByClassName("game_area_comingsoon game_area_bubble")[0].innerHTML).replace("<span>" + findreleasedate2 + "</span>", "<span>" + findreleasedate2 + " (" + convertdate2 + ")</span>");
             }
         }
     }
