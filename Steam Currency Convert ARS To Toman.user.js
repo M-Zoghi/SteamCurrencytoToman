@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency Convert ARS To Toman
-// @version            1.5
+// @version            1.6
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -53,7 +53,6 @@ function LoadMarketSteam(marketsteamobject) {
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
     marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ', '').replace(',', '.') * 0.87);
     console.log("%c[ARStoToman] " + "%cMarket Price: ARS$ " + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
-
 }
 
 GetKeyPriceMarket();
@@ -82,6 +81,7 @@ function ARStoToman(labels) {
                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                     var calpricefinal = (calpricesteam * irsteamkeypriceglobal).toLocaleString("en-US");
                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
+                    price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
                 }
             }
         }
@@ -89,14 +89,17 @@ function ARStoToman(labels) {
 }
 
 (function () {
-    const findq = document.getElementById('ignoreBtn');
-    if (findq) {
-        var buykeybtn = document.createElement('a');
-        buykeybtn.target = '_blank';
-        buykeybtn.href = 'https://iraniansteam.ir/tf2/';
-        buykeybtn.className = 'btnv6_blue_hoverfade btn_medium';
-        buykeybtn.innerHTML = '<span>' + "Buy 🔑" + '</span>';
-        findq.append(buykeybtn);
+    const container = document.getElementById('ignoreBtn');
+    if (container) {
+        const link = document.createElement('a');
+        link.className = 'btnv6_blue_hoverfade btn_medium';
+        link.target = '_blank';
+        link.href = 'https://iraniansteam.ir/tf2/';
+        const element = document.createElement('span');
+        element.dataset.tooltipText = "Buy TF2 Keys on IranianSteam";
+        element.innerHTML = "<span>Buy 🔑</span>";
+        link.appendChild(element);
+        container.append(link, container.firstChild);
     }
 })();
 
