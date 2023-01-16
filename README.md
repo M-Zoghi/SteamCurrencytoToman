@@ -1,13 +1,13 @@
 ### Steam Currency ARS$ to Toman
 - Converts ARS$ currency on Steam store to Toman currency
-- Adds a button to buy TF2 keys
 - You can hover over the converted price to see original ARS$ pricing
+- Adds a button to buy TF2 keys
 
 
 ### Steam Currency TL to Toman
 - Converts TL currency on Steam store to Toman currency
-- Adds a button to buy TF2 keys
 - You can hover over the converted price to see original TL pricing
+- Adds a button to buy TF2 keys
 
 
 ### Steam Upcoming Iranian Date
