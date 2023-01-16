@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name               Steam Currency Convert ARS$ To Toman
+// @name               Steam Currency ARS$ To Toman
 // @version            1.6
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
