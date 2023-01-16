@@ -3,16 +3,19 @@
 - You can hover over the converted price to see original ARS$ pricing
 - Adds a button to buy TF2 keys
 
+![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman.png?raw=true)
 
 ### Steam Currency TL to Toman
 - Converts TL currency on Steam store to Toman currency
 - You can hover over the converted price to see original TL pricing
 - Adds a button to buy TF2 keys
 
+![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman2.png?raw=true)
 
 ### Steam Upcoming Iranian Date
 - Adds Iranian Date to Upcoming games on Steam store
 
+![UpcomingIranianDate](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/UpcomingIranianDate.png?raw=true)
 
 ### Installation
 1. Install `Tampermonkey` for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo "Chrome") or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey "Firefox")
