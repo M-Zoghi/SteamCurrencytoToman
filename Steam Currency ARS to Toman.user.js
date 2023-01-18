@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.6
+// @version            1.7
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -16,6 +16,7 @@
 var irsteamkeypriceglobal;
 var irsteamkeypricecheck = false;
 var marketsteamkeypriceglobal;
+var irsteamkeyquantityglobal;
 
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
@@ -31,8 +32,11 @@ function LoadIRSteam(irsteamobject) {
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
     irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
+    irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
     console.log("%c[ARStoToman] " + "%cKey Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[ARStoToman] " + "%cQuantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
     ARStoToman(labels);
+    BuyKeyButton();
     irsteamkeypricecheck = true;
 }
 
@@ -64,7 +68,8 @@ var labels = [
     'game_area_dlc_price',
     'salepreviewwidgets_StoreSalePriceBox_3j4dI',
     'cart_estimated_total',
-    'price'
+    'price',
+    'savings'
 ];
 
 function ARStoToman(labels) {
@@ -88,7 +93,7 @@ function ARStoToman(labels) {
     }
 }
 
-(function () {
+function BuyKeyButton() {
     const container = document.getElementById('ignoreBtn');
     if (container) {
         const link = document.createElement('a');
@@ -97,11 +102,11 @@ function ARStoToman(labels) {
         link.href = 'https://iraniansteam.ir/tf2/';
         const element = document.createElement('span');
         element.dataset.tooltipText = "Buy TF2 Keys on IranianSteam";
-        element.innerHTML = "<span>Buy 🔑</span>";
+        element.innerHTML = "<span>Buy 🔑 (" + irsteamkeyquantityglobal + ")</span>";
         link.appendChild(element);
         container.append(link, container.firstChild);
     }
-})();
+}
 
 $(window).on("scroll", function () {
     if (irsteamkeypricecheck === true) {
