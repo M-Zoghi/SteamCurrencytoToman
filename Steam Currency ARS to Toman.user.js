@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.7
+// @version            1.8
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -9,14 +9,24 @@
 // @require            http://code.jquery.com/jquery.min.js
 // @grant              GM_xmlhttpRequest
 // @connect            iraniansteam.ir
+// @connect            dragonsteam.net
 // @connect            steamcommunity.com
 // @license            MIT License
 // ==/UserScript==
 
-var irsteamkeypriceglobal;
-var irsteamkeypricecheck = false;
+var marketsteamkeypriceg;
 var marketsteamkeypriceglobal;
+var marketsteamkeypricecheck = false;
+var irsteamkeypriceg;
+var irsteamkeypriceglobal;
 var irsteamkeyquantityglobal;
+var irsteamkeypricecheck = false;
+var dragonsteamkeypriceg;
+var dragonsteamkeypriceglobal;
+var dragonsteamkeyavailabilityglobal;
+var dragonsteamkeypricecheck = false;
+var pricechanged = false;
+var keywidget = false;
 
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
@@ -24,6 +34,7 @@ function GetKeyPriceIR() {
         url: 'https://iraniansteam.ir/tf2',
         dataType: 'json',
         onload: LoadIRSteam,
+        onerror: KeyWidget,
     })
 }
 
@@ -31,16 +42,43 @@ function LoadIRSteam(irsteamobject) {
     var irsteamparser = new DOMParser();
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
+    irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
     irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
     irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
-    console.log("%c[ARStoToman] " + "%cKey Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[ARStoToman] " + "%cQuantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
-    ARStoToman(labels);
-    BuyKeyButton();
+    console.log("%c[ARStoToman] " + "%cIranian Steam Key Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[ARStoToman] " + "%cIranian Steam Key Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
     irsteamkeypricecheck = true;
+    if(dragonsteamkeypricecheck === true) {
+        KeyWidget();
+    }
 }
 
 GetKeyPriceIR();
+
+function GetKeyPriceDragon() {
+    GM_xmlhttpRequest({
+        method: 'GET',
+        url: 'https://dragonsteam.net/product/mann-co-supply-crate-key/',
+        dataType: 'json',
+        onload: LoadDragonSteam,
+    })
+}
+
+function LoadDragonSteam(dragonsteamobject) {
+    var dragonsteamparser = new DOMParser();
+    var dragonsteamresponseDoc = dragonsteamparser.parseFromString(dragonsteamobject.responseText, "text/html");
+    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    dragonsteamkeypriceg = dragonsteamfounddata.replace('.', ',');
+    dragonsteamkeypriceglobal = Math.ceil(dragonsteamfounddata);
+    dragonsteamkeyavailabilityglobal = dragonsteamresponseDoc.querySelector("meta[property='product:availability']").getAttribute("content").replace("instock", "In Stock");
+    console.log("%c[ARStoToman] " + "%cDragon Steam Key Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    dragonsteamkeypricecheck = true;
+    if (marketsteamkeypricecheck === true) {
+        ARStoToman(labels);
+    }
+}
+
+GetKeyPriceDragon();
 
 function GetKeyPriceMarket() {
     GM_xmlhttpRequest({
@@ -55,8 +93,13 @@ function LoadMarketSteam(marketsteamobject) {
     var marketsteamparser = new DOMParser();
     var marketsteamresponseDoc = marketsteamparser.parseFromString(marketsteamobject.responseText, "text/html");
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
+    marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('ARS$ ', '').replace(',', '.');
     marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('ARS$ ', '').replace(',', '.') * 0.87);
     console.log("%c[ARStoToman] " + "%cMarket Price: ARS$ " + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
+    marketsteamkeypricecheck = true;
+    if (dragonsteamkeypricecheck === true) {
+        ARStoToman(labels);
+    }
 }
 
 GetKeyPriceMarket();
@@ -84,29 +127,125 @@ function ARStoToman(labels) {
                 if (matchItem[1].indexOf('ARS') >= 0) {
                     let p = matchItem[2].replace('.', '').replace(',', '.');
                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
-                    var calpricefinal = (calpricesteam * irsteamkeypriceglobal).toLocaleString("en-US");
+                    var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
                     price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
+                    pricechanged = true;
                 }
             }
         }
     }
 }
 
-function BuyKeyButton() {
+function KeyWidget()
+{
+	const container = document.querySelector('.game_meta_data');
+
+	if(!container)
+	{
+		return;
+	}
+
+	const blockInner = document.createElement('div');
+	blockInner.className = 'block_content_inner';
+
+	const block = document.createElement('div');
+	block.className = 'block responsive_apppage_details_right';
+	block.appendChild(blockInner);
+
+    // Logo
+	const link = document.createElement('a');
+	link.className = 'tf2_key';
+	link.title = ("Mann Co. Supply Crate Key");
+    link.target = '_blank';
+    link.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+
+	const image = document.createElement('img');
+	image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
+    image.style="width: 54px;height: 54px;float: right"
+	link.appendChild(image);
+
+    blockInner.appendChild(link);
+
+    // Iranian Steam
+	const irsteamprice = document.createElement('a');
+	irsteamprice.className = 'game_review_summary positive';
+    irsteamprice.target = '_blank';
+    irsteamprice.href = 'https://iraniansteam.ir/tf2';
+    if (irsteamkeypricecheck === true) {
+        irsteamprice.textContent = irsteamkeypriceg + " Toman (" + irsteamkeyquantityglobal + " In Stock)";
+    } else {
+        irsteamprice.textContent = "Error";
+    }
+
+	let line = document.createElement('p');
+	let lineText = document.createElement('span');
+	lineText.className = 'irsteam_price_name';
+	lineText.textContent = ("Iranian Steam: ");
+	line.appendChild(lineText);
+	line.appendChild(irsteamprice);
+
+	blockInner.appendChild( line );
+
+    // Dragon Steam
+	const dragonsteamprice = document.createElement('a');
+	dragonsteamprice.className = 'game_review_summary positive';
+    dragonsteamprice.target = '_blank';
+    dragonsteamprice.href = 'https://dragonsteam.net/product/mann-co-supply-crate-key/';
+    if (dragonsteamkeypricecheck === true) {
+        dragonsteamprice.textContent = dragonsteamkeypriceg + " Toman (" + dragonsteamkeyavailabilityglobal + ")";
+    } else {
+        dragonsteamprice.textContent = "Error";
+    }
+
+	line = document.createElement('p');
+	lineText = document.createElement('span');
+	lineText.className = 'dragonsteam_price_name';
+	lineText.textContent = ("Dragon Steam: ");
+	line.appendChild(lineText);
+	line.appendChild(dragonsteamprice);
+
+	blockInner.appendChild( line );
+
+    // Steam Market
+	const marketsteamprice = document.createElement('a');
+	marketsteamprice.className = 'game_review_summary positive';
+    marketsteamprice.target = '_blank';
+    marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+    if (marketsteamkeypricecheck === true) {
+        marketsteamprice.textContent = "ARS$ " + marketsteamkeypriceg.replace('.', ',') + " (ARS$ " + marketsteamkeypriceglobal + ")";
+    } else {
+        marketsteamprice.textContent = "Error";
+    }
+
+	line = document.createElement('p');
+	lineText = document.createElement('span');
+	lineText.className = 'marketsteam_price_name';
+	lineText.textContent = ("Steam Market: ");
+	line.appendChild(lineText);
+	line.appendChild(marketsteamprice);
+
+	blockInner.appendChild( line );
+
+	container.insertBefore( block, container.firstChild );
+
+    keywidget = true;
+}
+
+(function () {
     const container = document.getElementById('ignoreBtn');
     if (container) {
         const link = document.createElement('a');
         link.className = 'btnv6_blue_hoverfade btn_medium';
         link.target = '_blank';
-        link.href = 'https://iraniansteam.ir/tf2/';
+        link.href = 'https://dragonsteam.net/product/mann-co-supply-crate-key/';
         const element = document.createElement('span');
-        element.dataset.tooltipText = "Buy TF2 Keys on IranianSteam";
-        element.innerHTML = "<span>Buy 🔑 (" + irsteamkeyquantityglobal + ")</span>";
+        element.dataset.tooltipText = "Buy TF2 Keys";
+        element.innerHTML = "<span>Buy 🔑</span>";
         link.appendChild(element);
         container.append(link, container.firstChild);
     }
-}
+})();
 
 $(window).on("scroll", function () {
     if (irsteamkeypricecheck === true) {
