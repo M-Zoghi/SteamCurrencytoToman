@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.13
+// @version            1.14
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -32,27 +32,19 @@ function GetKeyPriceIR() {
         url: 'https://iraniansteam.ir/tf2',
         dataType: 'json',
         onload: LoadIRSteam,
-        onerror: KeyWidget,
     })
 }
 
 function LoadIRSteam(irsteamobject) {
-    try {
-        var irsteamparser = new DOMParser();
-        var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
-        var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
-        irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
-        irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
-        irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
-        console.log("%c[TLtoToman] " + "%cIranian Steam Key Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-        console.log("%c[TLtoToman] " + "%cIranian Steam Key Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
-        irsteamkeypricecheck = true;
-        if (dragonsteamkeypricecheck === true) {
-            KeyWidget();
-        }
-    } catch (e) {
-        KeyWidget();
-    }
+    var irsteamparser = new DOMParser();
+    var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
+    var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
+    irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
+    irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
+    irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
+    console.log("%c[TLtoToman] " + "%cIranian Steam Key Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[TLtoToman] " + "%cIranian Steam Key Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
+    irsteamkeypricecheck = true;
 }
 
 function GetKeyPriceDragon() {
@@ -103,6 +95,7 @@ function LoadMarketSteam(marketsteamobject) {
 GetKeyPriceDragon();
 GetKeyPriceIR();
 GetKeyPriceMarket();
+setTimeout(KeyWidget, 3000);
 
 var labels = [
     'discount_original_price',
