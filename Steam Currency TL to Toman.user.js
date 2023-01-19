@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.12
+// @version            1.13
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -37,10 +37,10 @@ function GetKeyPriceIR() {
 }
 
 function LoadIRSteam(irsteamobject) {
-    var irsteamparser = new DOMParser();
-    var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
-    var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
     try {
+        var irsteamparser = new DOMParser();
+        var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
+        var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
         irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
         irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
         irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
