@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.81
+// @version            1.82
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -25,7 +25,6 @@ var dragonsteamkeypriceg;
 var dragonsteamkeypriceglobal;
 var dragonsteamkeyavailabilityglobal;
 var dragonsteamkeypricecheck = false;
-var pricechanged = false;
 
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
@@ -127,7 +126,6 @@ function ARStoToman(labels) {
                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
                     price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
-                    pricechanged = true;
                 }
             }
         }
