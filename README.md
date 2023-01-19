@@ -6,6 +6,8 @@
 
 ![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman.png?raw=true)
 
+![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/WidgetARS.png?raw=true)
+
 ### Steam Currency TL to Toman
 - Converts TL currency on Steam store to Toman currency
 - You can hover over the converted price to see original TL pricing
@@ -13,6 +15,8 @@
 - Adds a widget to game's page to show key prices
 
 ![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman2.png?raw=true)
+
+![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/WidgetTL.png?raw=true)
 
 ### Steam Upcoming Iranian Date
 - Adds Iranian Date to Upcoming games on Steam store
