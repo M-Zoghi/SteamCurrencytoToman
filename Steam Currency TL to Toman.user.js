@@ -95,7 +95,7 @@ function LoadMarketSteam(marketsteamobject) {
 GetKeyPriceDragon();
 GetKeyPriceIR();
 GetKeyPriceMarket();
-setTimeout(KeyWidget, 3000);
+setTimeout(KeyWidget, 5000);
 
 var labels = [
     'discount_original_price',
