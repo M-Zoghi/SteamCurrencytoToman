@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.82
+// @version            1.83
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -40,13 +40,17 @@ function LoadIRSteam(irsteamobject) {
     var irsteamparser = new DOMParser();
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
-    irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
-    irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
-    irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
-    console.log("%c[ARStoToman] " + "%cIranian Steam Key Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[ARStoToman] " + "%cIranian Steam Key Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
-    irsteamkeypricecheck = true;
-    if (dragonsteamkeypricecheck === true) {
+    try {
+        irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
+        irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
+        irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
+        console.log("%c[ARStoToman] " + "%cIranian Steam Key Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[ARStoToman] " + "%cIranian Steam Key Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
+        irsteamkeypricecheck = true;
+        if (dragonsteamkeypricecheck === true) {
+            KeyWidget();
+        }
+    } catch (e) {
         KeyWidget();
     }
 }
