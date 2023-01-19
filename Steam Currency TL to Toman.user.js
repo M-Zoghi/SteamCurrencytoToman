@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.1
+// @version            1.12
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
