@@ -10,6 +10,7 @@
 - Converts TL currency on Steam store to Toman currency
 - You can hover over the converted price to see original TL pricing
 - Adds a button to game's page to buy TF2 keys
+- Adds a widget to game's page to show key prices
 
 ![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman2.png?raw=true)
 
