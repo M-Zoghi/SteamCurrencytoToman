@@ -238,7 +238,7 @@ function KeyWidget() {
 })();
 
 $(window).on("scroll", function () {
-    if (irsteamkeypricecheck === true) {
+    if (dragonsteamkeypricecheck === true) {
         TLtoToman(labels);
     }
 })
