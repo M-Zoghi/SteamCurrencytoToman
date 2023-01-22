@@ -103,6 +103,8 @@ var labels = [
     'game_purchase_price',
     'game_area_dlc_price',
     'salepreviewwidgets_StoreSalePriceBox_3j4dI',
+    `salepreviewwidgets_StoreSalePriceBox_Wh0L8`,
+    `salepreviewwidgets_StoreSalePrepurchaseLabel_Wxeyn`,
     'cart_estimated_total',
     'price',
     'savings'
