@@ -67,6 +67,7 @@ function LoadDragonSteam(dragonsteamobject) {
     dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
         TLtoToman(labels);
+        TLtoTomanW();
     }
 }
 
@@ -89,6 +90,7 @@ function LoadMarketSteam(marketsteamobject) {
     marketsteamkeypricecheck = true;
     if (dragonsteamkeypricecheck === true) {
         TLtoToman(labels);
+        TLtoTomanW();
     }
 }
 
@@ -133,6 +135,21 @@ function TLtoToman(labels) {
             }
         }
     }
+}
+
+function TLtoTomanW() {
+    var re = /(\D*)(\d\S* TL)/;
+        let pricew = document.querySelectorAll(`.global_action_link`);
+        for (indw in pricew) {
+            if (rew.test(pricew[indw].textContent)) {
+                let matchItemw = rew.exec(pricew[indw].textContent);
+                if (matchItemw[1].indexOf('TL') >= 0) {
+                    let pw = matchItemw.replace('.', '').replace(',', '.').replace(' TL', '');
+                    var calpricesteamw = Math.ceil(pw / marketsteamkeypriceglobal);
+                    pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
+                }
+            }
+        }
 }
 
 function KeyWidget() {
@@ -238,7 +255,7 @@ function KeyWidget() {
 })();
 
 $(window).on("scroll", function () {
-    if (dragonsteamkeypricecheck === true) {
+    if (dragonsteamkeypricecheck === true && marketsteamkeypricecheck === true) {
         TLtoToman(labels);
     }
 })
