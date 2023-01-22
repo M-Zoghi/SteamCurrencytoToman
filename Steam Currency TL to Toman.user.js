@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.15
+// @version            1.16
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -145,7 +145,7 @@ function TLtoTomanW() {
                 let matchItemw = rew.exec(pricew[indw].textContent);
                 if (matchItemw[1].indexOf('TL') >= 0) {
                     let pw = matchItemw.replace('.', '').replace(',', '.').replace(' TL', '');
-                    var calpricesteamw = Math.ceil(pw / marketsteamkeypriceglobal);
+                    var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                     pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
                 }
             }
