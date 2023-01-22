@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.85
+// @version            1.86
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -145,7 +145,7 @@ function ARStoTomanW() {
                 let matchItemw = rew.exec(pricew[indw].textContent);
                 if (matchItemw[1].indexOf('ARS') >= 0) {
                     let pw = matchItemw[2].replace('.', '').replace(',', '.');
-                    var calpricesteamw = Math.ceil(pw / marketsteamkeypriceglobal);
+                    var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                     pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
                 }
             }
