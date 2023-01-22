@@ -102,12 +102,16 @@ var labels = [
     'discount_final_price',
     'game_purchase_price',
     'game_area_dlc_price',
+    'salepreviewwidgets_InGameHover_2uFQ-',
     'salepreviewwidgets_StoreSalePriceBox_3j4dI',
-    `salepreviewwidgets_StoreSalePriceBox_Wh0L8`,
-    `salepreviewwidgets_StoreSalePrepurchaseLabel_Wxeyn`,
+    'salepreviewwidgets_StoreSalePriceBox_Wh0L8',
+    'salepreviewwidgets_StoreOriginalPrice_1EKGZ',
+    'salepreviewwidgets_StoreSalePrepurchaseLabel_Wxeyn',
+    'salepreviewwidgets_StoreSaleDiscountedPriceCtn_3GLeQ',
+    'salepreviewwidgets_StoreSalePriceWidgetContainer_tqNH0',
     'cart_estimated_total',
     'price',
-    'savings'
+    'savings',
 ];
 
 function ARStoToman(labels) {
