@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.84
+// @version            1.85
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -67,6 +67,7 @@ function LoadDragonSteam(dragonsteamobject) {
     dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
         ARStoToman(labels);
+        ARStoTomanW();
     }
 }
 
@@ -89,6 +90,7 @@ function LoadMarketSteam(marketsteamobject) {
     marketsteamkeypricecheck = true;
     if (dragonsteamkeypricecheck === true) {
         ARStoToman(labels);
+        ARStoTomanW();
     }
 }
 
@@ -133,6 +135,21 @@ function ARStoToman(labels) {
             }
         }
     }
+}
+
+function ARStoTomanW() {
+    var rew = /(\D*)(\d\S*)/;
+        let pricew = document.querySelectorAll(`.global_action_link`);
+        for (indw in pricew) {
+            if (rew.test(pricew[indw].textContent)) {
+                let matchItemw = rew.exec(pricew[indw].textContent);
+                if (matchItemw[1].indexOf('ARS') >= 0) {
+                    let pw = matchItemw[2].replace('.', '').replace(',', '.');
+                    var calpricesteamw = Math.ceil(pw / marketsteamkeypriceglobal);
+                    pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
+                }
+            }
+        }
 }
 
 function KeyWidget() {
@@ -238,7 +255,7 @@ function KeyWidget() {
 })();
 
 $(window).on("scroll", function () {
-    if (dragonsteamkeypricecheck === true) {
+    if (dragonsteamkeypricecheck === true && marketsteamkeypricecheck === true) {
         ARStoToman(labels);
     }
 })
