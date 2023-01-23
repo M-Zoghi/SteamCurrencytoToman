@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.86
+// @version            1.87
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -127,10 +127,17 @@ function ARStoToman(labels) {
                 let matchItem = re.exec(price[ind].textContent);
                 if (matchItem[1].indexOf('ARS') >= 0) {
                     let p = matchItem[2].replace('.', '').replace(',', '.');
-                    var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
-                    var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                    price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
+                    if (p > marketsteamkeypriceglobal) {
+                        var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
+                        var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                        price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
+                        price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
+                    } else {
+                        var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
+                        var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                        price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
+                        price[ind].setAttribute('title', "ARS$ " + matchItem[2]);
+                    }
                 }
             }
         }
@@ -139,17 +146,17 @@ function ARStoToman(labels) {
 
 function ARStoTomanW() {
     var rew = /(\D*)(\d\S*)/;
-        let pricew = document.querySelectorAll(`.global_action_link`);
-        for (indw in pricew) {
-            if (rew.test(pricew[indw].textContent)) {
-                let matchItemw = rew.exec(pricew[indw].textContent);
-                if (matchItemw[1].indexOf('ARS') >= 0) {
-                    let pw = matchItemw[2].replace('.', '').replace(',', '.');
-                    var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
-                    pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
-                }
+    let pricew = document.querySelectorAll(`.global_action_link`);
+    for (indw in pricew) {
+        if (rew.test(pricew[indw].textContent)) {
+            let matchItemw = rew.exec(pricew[indw].textContent);
+            if (matchItemw[1].indexOf('ARS') >= 0) {
+                let pw = matchItemw[2].replace('.', '').replace(',', '.');
+                var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
+                pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
             }
         }
+    }
 }
 
 function KeyWidget() {
