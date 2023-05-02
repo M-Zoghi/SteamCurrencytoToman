@@ -114,6 +114,7 @@ var labels = [
     'cart_estimated_total',
     'price',
     'savings',
+    'item_def_price',
 ];
 
 function ARStoToman(labels) {
