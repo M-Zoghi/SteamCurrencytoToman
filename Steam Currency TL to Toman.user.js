@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.20
+// @version            1.21
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -114,6 +114,7 @@ var labels = [
     'cart_estimated_total',
     'price',
     'savings',
+    'item_def_price',
 ];
 
 function TLtoToman(labels) {
