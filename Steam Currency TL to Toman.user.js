@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.21
+// @version            1.22
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -59,7 +59,7 @@ function GetKeyPriceDragon() {
 function LoadDragonSteam(dragonsteamobject) {
     var dragonsteamparser = new DOMParser();
     var dragonsteamresponseDoc = dragonsteamparser.parseFromString(dragonsteamobject.responseText, "text/html");
-    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{4})+(?!\d))/g, ".");
     dragonsteamkeypriceg = dragonsteamfounddata.replace('.', ',');
     dragonsteamkeypriceglobal = Math.ceil(dragonsteamfounddata);
     dragonsteamkeyavailabilityglobal = dragonsteamresponseDoc.querySelector("meta[property='product:availability']").getAttribute("content").replace("instock", "In Stock");
