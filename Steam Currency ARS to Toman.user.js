@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.88
+// @version            1.89
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
@@ -59,7 +59,7 @@ function GetKeyPriceDragon() {
 function LoadDragonSteam(dragonsteamobject) {
     var dragonsteamparser = new DOMParser();
     var dragonsteamresponseDoc = dragonsteamparser.parseFromString(dragonsteamobject.responseText, "text/html");
-    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{4})+(?!\d))/g, ".");
     dragonsteamkeypriceg = dragonsteamfounddata.replace('.', ',');
     dragonsteamkeypriceglobal = Math.ceil(dragonsteamfounddata);
     dragonsteamkeyavailabilityglobal = dragonsteamresponseDoc.querySelector("meta[property='product:availability']").getAttribute("content").replace("instock", "In Stock");
