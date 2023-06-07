@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name               Steam Currency TL To Toman
+// @name               Steam Currency TL₺ To Toman
 // @version            1.23
-// @description        Converts TL to Toman
+// @description        Converts TL₺ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
 // @icon               http://store.steampowered.com/favicon.ico
