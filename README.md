@@ -8,8 +8,8 @@
 - [Steam Upcoming Iranian Date.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js "Steam Upcoming Iranian Date")
 
 ### Steam Currency to Toman
-- Converts ARS$ / TL₺ / EUR€ currency on Steam store to Toman currency
-- You can hover over the converted price to see original pricing
+- Converts ARS$ / TL₺ / EUR€ prices on Steam store to Toman (Using TF2 key pricing)
+- You can hover over the converted prices to see original pricing
 - Adds a button to game's page to buy TF2 keys
 - Adds a widget to game's page to show key prices
 
