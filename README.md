@@ -5,10 +5,11 @@
 - [Steam Currency ARS to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20ARS%20to%20Toman.user.js "Steam Currency ARS$ to Toman")
 - [Steam Currency TL to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20TL%20to%20Toman.user.js "Steam Currency TL to Toman")
 - [Steam Currency EUR to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20EUR%20To%20Toman.user.js "Steam Currency EUR to Toman")
+- [Steam Currency USD to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20USD%20To%20Toman.user.js "Steam Currency USD to Toman")
 - [Steam Upcoming Iranian Date.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js "Steam Upcoming Iranian Date")
 
 ### Steam Currency to Toman
-- Converts ARS$ / TL₺ / EUR€ prices on Steam store to Toman (Using TF2 key pricing)
+- Converts ARS$ / TL₺ / EUR€ / USD$ prices on Steam store to Toman (Using TF2 key pricing)
 - You can hover over the converted prices to see original pricing
 - Adds a button to game's page to buy TF2 keys
 - Adds a widget to game's page to show key prices
