@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency TL To Toman
-// @version            1.22
+// @version            1.23
 // @description        Converts TL to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertTLToToman
@@ -211,7 +211,7 @@ function KeyWidget() {
     dragonsteamprice.target = '_blank';
     dragonsteamprice.href = 'https://dragonsteam.net/product/mann-co-supply-crate-key/';
     if (dragonsteamkeypricecheck === true) {
-        dragonsteamprice.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
+        dragonsteamprice.textContent = dragonsteamkeypriceg.slice(0, -1) + " T (" + dragonsteamkeyavailabilityglobal + ")";
     } else {
         dragonsteamprice.textContent = "Error";
     }
