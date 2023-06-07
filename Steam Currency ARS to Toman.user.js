@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency ARS$ To Toman
-// @version            1.89
+// @version            1.90
 // @description        Converts ARS$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertARSToToman
