@@ -11,8 +11,8 @@
 ### Steam Currency to Toman
 - Converts ARS$ / TL₺ / EUR€ / USD$ prices on Steam store to Toman (Using TF2 key pricing)
 - You can hover over the converted prices to see original pricing
-- Adds a button to game's page to buy TF2 keys
 - Adds a widget to game's page to show key prices
+- Adds a button to game's page to buy TF2 keys
 
 ![ARStoToman](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/WidgetARS.png?raw=true)
 
