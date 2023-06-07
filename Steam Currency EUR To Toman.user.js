@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency EUR€ To Toman
-// @version            1.00
+// @version            1.01
 // @description        Converts EUR€ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertEURtoToman
@@ -118,7 +118,7 @@ var labels = [
 ];
 
 function EURtoToman(labels) {
-    var re = /(\D*)(\d\S*€)/;
+    var re = /(\D*)(\d\S*)/;
     for (label in labels) {
         let price = document.querySelectorAll(`.${labels[label]}`);
         if (price.length == 0)
