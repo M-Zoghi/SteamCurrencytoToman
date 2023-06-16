@@ -16,9 +16,10 @@
 - Adds a widget to the game's page to show key prices
 - Adds a button to the game's page to buy TF2 keys
 
-![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/BuyButton.png?raw=true)
-
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/WidgetARS.png?raw=true)
+
+
+![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/BuyButton.png?raw=true)
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman2.png?raw=true)
 
