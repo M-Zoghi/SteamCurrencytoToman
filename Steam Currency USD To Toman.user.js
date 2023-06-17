@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency USD$ To Toman
-// @version            1.00
+// @version            1.01
 // @description        Converts USD$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUSDtoToman
@@ -128,7 +128,7 @@ function USDtoToman(labels) {
                 let matchItem = re.exec(price[ind].textContent);
                 if (matchItem[0].indexOf('$') >= 0) {
                     let p = matchItem[0].replace(',', '.').replace('$', '');
-                    if (p > marketsteamkeypriceglobal) {
+                    if (p > parseFloat(marketsteamkeypriceglobal)) {
                         var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                         var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                         price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
@@ -230,7 +230,7 @@ function KeyWidget() {
     marketsteamprice.target = '_blank';
     marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
     if (marketsteamkeypricecheck === true) {
-        marketsteamprice.textContent = "$" + marketsteamkeypriceg.replace('.', ',') + " ($" + marketsteamkeypriceglobal + ")";
+        marketsteamprice.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
     } else {
         marketsteamprice.textContent = "Error";
     }
