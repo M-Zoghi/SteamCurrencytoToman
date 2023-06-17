@@ -1,4 +1,4 @@
-![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/SteamCurrencytoToman.png?raw=true)
+![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/SteamCurrencytoTomanMain.png?raw=true)
 
 ## Installation
 1. Install `Tampermonkey` for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo "Chrome") / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey "Firefox") / [Edge](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd "Edge") / [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/ "Opera")
