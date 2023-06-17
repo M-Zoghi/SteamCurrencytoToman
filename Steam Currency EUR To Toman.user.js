@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency EUR€ To Toman
-// @version            1.01
+// @version            1.02
 // @description        Converts EUR€ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertEURtoToman
@@ -230,7 +230,7 @@ function KeyWidget() {
     marketsteamprice.target = '_blank';
     marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
     if (marketsteamkeypricecheck === true) {
-        marketsteamprice.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal + "€)";
+        marketsteamprice.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
     } else {
         marketsteamprice.textContent = "Error";
     }
