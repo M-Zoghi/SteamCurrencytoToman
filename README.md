@@ -12,7 +12,7 @@
     - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/tr.svg" width="16"> [Steam Currency TL to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20TL%20to%20Toman.user.js "Steam Currency TL to Toman")~~
 
 ## Steam Currency to Toman
-- Converts ARS$ / TL₺ / UAH₴ / EUR€ / USD$ prices on Steam store to Toman (Using TF2 key pricing)
+- Converts UAH₴ / EUR€ / USD$ / ~~ARS$~~ / ~~TL₺~~ prices on Steam store to Toman (Using TF2 key pricing)
 - You can hover over the converted prices to see the original pricing
 - Adds a widget to the game's page to show key prices
 - Adds a button to the game's page to buy TF2 keys
