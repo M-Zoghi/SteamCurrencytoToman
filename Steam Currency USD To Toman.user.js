@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency USD$ To Toman
-// @version            1.01
+// @version            1.02
 // @description        Converts USD$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUSDtoToman
@@ -50,7 +50,7 @@ function LoadIRSteam(irsteamobject) {
 function GetKeyPriceDragon() {
     GM_xmlhttpRequest({
         method: 'GET',
-        url: 'https://dragonsteam.net/product/mann-co-supply-crate-key/',
+        url: 'https://dragonsteam.net/shop/tf2/key',
         dataType: 'json',
         onload: LoadDragonSteam,
     })
@@ -59,10 +59,10 @@ function GetKeyPriceDragon() {
 function LoadDragonSteam(dragonsteamobject) {
     var dragonsteamparser = new DOMParser();
     var dragonsteamresponseDoc = dragonsteamparser.parseFromString(dragonsteamobject.responseText, "text/html");
-    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[property='product:price:amount']").getAttribute("content").replace(/\B(?=(\d{4})+(?!\d))/g, ".");
+    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[name='og:description']").getAttribute("content").replace(" تومان ", "").replace("خرید کلید تی اف 2 | تحویل اتوماتیک توسط ربات | قیمت : ", "");
     dragonsteamkeypriceg = dragonsteamfounddata.replace('.', ',');
-    dragonsteamkeypriceglobal = Math.ceil(dragonsteamfounddata);
-    dragonsteamkeyavailabilityglobal = dragonsteamresponseDoc.querySelector("meta[property='product:availability']").getAttribute("content").replace("instock", "In Stock");
+    dragonsteamkeypriceglobal = Math.ceil(parseFloat(dragonsteamfounddata));
+    dragonsteamkeyavailabilityglobal = "In Stock";
     console.log("%c[USDtoToman] " + "%cDragon Steam Key Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
@@ -209,9 +209,9 @@ function KeyWidget() {
     const dragonsteamprice = document.createElement('a');
     dragonsteamprice.className = 'game_review_summary positive';
     dragonsteamprice.target = '_blank';
-    dragonsteamprice.href = 'https://dragonsteam.net/product/mann-co-supply-crate-key/';
+    dragonsteamprice.href = 'https://dragonsteam.net/shop/tf2/key';
     if (dragonsteamkeypricecheck === true) {
-        dragonsteamprice.textContent = dragonsteamkeypriceg.slice(0, -1) + " T (" + dragonsteamkeyavailabilityglobal + ")";
+        dragonsteamprice.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
     } else {
         dragonsteamprice.textContent = "Error";
     }
@@ -253,7 +253,7 @@ function KeyWidget() {
         const link = document.createElement('a');
         link.className = 'btnv6_blue_hoverfade btn_medium';
         link.target = '_blank';
-        link.href = 'https://dragonsteam.net/product/mann-co-supply-crate-key/';
+        link.href = 'https://dragonsteam.net/shop/tf2/key';
         const element = document.createElement('span');
         element.dataset.tooltipText = "Buy TF2 Keys";
         element.innerHTML = "<span>Buy 🔑</span>";
