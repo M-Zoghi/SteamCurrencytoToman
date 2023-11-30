@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency UAH₴ To Toman
-// @version            1.01
+// @version            1.02
 // @description        Converts UAH₴ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUAHtoToman
@@ -151,7 +151,15 @@ function UAHtoTomanW() {
     for (indw in pricew) {
         if (rew.test(pricew[indw].textContent)) {
             let matchItemw = rew.exec(pricew[indw].textContent);
-            if (matchItemw[0].indexOf('₴') >= 0) {
+            if (matchItemw[0].indexOf('₴') >= 0 && matchItemw[0].includes('Pending')) {
+                let pw = matchItemw[2].replace('Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
+                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:',' Pending:');
+                var pendingn = pending.replace(' Pending:','').replace(' ', '').replace('₴', '').replace(',', '.');
+                var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
+                var calpricesteamwpending = (pendingn / marketsteamkeypriceglobal).toPrecision(3);
+                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/,'') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
+            }
+            else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                 pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
@@ -161,7 +169,33 @@ function UAHtoTomanW() {
 }
 
 function KeyWidget() {
+
     const container = document.querySelector('.game_meta_data');
+
+    var widget = document.createElement('style');
+    widget.type = 'text/css';
+    widget.innerHTML = '.widget { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }';
+    document.getElementsByTagName('head')[0].appendChild(widget);
+
+    var key = document.createElement('style');
+    key.type = 'text/css';
+    key.innerHTML = '.key { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out;}';
+    document.getElementsByTagName('head')[0].appendChild(key);
+
+    var widgethover = document.createElement('style');
+    widgethover.type = 'text/css';
+    widgethover.innerHTML = '.widget:hover .key { opacity: 1; }';
+    document.getElementsByTagName('head')[0].appendChild(widgethover);
+
+    var leftcolumn = document.createElement('style');
+    leftcolumn.type = 'text/css';
+    leftcolumn.innerHTML = '.leftcolumn { min-width: 90px; margin-right: 5px; display: inline-block; }';
+    document.getElementsByTagName('head')[0].appendChild(leftcolumn);
+
+    var rightcolumn = document.createElement('style');
+    rightcolumn.type = 'text/css';
+    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; }';
+    document.getElementsByTagName('head')[0].appendChild(rightcolumn);
 
     if (!container) {
         return;
@@ -171,24 +205,24 @@ function KeyWidget() {
     blockInner.className = 'block_content_inner';
 
     const block = document.createElement('div');
-    block.className = 'block responsive_apppage_details_right';
+    block.className = 'block responsive_apppage_details_right widget';
     block.appendChild(blockInner);
 
     const link = document.createElement('a');
-    link.className = 'tf2_key';
-    link.title = ("Mann Co. Supply Crate Key");
+    link.className = 'key';
+    link.title = ("View on Community Market");
     link.target = '_blank';
     link.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
 
     const image = document.createElement('img');
     image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
-    image.style = "width: 54px;height: 54px;float: right"
         link.appendChild(image);
 
     blockInner.appendChild(link);
 
     const irsteamprice = document.createElement('a');
-    irsteamprice.className = 'game_review_summary positive';
+    irsteamprice.className = 'rightcolumn';
+    irsteamprice.title = ("Buy keys from Iranian Steam");
     irsteamprice.target = '_blank';
     irsteamprice.href = 'https://iraniansteam.ir/tf2';
     if (irsteamkeypricecheck === true) {
@@ -199,7 +233,7 @@ function KeyWidget() {
 
     let line = document.createElement('p');
     let lineText = document.createElement('span');
-    lineText.className = 'irsteam_price_name';
+    lineText.className = 'leftcolumn';
     lineText.textContent = ("Iranian Steam: ");
     line.appendChild(lineText);
     line.appendChild(irsteamprice);
@@ -207,7 +241,8 @@ function KeyWidget() {
     blockInner.appendChild(line);
 
     const dragonsteamprice = document.createElement('a');
-    dragonsteamprice.className = 'game_review_summary positive';
+    dragonsteamprice.className = 'rightcolumn';
+    dragonsteamprice.title = ("Buy keys from Dragon Steam");
     dragonsteamprice.target = '_blank';
     dragonsteamprice.href = 'https://dragonsteam.net/shop/tf2/key';
     if (dragonsteamkeypricecheck === true) {
@@ -218,7 +253,7 @@ function KeyWidget() {
 
     line = document.createElement('p');
     lineText = document.createElement('span');
-    lineText.className = 'dragonsteam_price_name';
+    lineText.className = 'leftcolumn';
     lineText.textContent = ("Dragon Steam: ");
     line.appendChild(lineText);
     line.appendChild(dragonsteamprice);
@@ -226,7 +261,8 @@ function KeyWidget() {
     blockInner.appendChild(line);
 
     const marketsteamprice = document.createElement('a');
-    marketsteamprice.className = 'game_review_summary positive';
+    marketsteamprice.className = 'rightcolumn';
+    marketsteamprice.title = ("View on Community Market");
     marketsteamprice.target = '_blank';
     marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
     if (marketsteamkeypricecheck === true) {
@@ -237,7 +273,7 @@ function KeyWidget() {
 
     line = document.createElement('p');
     lineText = document.createElement('span');
-    lineText.className = 'marketsteam_price_name';
+    lineText.className = 'leftcolumn';
     lineText.textContent = ("Steam Market: ");
     line.appendChild(lineText);
     line.appendChild(marketsteamprice);
