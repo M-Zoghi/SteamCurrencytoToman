@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency USD$ To Toman
-// @version            1.03
+// @version            1.04
 // @description        Converts USD$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUSDtoToman
@@ -97,6 +97,7 @@ function LoadMarketSteam(marketsteamobject) {
 GetKeyPriceDragon();
 GetKeyPriceIR();
 GetKeyPriceMarket();
+setTimeout(Popup, 5000);						
 setTimeout(KeyWidget, 5000);
 
 var labels = [
@@ -167,6 +168,89 @@ function USDtoTomanW() {
 		}
 	}
 }
+
+function Popup() {
+
+    var PopPop = document.createElement('style');
+    PopPop.type = 'text/css';
+    PopPop.innerHTML = '.ico16 { background: none; } ';
+    document.getElementsByTagName('head')[0].appendChild(PopPop);
+
+    const Popup = document.querySelector('#account_dropdown .popup_body');
+
+	if (Popup)
+	{
+		const KeyISP = document.createElement('a');
+		KeyISP.rel = 'noopener';
+		KeyISP.target = '_blank';
+		KeyISP.className = 'popup_menu_item PopPop';
+        KeyISP.href = 'https://iraniansteam.ir/tf2';
+        KeyISP.title = ("Buy keys from Iranian Steam");
+        KeyISP.textContent = " Iranian Steam: ";
+
+        const KeyISPA = document.createElement('a');
+        if (dragonsteamkeypricecheck === true) {
+        KeyISPA.textContent = irsteamkeypriceg + " T"
+        } else {
+        KeyISPA.textContent = "Error"
+        }
+        KeyISPA.className = 'account_name';
+        KeyISP.appendChild(KeyISPA);
+
+		const KeyISPI = document.createElement('img');
+		KeyISPI.className = 'ico16';
+		KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
+		KeyISP.prepend(KeyISPI);
+
+        const KeyDSP = document.createElement('a');
+		KeyDSP.rel = 'noopener';
+		KeyDSP.target = '_blank';
+		KeyDSP.className = 'popup_menu_item PopPop';
+        KeyDSP.href = 'https://dragonsteam.net/shop/tf2/key';
+        KeyDSP.title = ("Buy keys from Dragon Steam");
+        KeyDSP.textContent = " Dragon Steam: ";
+
+        const KeyDSPA = document.createElement('a');
+        if (dragonsteamkeypricecheck === true) {
+        KeyDSPA.textContent = dragonsteamkeypriceg + " T"
+        } else {
+        KeyDSPA.textContent = "Error";
+        }
+        KeyDSPA.className = 'account_name';
+        KeyDSP.appendChild(KeyDSPA);
+
+		const KeyDSPI = document.createElement('img');
+		KeyDSPI.className = 'ico16';
+		KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
+		KeyDSP.prepend(KeyDSPI);
+
+        const KeyMSP = document.createElement('a');
+		KeyMSP.rel = 'noopener';
+		KeyMSP.target = '_blank';
+		KeyMSP.className = 'popup_menu_item PopPop';
+        KeyMSP.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+        KeyMSP.title = ("View keys on Community Market");
+        KeyMSP.textContent = " Steam Market: ";
+
+        const KeyMSPA = document.createElement('a');
+        if (marketsteamkeypricecheck === true) {
+        KeyMSPA.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
+        } else {
+        KeyMSPA.textContent = "Error";
+        }
+        KeyMSPA.className = 'account_name';
+        KeyMSP.appendChild(KeyMSPA);
+
+		const KeyMSPI = document.createElement('img');
+		KeyMSPI.className = 'ico16';
+		KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
+		KeyMSP.prepend(KeyMSPI);
+
+        Popup.appendChild(KeyISP);
+		Popup.appendChild(KeyDSP);
+        Popup.appendChild(KeyMSP);
+    }
+}				  
 
 function KeyWidget() {
 
