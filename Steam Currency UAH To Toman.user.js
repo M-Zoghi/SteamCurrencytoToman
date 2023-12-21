@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency UAH₴ To Toman
-// @version            1.03
+// @version            1.04
 // @description        Converts UAH₴ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUAHtoToman
@@ -189,7 +189,7 @@ function Popup() {
         KeyISP.textContent = " Iranian Steam: ";
 
         const KeyISPA = document.createElement('a');
-        if (dragonsteamkeypricecheck === true) {
+        if (irsteamkeypricecheck === true) {
         KeyISPA.textContent = irsteamkeypriceg + " T"
         } else {
         KeyISPA.textContent = "Error"
