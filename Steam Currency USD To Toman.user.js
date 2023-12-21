@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency USD$ To Toman
-// @version            1.04
+// @version            1.05
 // @description        Converts USD$ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUSDtoToman
@@ -189,7 +189,7 @@ function Popup() {
         KeyISP.textContent = " Iranian Steam: ";
 
         const KeyISPA = document.createElement('a');
-        if (dragonsteamkeypricecheck === true) {
+        if (irsteamkeypricecheck === true) {
         KeyISPA.textContent = irsteamkeypriceg + " T"
         } else {
         KeyISPA.textContent = "Error"
