@@ -3,7 +3,7 @@
 ## Installation
 1. Install `Tampermonkey` for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo "Chrome") / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey "Firefox") / [Edge](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd "Edge") / [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/ "Opera")
 
-2. Install Scripts
+2. Install Scripts (Choose **ONE** Currency)
     - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/ua.svg" width="16"> [Steam Currency UAH to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20UAH%20To%20Toman.user.js "Steam Currency UAH to Toman")
     - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/eu.svg" width="16"> [Steam Currency EUR to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20EUR%20To%20Toman.user.js "Steam Currency EUR to Toman")
     - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/us.svg" width="16"> [Steam Currency USD to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20USD%20To%20Toman.user.js "Steam Currency USD to Toman")
