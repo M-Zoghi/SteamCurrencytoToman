@@ -6,13 +6,13 @@
 2. Install Scripts (Choose **ONE** Currency)
     - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/ua.svg" width="16"> [Steam Currency UAH to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20UAH%20To%20Toman.user.js "Steam Currency UAH to Toman")
     - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/eu.svg" width="16"> [Steam Currency EUR to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20EUR%20To%20Toman.user.js "Steam Currency EUR to Toman")
-    - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/us.svg" width="16"> [Steam Currency USD to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20USD%20To%20Toman.user.js "Steam Currency USD to Toman") (Supports U.S. Dollar, CIS, South Asia, LATAM and MENA)
+    - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/us.svg" width="16"> [Steam Currency USD to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20USD%20To%20Toman.user.js "Steam Currency USD to Toman") (Supports U.S. Dollar, CIS, SA, LATAM and MENA)
     - <img src="https://raw.githubusercontent.com/edent/Dynamic-SVG-Calendar-Icon/master/calendar.svg" width="16"> [Steam Upcoming Iranian Date.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js "Steam Upcoming Iranian Date")
     - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/ar.svg" width="16"> [Steam Currency ARS to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20ARS%20to%20Toman.user.js "Steam Currency ARS$ to Toman")~~ (Removed from Steam on November 20, 2023)
     - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/tr.svg" width="16"> [Steam Currency TL to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20TL%20to%20Toman.user.js "Steam Currency TL to Toman")~~ (Removed from Steam on November 20, 2023)
 
 ## Steam Currency to Toman
-- Converts UAH₴ / EUR€ / USD$ [CIS, South Asia, LATAM and MENA] prices on Steam store to Toman (Using TF2 key pricing)
+- Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM and MENA] prices on Steam store to Toman (Using TF2 key pricing)
 - You can hover over the converted prices to see the original pricing
 - Adds key price info to the user menu (Right side of notfication area)
 - Adds a widget to the game's page to show key prices
