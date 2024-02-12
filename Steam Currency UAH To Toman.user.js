@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name               Steam Currency UAH₴ To Toman
-// @version            1.04
+// @version            1.05
 // @description        Converts UAH₴ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUAHtoToman
 // @icon               http://store.steampowered.com/favicon.ico
 // @match              http*://store.steampowered.com/*
+// @match              http*://steamcommunity.com/*
 // @require            http://code.jquery.com/jquery.min.js
 // @grant              GM_xmlhttpRequest
 // @connect            iraniansteam.ir
@@ -68,6 +69,8 @@ function LoadDragonSteam(dragonsteamobject) {
     if (marketsteamkeypricecheck === true) {
         UAHtoToman(labels);
         UAHtoTomanW();
+        UAHtoTomanMarketS();
+        UAHtoTomanMarket();
     }
 }
 
@@ -91,6 +94,8 @@ function LoadMarketSteam(marketsteamobject) {
     if (dragonsteamkeypricecheck === true) {
         UAHtoToman(labels);
         UAHtoTomanW();
+        UAHtoTomanMarketS();
+        UAHtoTomanMarket();
     }
 }
 
@@ -99,6 +104,29 @@ GetKeyPriceIR();
 GetKeyPriceMarket();
 setTimeout(Popup, 5000);
 setTimeout(KeyWidget, 5000);
+
+function eToNumber(num) {
+    let sign = "";
+    (num += "").charAt(0) == "-" && (num = num.substring(1), sign = "-");
+    let arr = num.split(/[e]/ig);
+    if (arr.length < 2)
+        return sign + num;
+    let dot = (.1).toLocaleString().substr(1, 1),
+    n = arr[0],
+    exp = +arr[1],
+    w = (n = n.replace(/^0+/, '')).replace(dot, ''),
+    pos = n.split(dot)[1] ? n.indexOf(dot) + exp : w.length + exp,
+    L = pos - w.length,
+    s = "" + BigInt(w);
+    w = exp >= 0 ? (L >= 0 ? s + "0".repeat(L) : r()) : (pos <= 0 ? "0" + dot + "0".repeat(Math.abs(pos)) + s : r());
+    L = w.split(dot);
+    if (L[0] == 0 && L[1] == 0 || (+w == 0 && +s == 0))
+        w = 0;
+    return sign + w;
+    function r() {
+        return w.replace(new RegExp(`^(.{${pos}})(.)`), `$1${dot}$2`)
+    }
+}
 
 var labels = [
     'discount_original_price',
@@ -119,26 +147,28 @@ var labels = [
 ];
 
 function UAHtoToman(labels) {
-    var re = /(\D*)(\d *\S*)/;
-    for (label in labels) {
-        let price = document.querySelectorAll(`.${labels[label]}`);
-        if (price.length == 0)
-            continue;
-        for (ind in price) {
-            if (re.test(price[ind].textContent)) {
-                let matchItem = re.exec(price[ind].textContent);
-                if (matchItem[0].indexOf('₴') >= 0) {
-                    let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                    if (p > marketsteamkeypriceglobal) {
-                        var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
-                        var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                        price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                        price[ind].setAttribute('title', matchItem[2]);
-                    } else {
-                        var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
-                        var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                        price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                        price[ind].setAttribute('title', matchItem[2]);
+    if (window.location.href.indexOf("steampowered") != -1) {
+        var re = /(\D*)(\d *\S*)/;
+        for (label in labels) {
+            let price = document.querySelectorAll(`.${labels[label]}`);
+            if (price.length == 0)
+                continue;
+            for (ind in price) {
+                if (re.test(price[ind].textContent)) {
+                    let matchItem = re.exec(price[ind].textContent);
+                    if (matchItem[0].indexOf('₴') >= 0) {
+                        let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                        if (p > marketsteamkeypriceglobal) {
+                            var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
+                            var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                            price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
+                            price[ind].setAttribute('title', matchItem[2]);
+                        } else {
+                            var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
+                            var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                            price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
+                            price[ind].setAttribute('title', matchItem[2]);
+                        }
                     }
                 }
             }
@@ -154,16 +184,89 @@ function UAHtoTomanW() {
             let matchItemw = rew.exec(pricew[indw].textContent);
             if (matchItemw[0].indexOf('₴') >= 0 && matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace('Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
-                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:',' Pending:');
-                var pendingn = pending.replace(' Pending:','').replace(' ', '').replace('₴', '').replace(',', '.');
+                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:', ' Pending:');
+                var pendingn = pending.replace(' Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                 var calpricesteamwpending = (pendingn / marketsteamkeypriceglobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/,'') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
-            }
-            else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
+                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
+            } else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                 pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
+            }
+        }
+    }
+}
+
+function UAHtoTomanMarket() {
+    if (window.location.href.indexOf("market") != -1) {
+        var rem = /(\D*)(.*(?:[₴]))/;
+        let pricem = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price`);
+        for (labelmarket in pricem) {
+            if (pricem.length == 0)
+                continue;
+            for (indm in pricem) {
+                if (rem.test(pricem[indm].textContent)) {
+                    let matchItem = rem.exec(pricem[indm].textContent);
+                    if (matchItem[0].indexOf('₴') >= 0) {
+                        let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                        var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
+                        var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                        if (pricem[indm].innerHTML.indexOf("🔑") == -1) {
+                            pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><br><font color=\"silver\">" + calpricefinal + " T (" + eToNumber(calpricesteam) + "🔑)</font>";
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+function UAHtoTomanMarketS() {
+    if (window.location.href.indexOf("market") != -1) {
+        var rem = /(\D*)(.*(?:[₴]))/;
+        let pricem = document.querySelectorAll(`.normal_price`);
+        for (labelmarket in pricem) {
+            if (pricem.length == 0)
+                continue;
+            for (indm in pricem) {
+                if (rem.test(pricem[indm].textContent)) {
+                    let matchItem = rem.exec(pricem[indm].textContent);
+                    if (matchItem[0].indexOf('₴') >= 0) {
+                        let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                        var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
+                        var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                        if (pricem[indm].innerHTML.indexOf("🔑") == -1) {
+                            pricem[indm].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><font color=\"silver\">" + calpricefinal + " T (" + eToNumber(calpricesteam) + "🔑)</font>";
+                        }
+                    }
+                }
+            }
+        }
+    }
+    UAHtoTomanMarketSW();
+}
+
+function UAHtoTomanMarketSW() {
+    if (window.location.href.indexOf("market") != -1) {
+        var rem = /(\D*)(.*(?:[₴]))/;
+        let pricem = document.querySelectorAll(`.user_info_text`);
+        for (labelmarket in pricem) {
+            if (pricem.length == 0)
+                continue;
+            for (indm in pricem) {
+                if (rem.test(pricem[indm].textContent)) {
+                    let matchItem = rem.exec(pricem[indm].textContent);
+                    if (matchItem[0].indexOf('₴') >= 0) {
+                        let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                        var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(3);
+                        var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                        if (pricem[indm].innerHTML.indexOf("🔑") == -1) {
+                            pricem[indm].innerHTML = "<a id=\"marketWalletBalance\" href=\"https://store.steampowered.com/account/\">Wallet balance <span id=\"marketWalletBalanceAmount\">" + matchItem[2] + " (" + eToNumber(calpricesteam) + "🔑)</span></a><br><a href=\"https://steamcommunity.com/my/inventory/\">View Inventory</a></span>"
+                        }
+                    }
+                }
             }
         }
     }
@@ -178,76 +281,75 @@ function Popup() {
 
     const Popup = document.querySelector('#account_dropdown .popup_body');
 
-	if (Popup)
-	{
-		const KeyISP = document.createElement('a');
-		KeyISP.rel = 'noopener';
-		KeyISP.target = '_blank';
-		KeyISP.className = 'popup_menu_item PopPop';
+    if (Popup) {
+        const KeyISP = document.createElement('a');
+        KeyISP.rel = 'noopener';
+        KeyISP.target = '_blank';
+        KeyISP.className = 'popup_menu_item PopPop';
         KeyISP.href = 'https://iraniansteam.ir/tf2';
         KeyISP.title = ("Buy keys from Iranian Steam");
         KeyISP.textContent = " Iranian Steam: ";
 
         const KeyISPA = document.createElement('a');
         if (irsteamkeypricecheck === true) {
-        KeyISPA.textContent = irsteamkeypriceg + " T"
+            KeyISPA.textContent = irsteamkeypriceg + " T"
         } else {
-        KeyISPA.textContent = "Error"
+            KeyISPA.textContent = "Error"
         }
         KeyISPA.className = 'account_name';
         KeyISP.appendChild(KeyISPA);
 
-		const KeyISPI = document.createElement('img');
-		KeyISPI.className = 'ico16';
-		KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
-		KeyISP.prepend(KeyISPI);
+        const KeyISPI = document.createElement('img');
+        KeyISPI.className = 'ico16';
+        KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
+        KeyISP.prepend(KeyISPI);
 
         const KeyDSP = document.createElement('a');
-		KeyDSP.rel = 'noopener';
-		KeyDSP.target = '_blank';
-		KeyDSP.className = 'popup_menu_item PopPop';
+        KeyDSP.rel = 'noopener';
+        KeyDSP.target = '_blank';
+        KeyDSP.className = 'popup_menu_item PopPop';
         KeyDSP.href = 'https://dragonsteam.net/shop/tf2/key';
         KeyDSP.title = ("Buy keys from Dragon Steam");
         KeyDSP.textContent = " Dragon Steam: ";
 
         const KeyDSPA = document.createElement('a');
         if (dragonsteamkeypricecheck === true) {
-        KeyDSPA.textContent = dragonsteamkeypriceg + " T"
+            KeyDSPA.textContent = dragonsteamkeypriceg + " T"
         } else {
-        KeyDSPA.textContent = "Error";
+            KeyDSPA.textContent = "Error";
         }
         KeyDSPA.className = 'account_name';
         KeyDSP.appendChild(KeyDSPA);
 
-		const KeyDSPI = document.createElement('img');
-		KeyDSPI.className = 'ico16';
-		KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
-		KeyDSP.prepend(KeyDSPI);
+        const KeyDSPI = document.createElement('img');
+        KeyDSPI.className = 'ico16';
+        KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
+        KeyDSP.prepend(KeyDSPI);
 
         const KeyMSP = document.createElement('a');
-		KeyMSP.rel = 'noopener';
-		KeyMSP.target = '_blank';
-		KeyMSP.className = 'popup_menu_item PopPop';
+        KeyMSP.rel = 'noopener';
+        KeyMSP.target = '_blank';
+        KeyMSP.className = 'popup_menu_item PopPop';
         KeyMSP.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
         KeyMSP.title = ("View keys on Community Market");
         KeyMSP.textContent = " Steam Market: ";
 
         const KeyMSPA = document.createElement('a');
         if (marketsteamkeypricecheck === true) {
-        KeyMSPA.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
+            KeyMSPA.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
         } else {
-        KeyMSPA.textContent = "Error";
+            KeyMSPA.textContent = "Error";
         }
         KeyMSPA.className = 'account_name';
         KeyMSP.appendChild(KeyMSPA);
 
-		const KeyMSPI = document.createElement('img');
-		KeyMSPI.className = 'ico16';
-		KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
-		KeyMSP.prepend(KeyMSPI);
+        const KeyMSPI = document.createElement('img');
+        KeyMSPI.className = 'ico16';
+        KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
+        KeyMSP.prepend(KeyMSPI);
 
         Popup.appendChild(KeyISP);
-		Popup.appendChild(KeyDSP);
+        Popup.appendChild(KeyDSP);
         Popup.appendChild(KeyMSP);
     }
 }
@@ -300,7 +402,7 @@ function KeyWidget() {
 
     const image = document.createElement('img');
     image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
-        link.appendChild(image);
+    link.appendChild(image);
 
     blockInner.appendChild(link);
 
@@ -385,5 +487,7 @@ function KeyWidget() {
 $(window).on("scroll", function () {
     if (dragonsteamkeypricecheck === true && marketsteamkeypricecheck === true) {
         UAHtoToman(labels);
+        UAHtoTomanMarketS();
+        UAHtoTomanMarket();
     }
 })
