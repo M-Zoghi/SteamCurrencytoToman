@@ -12,7 +12,8 @@
     - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/tr.svg" width="16"> [Steam Currency TL to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20TL%20to%20Toman.user.js "Steam Currency TL to Toman")~~ (Removed from Steam on November 20, 2023)
 
 ## Steam Currency to Toman
-- Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] prices on Steam store to Toman (Using TF2 key pricing)
+- Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] prices on Steam Store to Toman (Using TF2 key pricing)
+- Converts UAH₴ prices on Steam Community Market to Toman (Using TF2 key pricing)
 - You can hover over the converted prices to see the original pricing
 - Adds key price info to the user menu (Right side of notification area)
 - Adds a widget to the game's page to show key prices
@@ -25,6 +26,8 @@
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/BuyButton.png?raw=true)
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman2.png?raw=true)
+
+![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/MarketUAH.png?raw=true)
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/ARStoToman.png?raw=true)
 
