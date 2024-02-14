@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency UAH₴ To Toman
-// @version            1.05
+// @version            1.06
 // @description        Converts UAH₴ to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyConvertUAHtoToman
@@ -140,6 +140,8 @@ var labels = [
     'salepreviewwidgets_StoreSalePrepurchaseLabel_Wxeyn',
     'salepreviewwidgets_StoreSaleDiscountedPriceCtn_3GLeQ',
     'salepreviewwidgets_StoreSalePriceWidgetContainer_tqNH0',
+    '_1EKGZBnKFWOr3RqVdnLMRN',
+    'Wh0L8EnwsPV_8VAu8TOYr',
     'cart_estimated_total',
     'price',
     'savings',
