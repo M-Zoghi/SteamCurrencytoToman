@@ -8,7 +8,7 @@
 
 2. Install Scripts (Choose **ONE** Currency)
    
-    [<img src="https://img.shields.io/badge/Install-Steam%20Currency%20to%20Toman%20%F0%9F%94%91-55682D?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/SteamCurrencyToToman.js)
+    [<img src="https://img.shields.io/badge/Install-Steam%20Currency%20to%20Toman%20%F0%9F%94%91-55682D?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/SteamCurrencyToToman.user.js)
 
     [<img src="https://img.shields.io/badge/Install-Steam%20Upcoming%20Iranian%20Date%20%F0%9F%93%85-3E5C76?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js)
 
