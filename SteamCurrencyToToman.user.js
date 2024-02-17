@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.1
+// @version            1.2
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -88,6 +88,24 @@ function CheckRegion(labelsr) {
                 }
             }
         } else if (window.location.href.indexOf("wishlist") != -1) {
+            for (labelr in labelsr) {
+                let region = document.querySelectorAll(`.global_action_link`);
+                for (var i = 0, len = region.length; i < len; i++) {
+                    if (region !== null) {
+                        if (region[i].innerHTML.indexOf("₴") !== -1) {
+                            currentregion = "UAH";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
+                            currentregion = "USD";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
+                            currentregion = "EUR";
+                            regioncheck = true;
+                        }
+                    }
+                }
+            }
+        } else if (window.location.href.indexOf("itemstore") != -1) {
             for (labelr in labelsr) {
                 let region = document.querySelectorAll(`.global_action_link`);
                 for (var i = 0, len = region.length; i < len; i++) {
