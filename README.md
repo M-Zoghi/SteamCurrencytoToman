@@ -1,15 +1,16 @@
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/SteamCurrencytoTomanU3.png?raw=true)
 
 ## Installation
-1. Install `Tampermonkey` for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo "Chrome") / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey "Firefox") / [Edge](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd "Edge") / [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/ "Opera")
+1. Install [<img src="https://img.shields.io/badge/Tampermonkey-212121?style=flat-square&logo=tampermonkey" align="center">](https://www.tampermonkey.net/) for [<img src="https://img.shields.io/badge/Chrome-f76b6b?style=flat-square&logo=googlechrome&logoColor=white" align="center">](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
+    [<img src="https://img.shields.io/badge/Firefox-ee8424?style=flat-square&logo=firefox&logoColor=white" align="center">](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey)
+    [<img src="https://img.shields.io/badge/Edge-2A6FB9?style=flat-square&logo=microsoftedge&logoColor=white" align="center">](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd)
+    [<img src="https://img.shields.io/badge/Opera-fa1e4e?style=flat-square&logo=opera&logoColor=white" align="center">](https://addons.opera.com/en/extensions/details/tampermonkey-beta/)
 
 2. Install Scripts (Choose **ONE** Currency)
-    - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/ua.svg" width="16"> [Steam Currency UAH to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20UAH%20To%20Toman.user.js "Steam Currency UAH to Toman")
-    - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/eu.svg" width="16"> [Steam Currency EUR to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20EUR%20To%20Toman.user.js "Steam Currency EUR to Toman")
-    - <img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/us.svg" width="16"> [Steam Currency USD to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20USD%20To%20Toman.user.js "Steam Currency USD to Toman") (Supports U.S. Dollar, CIS, SA, LATAM and MENA)
-    - <img src="https://raw.githubusercontent.com/edent/Dynamic-SVG-Calendar-Icon/master/calendar.svg" width="16"> [Steam Upcoming Iranian Date.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js "Steam Upcoming Iranian Date")
-    - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/ar.svg" width="16"> [Steam Currency ARS to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20ARS%20to%20Toman.user.js "Steam Currency ARS$ to Toman")~~ (Removed from Steam on November 20, 2023)
-    - ~~<img src="https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/tr.svg" width="16"> [Steam Currency TL to Toman.user.js](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Currency%20TL%20to%20Toman.user.js "Steam Currency TL to Toman")~~ (Removed from Steam on November 20, 2023)
+   
+    [<img src="https://img.shields.io/badge/Install-Steam%20Currency%20to%20Toman%20%F0%9F%94%91-55682D?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/SteamCurrencyToToman.js)
+
+    [<img src="https://img.shields.io/badge/Install-Steam%20Upcoming%20Iranian%20Date%20%F0%9F%93%85-3E5C76?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js)
 
 ## Steam Currency to Toman
 - Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] prices on Steam Store to Toman (Using TF2 key pricing)
