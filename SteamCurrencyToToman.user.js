@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.2
+// @version            1.3
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -28,6 +28,7 @@ var dragonsteamkeyavailabilityglobal;
 var dragonsteamkeypricecheck = false;
 var currentregion;
 var regioncheck = false;
+var wallet;
 
 var labelsr = [
     'discount_final_price',
@@ -106,6 +107,24 @@ function CheckRegion(labelsr) {
                 }
             }
         } else if (window.location.href.indexOf("itemstore") != -1) {
+            for (labelr in labelsr) {
+                let region = document.querySelectorAll(`.global_action_link`);
+                for (var i = 0, len = region.length; i < len; i++) {
+                    if (region !== null) {
+                        if (region[i].innerHTML.indexOf("₴") !== -1) {
+                            currentregion = "UAH";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
+                            currentregion = "USD";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
+                            currentregion = "EUR";
+                            regioncheck = true;
+                        }
+                    }
+                }
+            }
+        } else if (window.location.href.indexOf("search") != -1) {
             for (labelr in labelsr) {
                 let region = document.querySelectorAll(`.global_action_link`);
                 for (var i = 0, len = region.length; i < len; i++) {
@@ -355,28 +374,56 @@ function UAHtoToman(labels) {
                                 if (p > marketsteamkeypriceglobal) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    } else {
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    }
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    } else {
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    }
                                 }
                             } else {
                                 let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
                                 if (p > marketsteamkeypriceglobal) {
+                                    var walletcal = Math.floor(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]);
+                                    if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]");
+                                    } else {
+                                        var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
+                                        var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
+                                        var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]");
+                                    }
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]);
+                                    if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]");
+                                    } else {
+                                        var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
+                                        var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
+                                        var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]");
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                if (typeof wallet !== 'undefined' && wallet !== null && wallet !== '') {
+                    initializeTooltips();
+                } else {
+                    setTimeout(1000);
                 }
             }
         }
@@ -459,6 +506,7 @@ function UAHtoTomanW() {
             } else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
+                wallet = pricew[indw].textContent;
                 pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
             }
         }
@@ -482,11 +530,11 @@ function USDtoToman(labels) {
                                 if (p > parseFloat(marketsteamkeypriceglobal)) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 }
                             } else {
                                 let p = matchItem[0].replace(',', '.').replace('$', '');
@@ -494,12 +542,12 @@ function USDtoToman(labels) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', "$" + matchItem[2]);
+                                    price[ind].setAttribute('ogpricetooltip', "$" + matchItem[2]);
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', "$" + matchItem[2]);
+                                    price[ind].setAttribute('ogpricetooltip', "$" + matchItem[2]);
                                 }
                             }
                         }
@@ -549,11 +597,11 @@ function EURtoToman(labels) {
                                 if (p > marketsteamkeypriceglobal) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 }
                             } else {
                                 let p = matchItem[2].replace(',--€', '').replace(',', '.').replace('€', '');
@@ -561,12 +609,12 @@ function EURtoToman(labels) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]) + "€";
+                                    price[ind].setAttribute('ogpricetooltip', matchItem[2]) + "€";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]) + "€";
+                                    price[ind].setAttribute('ogpricetooltip', matchItem[2]) + "€";
                                 }
                             }
                         }
@@ -808,6 +856,61 @@ function KeyWidget() {
     blockInner.appendChild(line);
 
     container.insertBefore(block, container.firstChild);
+}
+
+function addTooltip(element, tooltipText) {
+    var tooltip = document.createElement('span');
+    tooltip.setAttribute('class', 'ogprice-tooltip');
+    //tooltip.textContent = tooltipText;
+    tooltip.innerHTML = parseTooltipText(tooltipText);
+    document.body.appendChild(tooltip);
+    tooltip.style.position = 'absolute';
+    tooltip.style.backgroundColor = '#c2c2c2';
+    tooltip.style.color = '#3d3d3f';
+    tooltip.style.fontSize = '11px';
+    tooltip.style.textAlign = 'left';
+    tooltip.style.padding = '5px';
+    tooltip.style.borderRadius = '2px';
+    tooltip.style.boxShadow = '0 0 3px #000';
+    tooltip.style.maxWidth = '225px';
+    tooltip.style.maxHeight = '36px';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.opacity = '0';
+    tooltip.style.transition = 'opacity 0.2s ease';
+    tooltip.style.whiteSpace = 'pre-line'
+
+    element.addEventListener('mouseover', function(e) {
+        tooltip.style.left = e.pageX + 10 + 'px';
+        tooltip.style.top = e.pageY + 10 + 'px';
+        tooltip.style.opacity = '1';
+    });
+
+    element.addEventListener('mouseout', function() {
+        tooltip.style.opacity = '0';
+    });
+
+    function parseTooltipText(text) {
+        text = text.replace(/\*(.*?)\*/g, '<span style="font-weight:bold;">$1</span>');
+        text = text.replace(/\[L\]/g, '<span style="text-align:left;">');
+        text = text.replace(/\[\/L\]/g, '</span>');
+        text = text.replace(/\[R\]/g, '<span style="float:right;">');
+        text = text.replace(/\[\/R\]/g, '</span>');
+        text = text.replace(/\[C\]/g, '<span style="display:block; text-align:center;">');
+        text = text.replace(/\[\/C\]/g, '</span>');
+        text = text.replace(/🔑/g, '<span style="color: transparent; text-shadow: 1px 1px 1px #3d3d3f;">🔑</span>');
+        text = text.replace(/\[P\]/g, '<span style="position: relative; bottom: 2px;">');
+        text = text.replace(/\[\/P\]/g, '</span>');
+        return text;
+    }
+}
+
+function initializeTooltips() {
+    var elementsWithTooltip = document.querySelectorAll('[ogpricetooltip]:not([ogpricetooltip-initialized])');
+    elementsWithTooltip.forEach(function(element) {
+        var tooltipText = element.getAttribute('ogpricetooltip');
+        addTooltip(element, tooltipText);
+        element.setAttribute('ogpricetooltip-initialized', 'true');
+    });
 }
 
 (function () {
