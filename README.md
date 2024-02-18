@@ -15,10 +15,12 @@
 ## Steam Currency to Toman
 - Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] prices on Steam Store to Toman (Using TF2 key pricing)
 - Converts UAH₴ prices on Steam Community Market to Toman (Using TF2 key pricing)
-- You can hover over the converted prices to see the original pricing
+- You can hover over the converted prices to see the original pricing (+Extras in UAH₴)
 - Adds key price info to the user menu (Right side of notification area)
 - Adds a widget to the game's page to show key prices
 - Adds a button to the game's page to buy TF2 keys
+
+![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/Tooltip.png?raw=true)
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/Menu.png?raw=true)
 
