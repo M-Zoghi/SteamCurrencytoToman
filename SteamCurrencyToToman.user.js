@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.31
+// @version            1.32
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -861,7 +861,6 @@ function KeyWidget() {
 function addTooltip(element, tooltipText) {
     var tooltip = document.createElement('span');
     tooltip.setAttribute('class', 'ogprice-tooltip');
-    //tooltip.textContent = tooltipText;
     tooltip.innerHTML = parseTooltipText(tooltipText);
     document.body.appendChild(tooltip);
     tooltip.style.position = 'absolute';
@@ -877,16 +876,19 @@ function addTooltip(element, tooltipText) {
     tooltip.style.zIndex = '9999';
     tooltip.style.opacity = '0';
     tooltip.style.transition = 'opacity 0.2s ease';
-    tooltip.style.whiteSpace = 'pre-line'
+    tooltip.style.whiteSpace = 'pre-line';
+    tooltip.style.pointerEvents = 'none';
 
     element.addEventListener('mouseover', function(e) {
         tooltip.style.left = e.pageX + 10 + 'px';
         tooltip.style.top = e.pageY + 10 + 'px';
         tooltip.style.opacity = '1';
+        element.style.cursor = 'help';
     });
 
     element.addEventListener('mouseout', function() {
         tooltip.style.opacity = '0';
+        element.style.cursor = 'default';
     });
 
     function parseTooltipText(text) {
