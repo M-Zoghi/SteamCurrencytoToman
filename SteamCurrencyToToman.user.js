@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.33
+// @version            1.34
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -225,12 +225,15 @@ function LoadIRSteam(irsteamobject) {
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
     irsteamkeypricecheck = true;
-    if (dragonsteamkeypricecheck === true && marketsteamkeypricecheck === true) {
-        Popup();
-        KeyWidget();
-    } else {
-        setTimeout(Popup, 5000);
-        setTimeout(KeyWidget, 5000);
+    var irsteamprice = document.getElementsByClassName("irsteamprice");
+    for (var i = 0; i < irsteamprice.length; i++) {
+        var irsteampriceu = irsteamprice[i];
+        irsteampriceu.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + " In Stock)";
+    }
+    var irsteampricepopup = document.getElementsByClassName("popupirsteamprice");
+    for (var ipop = 0; ipop < irsteampricepopup.length; ipop++) {
+        var irsteampricepopupu = irsteampricepopup[ipop];
+        irsteampricepopupu.textContent = irsteamkeypriceg + " T"
     }
 }
 
@@ -251,6 +254,16 @@ function LoadDragonSteam(dragonsteamobject) {
     dragonsteamkeypriceglobal = Math.ceil(parseFloat(dragonsteamfounddata));
     dragonsteamkeyavailabilityglobal = "In Stock";
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    var dragonsteamsteamprice = document.getElementsByClassName("dragonsteamprice");
+    for (var i = 0; i < dragonsteamsteamprice.length; i++) {
+        var dragonsteamsteampriceu = dragonsteamsteamprice[i];
+        dragonsteamsteampriceu.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
+    }
+    var dragonsteamsteampricepopup = document.getElementsByClassName("popupdragonsteamprice");
+    for (var ipop = 0; ipop < dragonsteamsteampricepopup.length; ipop++) {
+        var dragonsteamsteampricepopupu = dragonsteamsteampricepopup[ipop];
+        dragonsteamsteampricepopupu.textContent = dragonsteamkeypriceg + " T"
+    }
     dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
@@ -300,16 +313,46 @@ function LoadMarketSteam(marketsteamobject) {
         marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('₴', '').replace(',', '.') * 0.87);
         console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
+        for (var i = 0; i < marketsteamprice.length; i++) {
+            var marketsteampriceu = marketsteamprice[i];
+            marketsteampriceu.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
+        }
+        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
+        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
+            var marketsteampricepopupu = marketsteampricepopup[ipop];
+            marketsteampricepopupu.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
+        }
     } else if (currentregion === "USD") {
         marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('$', '').replace(',', '.');
         marketsteamkeypriceglobal = (marketsteamfounddata["lowest_price"].replace('$', '').replace(',', '.') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
+        for (var i = 0; i < marketsteamprice.length; i++) {
+            var marketsteampriceu = marketsteamprice[i];
+            marketsteampriceu.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
+        }
+        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
+        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
+            var marketsteampricepopupu = marketsteampricepopup[ipop];
+            marketsteampricepopupu.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
+        }
     } else if (currentregion === "EUR") {
         marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('€', '').replace(',', '.');
         marketsteamkeypriceglobal = (marketsteamfounddata["lowest_price"].replace('€', '').replace(',', '.') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
+        for (var i = 0; i < marketsteamprice.length; i++) {
+            var marketsteampriceu = marketsteamprice[i];
+            marketsteampriceu.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
+        }
+        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
+        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
+            var marketsteampricepopupu = marketsteampricepopup[ipop];
+            marketsteampricepopupu.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
+        }
     }
     if (dragonsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
@@ -548,11 +591,11 @@ function USDtoToman(labels) {
                                 if (p > parseFloat(marketsteamkeypriceglobal)) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 }
                             } else {
                                 let p = matchItem[0].replace(',', '.').replace('$', '');
@@ -560,12 +603,12 @@ function USDtoToman(labels) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('ogpricetooltip', "$" + matchItem[2]);
+                                    price[ind].setAttribute('title', "$" + matchItem[2]);
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('ogpricetooltip', "$" + matchItem[2]);
+                                    price[ind].setAttribute('title', "$" + matchItem[2]);
                                 }
                             }
                         }
@@ -615,11 +658,11 @@ function EURtoToman(labels) {
                                 if (p > marketsteamkeypriceglobal) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                 }
                             } else {
                                 let p = matchItem[2].replace(',--€', '').replace(',', '.').replace('€', '');
@@ -627,12 +670,12 @@ function EURtoToman(labels) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('ogpricetooltip', matchItem[2]) + "€";
+                                    price[ind].setAttribute('title', matchItem[2]) + "€";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('ogpricetooltip', matchItem[2]) + "€";
+                                    price[ind].setAttribute('title', matchItem[2]) + "€";
                                 }
                             }
                         }
@@ -663,217 +706,6 @@ function EURtoTomanW() {
             }
         }
     }
-}
-
-function Popup() {
-
-    var PopPop = document.createElement('style');
-    PopPop.type = 'text/css';
-    PopPop.innerHTML = '.ico16 { background: none; } ';
-    document.getElementsByTagName('head')[0].appendChild(PopPop);
-
-    const Popup = document.querySelector('#account_dropdown .popup_body');
-
-    if (Popup) {
-        const KeyISP = document.createElement('a');
-        KeyISP.rel = 'noopener';
-        KeyISP.target = '_blank';
-        KeyISP.className = 'popup_menu_item PopPop';
-        KeyISP.href = 'https://iraniansteam.ir/tf2';
-        KeyISP.title = ("Buy keys from Iranian Steam");
-        KeyISP.textContent = " Iranian Steam: ";
-
-        const KeyISPA = document.createElement('a');
-        if (irsteamkeypricecheck === true) {
-            KeyISPA.textContent = irsteamkeypriceg + " T"
-        } else {
-            KeyISPA.textContent = "Error"
-        }
-        KeyISPA.className = 'account_name';
-        KeyISP.appendChild(KeyISPA);
-
-        const KeyISPI = document.createElement('img');
-        KeyISPI.className = 'ico16';
-        KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
-        KeyISP.prepend(KeyISPI);
-
-        const KeyDSP = document.createElement('a');
-        KeyDSP.rel = 'noopener';
-        KeyDSP.target = '_blank';
-        KeyDSP.className = 'popup_menu_item PopPop';
-        KeyDSP.href = 'https://dragonsteam.net/shop/tf2/key';
-        KeyDSP.title = ("Buy keys from Dragon Steam");
-        KeyDSP.textContent = " Dragon Steam: ";
-
-        const KeyDSPA = document.createElement('a');
-        if (dragonsteamkeypricecheck === true) {
-            KeyDSPA.textContent = dragonsteamkeypriceg + " T"
-        } else {
-            KeyDSPA.textContent = "Error";
-        }
-        KeyDSPA.className = 'account_name';
-        KeyDSP.appendChild(KeyDSPA);
-
-        const KeyDSPI = document.createElement('img');
-        KeyDSPI.className = 'ico16';
-        KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
-        KeyDSP.prepend(KeyDSPI);
-
-        const KeyMSP = document.createElement('a');
-        KeyMSP.rel = 'noopener';
-        KeyMSP.target = '_blank';
-        KeyMSP.className = 'popup_menu_item PopPop';
-        KeyMSP.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
-        KeyMSP.title = ("View keys on Community Market");
-        KeyMSP.textContent = " Steam Market: ";
-
-        const KeyMSPA = document.createElement('a');
-        if (marketsteamkeypricecheck === true) {
-            if (currentregion === "UAH") {
-                KeyMSPA.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
-            } else if (currentregion === "USD") {
-                KeyMSPA.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
-            } else if (currentregion === "EUR") {
-                KeyMSPA.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
-            }
-
-        } else {
-            KeyMSPA.textContent = "Error";
-        }
-        KeyMSPA.className = 'account_name';
-        KeyMSP.appendChild(KeyMSPA);
-
-        const KeyMSPI = document.createElement('img');
-        KeyMSPI.className = 'ico16';
-        KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
-        KeyMSP.prepend(KeyMSPI);
-
-        Popup.appendChild(KeyISP);
-        Popup.appendChild(KeyDSP);
-        Popup.appendChild(KeyMSP);
-    }
-}
-
-function KeyWidget() {
-
-    const container = document.querySelector('.game_meta_data');
-
-    var widget = document.createElement('style');
-    widget.type = 'text/css';
-    widget.innerHTML = '.widget { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }';
-    document.getElementsByTagName('head')[0].appendChild(widget);
-
-    var key = document.createElement('style');
-    key.type = 'text/css';
-    key.innerHTML = '.key { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out;}';
-    document.getElementsByTagName('head')[0].appendChild(key);
-
-    var widgethover = document.createElement('style');
-    widgethover.type = 'text/css';
-    widgethover.innerHTML = '.widget:hover .key { opacity: 1; }';
-    document.getElementsByTagName('head')[0].appendChild(widgethover);
-
-    var leftcolumn = document.createElement('style');
-    leftcolumn.type = 'text/css';
-    leftcolumn.innerHTML = '.leftcolumn { min-width: 90px; margin-right: 5px; display: inline-block; }';
-    document.getElementsByTagName('head')[0].appendChild(leftcolumn);
-
-    var rightcolumn = document.createElement('style');
-    rightcolumn.type = 'text/css';
-    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; }';
-    document.getElementsByTagName('head')[0].appendChild(rightcolumn);
-
-    if (!container) {
-        return;
-    }
-
-    const blockInner = document.createElement('div');
-    blockInner.className = 'block_content_inner';
-
-    const block = document.createElement('div');
-    block.className = 'block responsive_apppage_details_right widget';
-    block.appendChild(blockInner);
-
-    const link = document.createElement('a');
-    link.className = 'key';
-    link.title = ("View on Community Market");
-    link.target = '_blank';
-    link.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
-
-    const image = document.createElement('img');
-    image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
-    link.appendChild(image);
-
-    blockInner.appendChild(link);
-
-    const irsteamprice = document.createElement('a');
-    irsteamprice.className = 'rightcolumn';
-    irsteamprice.title = ("Buy keys from Iranian Steam");
-    irsteamprice.target = '_blank';
-    irsteamprice.href = 'https://iraniansteam.ir/tf2';
-    if (irsteamkeypricecheck === true) {
-        irsteamprice.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + " In Stock)";
-    } else {
-        irsteamprice.textContent = "Error";
-    }
-
-    let line = document.createElement('p');
-    let lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Iranian Steam: ");
-    line.appendChild(lineText);
-    line.appendChild(irsteamprice);
-
-    blockInner.appendChild(line);
-
-    const dragonsteamprice = document.createElement('a');
-    dragonsteamprice.className = 'rightcolumn';
-    dragonsteamprice.title = ("Buy keys from Dragon Steam");
-    dragonsteamprice.target = '_blank';
-    dragonsteamprice.href = 'https://dragonsteam.net/shop/tf2/key';
-    if (dragonsteamkeypricecheck === true) {
-        dragonsteamprice.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
-    } else {
-        dragonsteamprice.textContent = "Error";
-    }
-
-    line = document.createElement('p');
-    lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Dragon Steam: ");
-    line.appendChild(lineText);
-    line.appendChild(dragonsteamprice);
-
-    blockInner.appendChild(line);
-
-    const marketsteamprice = document.createElement('a');
-    marketsteamprice.className = 'rightcolumn';
-    marketsteamprice.title = ("View on Community Market");
-    marketsteamprice.target = '_blank';
-    marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
-    if (marketsteamkeypricecheck === true) {
-        if (currentregion === "UAH") {
-            marketsteamprice.textContent = "" + marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
-        } else if (currentregion === "USD") {
-            marketsteamprice.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
-        } else if (currentregion === "EUR") {
-            marketsteamprice.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
-        }
-
-    } else {
-        marketsteamprice.textContent = "Error";
-    }
-
-    line = document.createElement('p');
-    lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Steam Market: ");
-    line.appendChild(lineText);
-    line.appendChild(marketsteamprice);
-
-    blockInner.appendChild(line);
-
-    container.insertBefore(block, container.firstChild);
 }
 
 function addTooltip(element, tooltipText) {
@@ -933,8 +765,175 @@ function initializeTooltips() {
 }
 
 (function () {
-    const container = document.getElementById('ignoreBtn');
-    if (container) {
+        var PopPop = document.createElement('style');
+    PopPop.type = 'text/css';
+    PopPop.innerHTML = '.ico16 { background: none; } ';
+    document.getElementsByTagName('head')[0].appendChild(PopPop);
+
+    const Popup = document.querySelector('#account_dropdown .popup_body');
+
+    if (Popup) {
+        const KeyISP = document.createElement('a');
+        KeyISP.rel = 'noopener';
+        KeyISP.target = '_blank';
+        KeyISP.className = 'popup_menu_item PopPop';
+        KeyISP.href = 'https://iraniansteam.ir/tf2';
+        KeyISP.title = ("Buy keys from Iranian Steam");
+        KeyISP.textContent = " Iranian Steam: ";
+
+        const KeyISPA = document.createElement('a');
+        KeyISPA.textContent = "Loading..."
+        KeyISPA.className = 'account_name popupirsteamprice';
+        KeyISP.appendChild(KeyISPA);
+
+        const KeyISPI = document.createElement('img');
+        KeyISPI.className = 'ico16';
+        KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
+        KeyISP.prepend(KeyISPI);
+
+        const KeyDSP = document.createElement('a');
+        KeyDSP.rel = 'noopener';
+        KeyDSP.target = '_blank';
+        KeyDSP.className = 'popup_menu_item PopPop';
+        KeyDSP.href = 'https://dragonsteam.net/shop/tf2/key';
+        KeyDSP.title = ("Buy keys from Dragon Steam");
+        KeyDSP.textContent = " Dragon Steam: ";
+
+        const KeyDSPA = document.createElement('a');
+        KeyDSPA.textContent = "Loading...";
+        KeyDSPA.className = 'account_name popupdragonsteamprice';
+        KeyDSP.appendChild(KeyDSPA);
+
+        const KeyDSPI = document.createElement('img');
+        KeyDSPI.className = 'ico16';
+        KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
+        KeyDSP.prepend(KeyDSPI);
+
+        const KeyMSP = document.createElement('a');
+        KeyMSP.rel = 'noopener';
+        KeyMSP.target = '_blank';
+        KeyMSP.className = 'popup_menu_item PopPop';
+        KeyMSP.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+        KeyMSP.title = ("View keys on Community Market");
+        KeyMSP.textContent = " Steam Market: ";
+
+        const KeyMSPA = document.createElement('a');
+        KeyMSPA.textContent = "Loading...";
+        KeyMSPA.className = 'account_name popupmarketsteamprice';
+        KeyMSP.appendChild(KeyMSPA);
+
+        const KeyMSPI = document.createElement('img');
+        KeyMSPI.className = 'ico16';
+        KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
+        KeyMSP.prepend(KeyMSPI);
+
+        Popup.appendChild(KeyISP);
+        Popup.appendChild(KeyDSP);
+        Popup.appendChild(KeyMSP);
+    }
+
+        const container = document.querySelector('.game_meta_data');
+
+    var widget = document.createElement('style');
+    widget.type = 'text/css';
+    widget.innerHTML = '.widget { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }';
+    document.getElementsByTagName('head')[0].appendChild(widget);
+
+    var key = document.createElement('style');
+    key.type = 'text/css';
+    key.innerHTML = '.key { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out;}';
+    document.getElementsByTagName('head')[0].appendChild(key);
+
+    var widgethover = document.createElement('style');
+    widgethover.type = 'text/css';
+    widgethover.innerHTML = '.widget:hover .key { opacity: 1; }';
+    document.getElementsByTagName('head')[0].appendChild(widgethover);
+
+    var leftcolumn = document.createElement('style');
+    leftcolumn.type = 'text/css';
+    leftcolumn.innerHTML = '.leftcolumn { min-width: 90px; margin-right: 5px; display: inline-block; }';
+    document.getElementsByTagName('head')[0].appendChild(leftcolumn);
+
+    var rightcolumn = document.createElement('style');
+    rightcolumn.type = 'text/css';
+    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; }';
+    document.getElementsByTagName('head')[0].appendChild(rightcolumn);
+
+    if (!container) {
+        return;
+    }
+
+    const blockInner = document.createElement('div');
+    blockInner.className = 'block_content_inner';
+
+    const block = document.createElement('div');
+    block.className = 'block responsive_apppage_details_right widget';
+    block.appendChild(blockInner);
+
+    const link = document.createElement('a');
+    link.className = 'key';
+    link.title = ("View on Community Market");
+    link.target = '_blank';
+    link.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+
+    const image = document.createElement('img');
+    image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
+    link.appendChild(image);
+
+    blockInner.appendChild(link);
+
+    const irsteamprice = document.createElement('a');
+    irsteamprice.className = 'rightcolumn irsteamprice';
+    irsteamprice.title = ("Buy keys from Iranian Steam");
+    irsteamprice.target = '_blank';
+    irsteamprice.href = 'https://iraniansteam.ir/tf2';
+    irsteamprice.textContent = "Loading...";
+
+    let line = document.createElement('p');
+    let lineText = document.createElement('span');
+    lineText.className = 'leftcolumn';
+    lineText.textContent = ("Iranian Steam: ");
+    line.appendChild(lineText);
+    line.appendChild(irsteamprice);
+
+    blockInner.appendChild(line);
+
+    const dragonsteamprice = document.createElement('a');
+    dragonsteamprice.className = 'rightcolumn dragonsteamprice';
+    dragonsteamprice.title = ("Buy keys from Dragon Steam");
+    dragonsteamprice.target = '_blank';
+    dragonsteamprice.href = 'https://dragonsteam.net/shop/tf2/key';
+    dragonsteamprice.textContent = "Loading...";
+
+    line = document.createElement('p');
+    lineText = document.createElement('span');
+    lineText.className = 'leftcolumn';
+    lineText.textContent = ("Dragon Steam: ");
+    line.appendChild(lineText);
+    line.appendChild(dragonsteamprice);
+
+    blockInner.appendChild(line);
+
+    const marketsteamprice = document.createElement('a');
+    marketsteamprice.className = 'rightcolumn marketsteamprice';
+    marketsteamprice.title = ("View on Community Market");
+    marketsteamprice.target = '_blank';
+    marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+    marketsteamprice.textContent = "Loading...";
+
+    line = document.createElement('p');
+    lineText = document.createElement('span');
+    lineText.className = 'leftcolumn';
+    lineText.textContent = ("Steam Market: ");
+    line.appendChild(lineText);
+    line.appendChild(marketsteamprice);
+
+    blockInner.appendChild(line);
+
+    container.insertBefore(block, container.firstChild);
+
+    const containerbtn = document.getElementById('ignoreBtn');
+    if (containerbtn) {
         const link = document.createElement('a');
         link.className = 'btnv6_blue_hoverfade btn_medium';
         link.target = '_blank';
@@ -943,7 +942,7 @@ function initializeTooltips() {
         element.dataset.tooltipText = "Buy TF2 Keys";
         element.innerHTML = "<span>Buy 🔑</span>";
         link.appendChild(element);
-        container.append(link, container.firstChild);
+        containerbtn.append(link, containerbtn.firstChild);
     }
 })();
 
