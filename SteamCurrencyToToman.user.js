@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.32
+// @version            1.33
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -125,6 +125,24 @@ function CheckRegion(labelsr) {
                 }
             }
         } else if (window.location.href.indexOf("search") != -1) {
+            for (labelr in labelsr) {
+                let region = document.querySelectorAll(`.global_action_link`);
+                for (var i = 0, len = region.length; i < len; i++) {
+                    if (region !== null) {
+                        if (region[i].innerHTML.indexOf("₴") !== -1) {
+                            currentregion = "UAH";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
+                            currentregion = "USD";
+                            regioncheck = true;
+                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
+                            currentregion = "EUR";
+                            regioncheck = true;
+                        }
+                    }
+                }
+            }
+        } else if (window.location.href.indexOf("cart") != -1) {
             for (labelr in labelsr) {
                 let region = document.querySelectorAll(`.global_action_link`);
                 for (var i = 0, len = region.length; i < len; i++) {
@@ -872,7 +890,6 @@ function addTooltip(element, tooltipText) {
     tooltip.style.borderRadius = '2px';
     tooltip.style.boxShadow = '0 0 3px #000';
     tooltip.style.maxWidth = '225px';
-    tooltip.style.maxHeight = '36px';
     tooltip.style.zIndex = '9999';
     tooltip.style.opacity = '0';
     tooltip.style.transition = 'opacity 0.2s ease';
