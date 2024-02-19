@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.34
+// @version            1.35
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -51,145 +51,33 @@ var labelsr = [
 ];
 
 function CheckRegion(labelsr) {
-    if (window.location.href.indexOf("steampowered") != -1) {
-        if (window.location.href.indexOf("bundle") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.discount_final_price`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
+    let region;
+    for (labelr in labelsr) {
+        if (window.location.href.indexOf("steampowered") != -1) {
+            if (window.location.href.indexOf("bundle") != -1 ||
+                window.location.href.indexOf("communityrecommendations") != -1 ||
+                window.location.href.indexOf("wishlist") != -1 ||
+                window.location.href.indexOf("sale") != -1 ||
+                window.location.href.indexOf("itemstore") != -1 ||
+                window.location.href.indexOf("search") != -1 ||
+                window.location.href.indexOf("cart") != -1) {
+                region = document.querySelectorAll(`.global_action_link`);
+            } else {
+                region = document.querySelectorAll(`.${labelsr[labelr]}`);
             }
-        } else if (window.location.href.indexOf("communityrecommendations") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
-        } else if (window.location.href.indexOf("wishlist") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
-        } else if (window.location.href.indexOf("itemstore") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
-        } else if (window.location.href.indexOf("search") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
-        } else if (window.location.href.indexOf("cart") != -1) {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
-        } else {
-            for (labelr in labelsr) {
-                let region = document.querySelectorAll(`.${labelsr[labelr]}, .global_action_link`);
-                for (var i = 0, len = region.length; i < len; i++) {
-                    if (region !== null) {
-                        if (region[i].innerHTML.indexOf("₴") !== -1) {
-                            currentregion = "UAH";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                            currentregion = "USD";
-                            regioncheck = true;
-                        } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                            currentregion = "EUR";
-                            regioncheck = true;
-                        }
-                    }
-                }
-            }
+        } else if (window.location.href.indexOf("market") != -1) {
+            region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price, .global_action_link, .marketWalletBalanceAmount`);
         }
-    } else if (window.location.href.indexOf("market") != -1) {
-        let regionm = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price, .global_action_link, .marketWalletBalanceAmount`);
-        for (var im = 0, lenm = regionm.length; im < lenm; im++) {
-            if (regionm !== null) {
-                if (regionm[im].innerText.indexOf("₴") !== -1) {
+
+        if (region !== null && region.length > 0) {
+            for (var i = 0, len = region.length; i < len; i++) {
+                if (region[i].innerHTML.indexOf("₴") !== -1) {
                     currentregion = "UAH";
                     regioncheck = true;
-                } else if (regionm[im].innerText.indexOf("$") !== -1) {
+                } else if (region[i].innerHTML.indexOf("$") !== -1) {
                     currentregion = "USD";
                     regioncheck = true;
-                } else if (regionm[im].innerText.indexOf("€") !== -1) {
+                } else if (region[i].innerHTML.indexOf("€") !== -1) {
                     currentregion = "EUR";
                     regioncheck = true;
                 }
@@ -197,14 +85,11 @@ function CheckRegion(labelsr) {
         }
     }
 
-    if (currentregion === "UAH") {
-        console.log("%c[SteamCurrencytoToman] %cCurrency: \"UAH\"", "color:#2196F3; font-weight:bold;", "color:null");
-    } else if (currentregion === "USD") {
-        console.log("%c[SteamCurrencytoToman] %cCurrency: \"USD\"", "color:#2196F3; font-weight:bold;", "color:null");
-    } else if (currentregion === "EUR") {
-        console.log("%c[SteamCurrencytoToman] %cCurrency: \"EUR\"", "color:#2196F3; font-weight:bold;", "color:null");
+    if (currentregion) {
+        console.log(`%c[SteamCurrencytoToman] %cCurrency: "${currentregion}"`, "color:#2196F3; font-weight:bold;", "color:null");
     }
 }
+
 
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
@@ -219,22 +104,20 @@ function LoadIRSteam(irsteamobject) {
     var irsteamparser = new DOMParser();
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
-    irsteamkeypriceg = irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"];
-    irsteamkeypriceglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["prices"]["keyPrice"].replace(',', '.'));
-    irsteamkeyquantityglobal = Math.ceil(irsteamfounddata["props"]["pageProps"]["tf2"]["quantity"]);
+    irsteamkeypriceg = irsteamfounddata.props.pageProps.tf2.prices.keyPrice;
+    irsteamkeypriceglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.prices.keyPrice.replace(',', '.'));
+    irsteamkeyquantityglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.quantity);
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
     irsteamkeypricecheck = true;
-    var irsteamprice = document.getElementsByClassName("irsteamprice");
-    for (var i = 0; i < irsteamprice.length; i++) {
-        var irsteampriceu = irsteamprice[i];
-        irsteampriceu.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + " In Stock)";
-    }
-    var irsteampricepopup = document.getElementsByClassName("popupirsteamprice");
-    for (var ipop = 0; ipop < irsteampricepopup.length; ipop++) {
-        var irsteampricepopupu = irsteampricepopup[ipop];
-        irsteampricepopupu.textContent = irsteamkeypriceg + " T"
-    }
+    var irsteampriceElements = document.querySelectorAll(".irsteamprice");
+    var popupirsteampriceElements = document.querySelectorAll(".popupirsteamprice");
+    irsteampriceElements.forEach(function(element) {
+        element.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + " In Stock)";
+    });
+    popupirsteampriceElements.forEach(function(element) {
+        element.textContent = irsteamkeypriceg + " T";
+    });
 }
 
 function GetKeyPriceDragon() {
@@ -254,16 +137,12 @@ function LoadDragonSteam(dragonsteamobject) {
     dragonsteamkeypriceglobal = Math.ceil(parseFloat(dragonsteamfounddata));
     dragonsteamkeyavailabilityglobal = "In Stock";
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    var dragonsteamsteamprice = document.getElementsByClassName("dragonsteamprice");
-    for (var i = 0; i < dragonsteamsteamprice.length; i++) {
-        var dragonsteamsteampriceu = dragonsteamsteamprice[i];
-        dragonsteamsteampriceu.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
-    }
-    var dragonsteamsteampricepopup = document.getElementsByClassName("popupdragonsteamprice");
-    for (var ipop = 0; ipop < dragonsteamsteampricepopup.length; ipop++) {
-        var dragonsteamsteampricepopupu = dragonsteamsteampricepopup[ipop];
-        dragonsteamsteampricepopupu.textContent = dragonsteamkeypriceg + " T"
-    }
+    document.querySelectorAll(".dragonsteamprice").forEach(function(element) {
+        element.textContent = dragonsteamfounddata + " T (" + dragonsteamkeyavailabilityglobal + ")";
+    });
+    document.querySelectorAll(".popupdragonsteamprice").forEach(function(element) {
+        element.textContent = dragonsteamfounddata + " T";
+    });
     dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
@@ -309,9 +188,9 @@ function LoadMarketSteam(marketsteamobject) {
     var marketsteamresponseDoc = marketsteamparser.parseFromString(marketsteamobject.responseText, "text/html");
     var marketsteamfounddata = JSON.parse(marketsteamresponseDoc.querySelector("body").innerHTML);
     if (currentregion === "UAH") {
-        marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('₴', '').replace(',', '.');
-        marketsteamkeypriceglobal = Math.floor(marketsteamfounddata["lowest_price"].replace('₴', '').replace(',', '.') * 0.87);
-        console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
+        marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('₴', '').replace(',', '.');
+        marketsteamkeypriceglobal = Math.floor(marketsteamfounddata.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
@@ -324,9 +203,9 @@ function LoadMarketSteam(marketsteamobject) {
             marketsteampricepopupu.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
         }
     } else if (currentregion === "USD") {
-        marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('$', '').replace(',', '.');
-        marketsteamkeypriceglobal = (marketsteamfounddata["lowest_price"].replace('$', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
+        marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('$', '').replace(',', '.');
+        marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
@@ -339,9 +218,9 @@ function LoadMarketSteam(marketsteamobject) {
             marketsteampricepopupu.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
         }
     } else if (currentregion === "EUR") {
-        marketsteamkeypriceg = marketsteamfounddata["lowest_price"].replace('€', '').replace(',', '.');
-        marketsteamkeypriceglobal = (marketsteamfounddata["lowest_price"].replace('€', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] " + "%cMarket Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
+        marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.');
+        marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.') * 0.87).toFixed(2);
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
@@ -856,7 +735,7 @@ function initializeTooltips() {
 
     var rightcolumn = document.createElement('style');
     rightcolumn.type = 'text/css';
-    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; }';
+    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; position: absolute; }';
     document.getElementsByTagName('head')[0].appendChild(rightcolumn);
 
     if (!container) {
