@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.37
+// @version            1.38
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -681,16 +681,14 @@ function waitloadingbar() {
     loadingbar.style.transition = 'opacity 0.5s ease, width 0.5s ease';
     document.body.appendChild(loadingbar);
 
-    window.addEventListener('load', () => {
-        waitloadingbar().then(() => {
-            loadingbar.style.width = '100%';
+    waitloadingbar().then(() => {
+        loadingbar.style.width = '100%';
+        setTimeout(() => {
+            loadingbar.style.opacity = '0';
             setTimeout(() => {
-                loadingbar.style.opacity = '0';
-                setTimeout(() => {
-                    loadingbar.remove();
-                }, 500);
+                loadingbar.remove();
+            }, 500);
         }, 500);
-        });
     });
 
     var PopPop = document.createElement('style');
