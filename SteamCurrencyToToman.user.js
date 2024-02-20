@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.35
+// @version            1.36
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -29,6 +29,7 @@ var dragonsteamkeypricecheck = false;
 var currentregion;
 var regioncheck = false;
 var wallet;
+let loadingbar;
 
 var labelsr = [
     'discount_final_price',
@@ -110,6 +111,7 @@ function LoadIRSteam(irsteamobject) {
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
     irsteamkeypricecheck = true;
+    addloadingbar(33);
     var irsteampriceElements = document.querySelectorAll(".irsteamprice");
     var popupirsteampriceElements = document.querySelectorAll(".popupirsteamprice");
     irsteampriceElements.forEach(function(element) {
@@ -137,13 +139,14 @@ function LoadDragonSteam(dragonsteamobject) {
     dragonsteamkeypriceglobal = Math.ceil(parseFloat(dragonsteamfounddata));
     dragonsteamkeyavailabilityglobal = "In Stock";
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    dragonsteamkeypricecheck = true;
+    addloadingbar(33);
     document.querySelectorAll(".dragonsteamprice").forEach(function(element) {
         element.textContent = dragonsteamfounddata + " T (" + dragonsteamkeyavailabilityglobal + ")";
     });
     document.querySelectorAll(".popupdragonsteamprice").forEach(function(element) {
         element.textContent = dragonsteamfounddata + " T";
     });
-    dragonsteamkeypricecheck = true;
     if (marketsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
             UAHtoTomanW();
@@ -192,6 +195,7 @@ function LoadMarketSteam(marketsteamobject) {
         marketsteamkeypriceglobal = Math.floor(marketsteamfounddata.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
         console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        addloadingbar(33);
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
             var marketsteampriceu = marketsteamprice[i];
@@ -643,8 +647,52 @@ function initializeTooltips() {
     });
 }
 
+function addloadingbar(amount) {
+    var currentwidth = parseFloat(loadingbar.style.width) || 0;
+    var newwidth = Math.min(currentwidth + amount, 100);
+    loadingbar.style.width = newwidth + '%';
+}
+
+function waitloadingbar() {
+    return new Promise(resolve => {
+        var checkwidth = function() {
+            var currentWidth = parseFloat(loadingbar.style.width) || 0;
+            if (currentWidth >= 99) {
+                resolve();
+            } else {
+                setTimeout(checkwidth, 100);
+            }
+        };
+        checkwidth();
+    });
+}
+
 (function () {
-        var PopPop = document.createElement('style');
+    loadingbar = document.createElement('div');
+    loadingbar.id = 'loading-bar';
+    loadingbar.style.position = 'fixed';
+    loadingbar.style.top = '0';
+    loadingbar.style.left = '0';
+    loadingbar.style.width = '0%';
+    loadingbar.style.height = '3px';
+    loadingbar.style.backgroundColor = '#00adee';
+    loadingbar.style.zIndex = '9999';
+    loadingbar.style.transition = 'opacity 0.5s ease, width 0.5s ease';
+    document.body.appendChild(loadingbar);
+
+    window.addEventListener('load', () => {
+        waitloadingbar().then(() => {
+            loadingbar.style.width = '100%';
+            setTimeout(() => {
+                loadingbar.style.opacity = '0';
+                setTimeout(() => {
+                    loadingbar.remove();
+                }, 500);
+        }, 500);
+        });
+    });
+
+    var PopPop = document.createElement('style');
     PopPop.type = 'text/css';
     PopPop.innerHTML = '.ico16 { background: none; } ';
     document.getElementsByTagName('head')[0].appendChild(PopPop);
@@ -711,7 +759,7 @@ function initializeTooltips() {
         Popup.appendChild(KeyMSP);
     }
 
-        const container = document.querySelector('.game_meta_data');
+    const container = document.querySelector('.game_meta_data');
 
     var widget = document.createElement('style');
     widget.type = 'text/css';
@@ -825,14 +873,32 @@ function initializeTooltips() {
     }
 })();
 
-$(window).on("scroll", function () {
-    if (dragonsteamkeypricecheck === true && marketsteamkeypricecheck === true) {
-        if (currentregion === "UAH") {
-            UAHtoToman(labels);
-        } else if (currentregion === "USD") {
-            USDtoToman(labels);
-        } else if (currentregion === "EUR") {
-            EURtoToman(labels);
-        }
+function handleregion() {
+    if (currentregion === "UAH") {
+        UAHtoToman(labels);
+    } else if (currentregion === "USD") {
+        USDtoToman(labels);
+    } else if (currentregion === "EUR") {
+        EURtoToman(labels);
     }
-})
+}
+
+const handlescroll = debounce(() => {
+    if (dragonsteamkeypricecheck && marketsteamkeypricecheck) {
+        handleregion();
+    }
+}, 200);
+
+window.addEventListener("scroll", handlescroll);
+
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    };
+}
