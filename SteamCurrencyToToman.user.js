@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.36
+// @version            1.37
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -61,6 +61,7 @@ function CheckRegion(labelsr) {
                 window.location.href.indexOf("sale") != -1 ||
                 window.location.href.indexOf("itemstore") != -1 ||
                 window.location.href.indexOf("search") != -1 ||
+                window.location.href.indexOf("specials") != -1 ||
                 window.location.href.indexOf("cart") != -1) {
                 region = document.querySelectorAll(`.global_action_link`);
             } else {
