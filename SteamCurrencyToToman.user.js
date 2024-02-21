@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.38
+// @version            1.39
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -53,6 +53,7 @@ var labelsr = [
 
 function CheckRegion(labelsr) {
     let region;
+    region = document.querySelectorAll(`.global_action_link`);
     for (labelr in labelsr) {
         if (window.location.href.indexOf("steampowered") != -1) {
             if (window.location.href.indexOf("bundle") != -1 ||
@@ -62,6 +63,7 @@ function CheckRegion(labelsr) {
                 window.location.href.indexOf("itemstore") != -1 ||
                 window.location.href.indexOf("search") != -1 ||
                 window.location.href.indexOf("specials") != -1 ||
+                window.location.href.indexOf("account") != -1 ||
                 window.location.href.indexOf("cart") != -1) {
                 region = document.querySelectorAll(`.global_action_link`);
             } else {
@@ -317,11 +319,15 @@ function UAHtoToman(labels) {
                             if (matchItem[0].indexOf('Your Price:') >= 0) {
                                 let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
                                 if (p > marketsteamkeypriceglobal) {
+                                    var walletcal = Math.floor(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
                                         price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     } else {
+                                        var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
+                                        var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
+                                        var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                         price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     }
                                 } else {
@@ -447,7 +453,8 @@ function UAHtoTomanW() {
                 var pendingn = pending.replace(' Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                 var calpricesteamwpending = (pendingn / marketsteamkeypriceglobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
+                wallet = pricew[indw].textContent.replace(/\Pending: .*/, '');
+                pricew[indw].innerHTML = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)<br>" + pending + " (" + calpricesteamwpending + "🔑)";
             } else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
