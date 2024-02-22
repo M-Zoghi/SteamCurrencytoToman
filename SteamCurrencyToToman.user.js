@@ -296,6 +296,7 @@ var labels = [
 ];
 
 function UAHtoToman(labels) {
+    try {
         if (window.location.href.indexOf("steampowered") != -1) {
             var re = /(\D*)(\d *\S*)/;
             for (label in labels) {
@@ -454,6 +455,7 @@ function UAHtoToman(labels) {
                 }
             }
         }
+    } catch (ex) {}
 }
 
 function UAHtoTomanW() {
@@ -478,6 +480,11 @@ function UAHtoTomanW() {
                 wallet = pricew[indw].textContent;
                 pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
             }
+        }
+        if (typeof wallet !== 'undefined' && wallet !== null && wallet !== '') {
+            initializeTooltips();
+        } else {
+            setTimeout(1000);
         }
     }
 }
