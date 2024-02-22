@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.39
+// @version            1.40
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -94,7 +94,6 @@ function CheckRegion(labelsr) {
     }
 }
 
-
 function GetKeyPriceIR() {
     GM_xmlhttpRequest({
         method: 'GET',
@@ -112,23 +111,24 @@ function LoadIRSteam(irsteamobject) {
     irsteamkeypriceglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.prices.keyPrice.replace(',', '.'));
     irsteamkeyquantityglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.quantity);
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal, "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
     irsteamkeypricecheck = true;
     addloadingbar(33);
     var irsteampriceElements = document.querySelectorAll(".irsteamprice");
     var popupirsteampriceElements = document.querySelectorAll(".popupirsteamprice");
-    irsteampriceElements.forEach(function(element) {
+    irsteampriceElements.forEach(function (element) {
         element.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + " In Stock)";
     });
-    popupirsteampriceElements.forEach(function(element) {
-        element.textContent = irsteamkeypriceg + " T";
+    popupirsteampriceElements.forEach(function (element) {
+        element.textContent = irsteamkeypriceg + " T (" + irsteamkeyquantityglobal + ")";
     });
 }
 
 function GetKeyPriceDragon() {
     GM_xmlhttpRequest({
-        method: 'GET',
-        url: 'https://dragonsteam.net/shop/tf2/key',
+        method: 'POST',
+        url: 'https://dragonsteam.net/tf2/key/info',
+        data: {},
         dataType: 'json',
         onload: LoadDragonSteam,
     })
@@ -137,18 +137,19 @@ function GetKeyPriceDragon() {
 function LoadDragonSteam(dragonsteamobject) {
     var dragonsteamparser = new DOMParser();
     var dragonsteamresponseDoc = dragonsteamparser.parseFromString(dragonsteamobject.responseText, "text/html");
-    var dragonsteamfounddata = dragonsteamresponseDoc.querySelector("meta[name='og:description']").getAttribute("content").replace(" تومان ", "").replace("خرید کلید تی اف 2 | تحویل اتوماتیک توسط ربات | قیمت : ", "");
-    dragonsteamkeypriceg = dragonsteamfounddata.replace('.', ',');
-    dragonsteamkeypriceglobal = Math.ceil(parseFloat(dragonsteamfounddata));
-    dragonsteamkeyavailabilityglobal = "In Stock";
+    var dragonsteamfounddata = JSON.parse(dragonsteamresponseDoc.querySelector("body").innerHTML);
+    dragonsteamkeypriceg = dragonsteamfounddata.keyPrice.price_sell.toLocaleString();
+    dragonsteamkeypriceglobal = Math.ceil(dragonsteamkeypriceg.replace(',', '.'));
+    dragonsteamkeyavailabilityglobal = dragonsteamfounddata.keyCount;
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + dragonsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[SteamCurrencytoToman] %cDragon Steam Quantity: " + dragonsteamkeyavailabilityglobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
     dragonsteamkeypricecheck = true;
     addloadingbar(33);
-    document.querySelectorAll(".dragonsteamprice").forEach(function(element) {
-        element.textContent = dragonsteamfounddata + " T (" + dragonsteamkeyavailabilityglobal + ")";
+    document.querySelectorAll(".dragonsteamprice").forEach(function (element) {
+        element.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + " In Stock)";
     });
-    document.querySelectorAll(".popupdragonsteamprice").forEach(function(element) {
-        element.textContent = dragonsteamfounddata + " T";
+    document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
+        element.textContent = dragonsteamkeypriceg + " T (" + dragonsteamkeyavailabilityglobal + ")";
     });
     if (marketsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
@@ -214,6 +215,7 @@ function LoadMarketSteam(marketsteamobject) {
         marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] %cMarket Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        addloadingbar(33);
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
             var marketsteampriceu = marketsteamprice[i];
@@ -229,6 +231,7 @@ function LoadMarketSteam(marketsteamobject) {
         marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
+        addloadingbar(33);
         var marketsteamprice = document.getElementsByClassName("marketsteamprice");
         for (var i = 0; i < marketsteamprice.length; i++) {
             var marketsteampriceu = marketsteamprice[i];
@@ -438,6 +441,8 @@ function UAHtoToman(labels) {
                 }
             }
         }
+
+        if (window.location.href.indexOf("inventory") != -1) {}
     } catch (ex) {}
 }
 
@@ -619,14 +624,14 @@ function addTooltip(element, tooltipText) {
     tooltip.style.whiteSpace = 'pre-line';
     tooltip.style.pointerEvents = 'none';
 
-    element.addEventListener('mouseover', function(e) {
+    element.addEventListener('mouseover', function (e) {
         tooltip.style.left = e.pageX + 10 + 'px';
         tooltip.style.top = e.pageY + 10 + 'px';
         tooltip.style.opacity = '1';
         element.style.cursor = 'help';
     });
 
-    element.addEventListener('mouseout', function() {
+    element.addEventListener('mouseout', function () {
         tooltip.style.opacity = '0';
         element.style.cursor = 'default';
     });
@@ -648,7 +653,7 @@ function addTooltip(element, tooltipText) {
 
 function initializeTooltips() {
     var elementsWithTooltip = document.querySelectorAll('[ogpricetooltip]:not([ogpricetooltip-initialized])');
-    elementsWithTooltip.forEach(function(element) {
+    elementsWithTooltip.forEach(function (element) {
         var tooltipText = element.getAttribute('ogpricetooltip');
         addTooltip(element, tooltipText);
         element.setAttribute('ogpricetooltip-initialized', 'true');
@@ -663,7 +668,7 @@ function addloadingbar(amount) {
 
 function waitloadingbar() {
     return new Promise(resolve => {
-        var checkwidth = function() {
+        var checkwidth = function () {
             var currentWidth = parseFloat(loadingbar.style.width) || 0;
             if (currentWidth >= 99) {
                 resolve();
@@ -716,7 +721,7 @@ function waitloadingbar() {
 
         const KeyISPA = document.createElement('a');
         KeyISPA.textContent = "Loading..."
-        KeyISPA.className = 'account_name popupirsteamprice';
+            KeyISPA.className = 'account_name popupirsteamprice';
         KeyISP.appendChild(KeyISPA);
 
         const KeyISPI = document.createElement('img');
@@ -899,7 +904,7 @@ window.addEventListener("scroll", handlescroll);
 
 function debounce(func, wait) {
     let timeout;
-    return function() {
+    return function () {
         const context = this;
         const args = arguments;
         clearTimeout(timeout);
