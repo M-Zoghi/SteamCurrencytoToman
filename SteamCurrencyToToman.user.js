@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.41
+// @version            1.42
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -469,7 +469,9 @@ function UAHtoTomanW() {
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
                 var calpricesteamwpending = (pendingn / marketsteamkeypriceglobal).toPrecision(3);
                 wallet = pricew[indw].textContent.replace(/\Pending: .*/, '');
-                pricew[indw].innerHTML = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)<br>" + pending + " (" + calpricesteamwpending + "🔑)";
+                const pendingtooltipelement = document.querySelector('.tooltip');
+                var pendingtooltip = pendingtooltipelement.getAttribute('data-tooltip-html');
+                pricew[indw].innerHTML = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)<br><span class=\"tooltip\" ogpricetooltip=\"" + pendingtooltip.replace('. ', '.<br>') + "\">" + pending + " (" + calpricesteamwpending + "🔑)</span>";
             } else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
                 let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
                 var calpricesteamw = (pw / marketsteamkeypriceglobal).toPrecision(3);
