@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.40
+// @version            1.41
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -108,7 +108,7 @@ function LoadIRSteam(irsteamobject) {
     var irsteamresponseDoc = irsteamparser.parseFromString(irsteamobject.responseText, "text/html");
     var irsteamfounddata = JSON.parse(irsteamresponseDoc.getElementById('__NEXT_DATA__').innerHTML);
     irsteamkeypriceg = irsteamfounddata.props.pageProps.tf2.prices.keyPrice;
-    irsteamkeypriceglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.prices.keyPrice.replace(',', '.'));
+    irsteamkeypriceglobal = Math.ceil(irsteamkeypriceg.replace(',', '.'));
     irsteamkeyquantityglobal = Math.ceil(irsteamfounddata.props.pageProps.tf2.quantity);
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + irsteamkeypriceglobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + irsteamkeyquantityglobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
@@ -197,51 +197,39 @@ function LoadMarketSteam(marketsteamobject) {
     if (currentregion === "UAH") {
         marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('₴', '').replace(',', '.');
         marketsteamkeypriceglobal = Math.floor(marketsteamfounddata.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + marketsteamkeypriceglobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         addloadingbar(33);
-        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
-        for (var i = 0; i < marketsteamprice.length; i++) {
-            var marketsteampriceu = marketsteamprice[i];
-            marketsteampriceu.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
-        }
-        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
-        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
-            var marketsteampricepopupu = marketsteampricepopup[ipop];
-            marketsteampricepopupu.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
-        }
+        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
+            element.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
+        });
+        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
+            element.textContent = marketsteamkeypriceg.replace('.', ',') + "₴ (" + marketsteamkeypriceglobal + "₴)";
+        });
     } else if (currentregion === "USD") {
         marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('$', '').replace(',', '.');
         marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cKey Market Price: $" + marketsteamkeypriceglobal, "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         addloadingbar(33);
-        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
-        for (var i = 0; i < marketsteamprice.length; i++) {
-            var marketsteampriceu = marketsteamprice[i];
-            marketsteampriceu.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
-        }
-        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
-        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
-            var marketsteampricepopupu = marketsteampricepopup[ipop];
-            marketsteampricepopupu.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
-        }
+        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
+            element.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
+        });
+        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
+            element.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
+        });
     } else if (currentregion === "EUR") {
         marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.');
         marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         addloadingbar(33);
-        var marketsteamprice = document.getElementsByClassName("marketsteamprice");
-        for (var i = 0; i < marketsteamprice.length; i++) {
-            var marketsteampriceu = marketsteamprice[i];
-            marketsteampriceu.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
-        }
-        var marketsteampricepopup = document.getElementsByClassName("popupmarketsteamprice");
-        for (var ipop = 0; ipop < marketsteampricepopup.length; ipop++) {
-            var marketsteampricepopupu = marketsteampricepopup[ipop];
-            marketsteampricepopupu.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
-        }
+        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
+            element.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
+        });
+        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
+            element.textContent = marketsteamkeypriceg.replace('.', ',') + "€ (" + marketsteamkeypriceglobal.replace('.', ',') + "€)";
+        });
     }
     if (dragonsteamkeypricecheck === true) {
         if (currentregion === "UAH") {
@@ -308,7 +296,6 @@ var labels = [
 ];
 
 function UAHtoToman(labels) {
-    try {
         if (window.location.href.indexOf("steampowered") != -1) {
             var re = /(\D*)(\d *\S*)/;
             for (label in labels) {
@@ -322,52 +309,52 @@ function UAHtoToman(labels) {
                             if (matchItem[0].indexOf('Your Price:') >= 0) {
                                 let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
                                 if (p > marketsteamkeypriceglobal) {
-                                    var walletcal = Math.floor(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
+                                    var walletcal = parseFloat(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     } else {
                                         var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                         var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
                                         var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     }
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     } else {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     }
                                 }
                             } else {
                                 let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
                                 if (p > marketsteamkeypriceglobal) {
-                                    var walletcal = Math.floor(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
+                                    var walletcal = parseFloat(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]");
                                     } else {
                                         var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                         var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
                                         var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
                                     }
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal + "₴[/R]\n[C]*You can buy it!*[/C]");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]");
                                     } else {
                                         var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                         var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
                                         var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal + "₴[/R]\n*You Need:  *[P][R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed + "₴[/R][/P]");
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
                                     }
                                 }
                             }
@@ -393,13 +380,26 @@ function UAHtoToman(labels) {
                         let matchItem = rem.exec(pricem[indm].textContent);
                         if (matchItem[0].indexOf('₴') >= 0) {
                             let pm = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                            var walletcalm = parseFloat(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                             var calpricesteamm = (pm / marketsteamkeypriceglobal).toPrecision(2);
                             var calpricefinalm = Math.ceil(calpricesteamm * dragonsteamkeypriceglobal).toLocaleString("en-US");
                             if (pricem[indm].innerHTML.indexOf("🔑") == -1) {
-                                pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><br><font color=\"silver\">" + calpricefinalm + " T (" + eToNumber(calpricesteamm) + "🔑)</font>";
+                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcalm) {
+                                    pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcalm.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\"><font color=\"silver\">" + calpricefinalm + " T (" + eToNumber(calpricesteamm) + "🔑)</font></div></div>";
+                                } else {
+                                    var neededm = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcalm);
+                                    var neededmkey = (neededm / marketsteamkeypriceglobal).toPrecision(2);
+                                    var neededmfinal = Math.ceil(neededmkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                                    pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcalm.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededmfinal + " T (" + eToNumber(neededmkey) + "🔑) = " + neededm.toFixed(2).toString().replace('.', ',') + "₴[/R]\"><font color=\"silver\">" + calpricefinalm + " T (" + eToNumber(calpricesteamm) + "🔑)</font></div></div>";
+                                }
                             }
                         }
                     }
+                }
+                if (typeof wallet !== 'undefined' && wallet !== null && wallet !== '') {
+                    initializeTooltips();
+                } else {
+                    setTimeout(1000);
                 }
             }
 
@@ -412,12 +412,25 @@ function UAHtoToman(labels) {
                         let matchItem = rem.exec(pricems[indms].textContent);
                         if (matchItem[0].indexOf('₴') >= 0) {
                             let pms = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
+                            var walletcalms = parseFloat(wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
                             var calpricesteamms = (pms / marketsteamkeypriceglobal).toPrecision(2);
                             var calpricefinalms = Math.ceil(calpricesteamms * dragonsteamkeypriceglobal).toLocaleString("en-US");
                             if (pricems[indms].innerHTML.indexOf("🔑") == -1) {
-                                pricems[indms].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><font color=\"silver\">" + calpricefinalms + " T (" + eToNumber(calpricesteamms) + "🔑)</font>";
+                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcalms) {
+                                    pricems[indms].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcalms.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\"><font color=\"silver\">" + calpricefinalms + " T (" + eToNumber(calpricesteamms) + "🔑)</font></div></div>";
+                                } else {
+                                    var neededms = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcalms);
+                                    var neededmskey = (neededms / marketsteamkeypriceglobal).toPrecision(2);
+                                    var neededmsfinal = Math.ceil(neededmskey * dragonsteamkeypriceglobal).toLocaleString("en-US");
+                                    pricems[indms].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcalms.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededmsfinal + " T (" + eToNumber(neededmskey) + "🔑) = " + neededms.toFixed(2).toString().replace('.', ',') + "₴[/R]\"><font color=\"silver\">" + calpricefinalms + " T (" + eToNumber(calpricesteamms) + "🔑)</font></div></div>";
+                                }
                             }
                         }
+                    }
+                    if (typeof wallet !== 'undefined' && wallet !== null && wallet !== '') {
+                        initializeTooltips();
+                    } else {
+                        setTimeout(1000);
                     }
                 }
             }
@@ -441,9 +454,6 @@ function UAHtoToman(labels) {
                 }
             }
         }
-
-        if (window.location.href.indexOf("inventory") != -1) {}
-    } catch (ex) {}
 }
 
 function UAHtoTomanW() {
@@ -612,12 +622,12 @@ function addTooltip(element, tooltipText) {
     tooltip.style.position = 'absolute';
     tooltip.style.backgroundColor = '#c2c2c2';
     tooltip.style.color = '#3d3d3f';
+    tooltip.style.fontFamily = 'Motiva Sans';
     tooltip.style.fontSize = '11px';
     tooltip.style.textAlign = 'left';
     tooltip.style.padding = '5px';
     tooltip.style.borderRadius = '2px';
     tooltip.style.boxShadow = '0 0 3px #000';
-    tooltip.style.maxWidth = '225px';
     tooltip.style.zIndex = '9999';
     tooltip.style.opacity = '0';
     tooltip.style.transition = 'opacity 0.2s ease';
