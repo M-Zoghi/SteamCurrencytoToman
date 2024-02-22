@@ -313,12 +313,12 @@ function UAHtoToman(labels) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                     } else {
                                         var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                         var neededkey = Math.ceil(needed / marketsteamkeypriceglobal);
                                         var neededfinal = (neededkey * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                     }
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
@@ -326,7 +326,7 @@ function UAHtoToman(labels) {
                                     if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
                                         price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
                                     } else {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                     }
                                 }
                             } else {
@@ -497,11 +497,11 @@ function USDtoToman(labels) {
                                 if (p > parseFloat(marketsteamkeypriceglobal)) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                 }
                             } else {
                                 let p = matchItem[0].replace(',', '.').replace('$', '');
@@ -564,11 +564,11 @@ function EURtoToman(labels) {
                                 if (p > marketsteamkeypriceglobal) {
                                     var calpricesteam = Math.ceil(p / marketsteamkeypriceglobal);
                                     var calpricefinal = (calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                 } else {
                                     var calpricesteam = (p / marketsteamkeypriceglobal).toPrecision(2);
                                     var calpricefinal = Math.ceil(calpricesteam * dragonsteamkeypriceglobal).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
+                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
                                 }
                             } else {
                                 let p = matchItem[2].replace(',--€', '').replace(',', '.').replace('€', '');
