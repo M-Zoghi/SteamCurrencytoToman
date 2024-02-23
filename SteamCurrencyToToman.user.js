@@ -219,8 +219,8 @@ function LoadMarketSteam(marketsteamobject) {
             element.textContent = "$" + marketsteamkeypriceg + " ($" + marketsteamkeypriceglobal + ")";
         });
     } else if (currentregion === "EUR") {
-        marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.');
-        marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.') * 0.87).toFixed(2);
+        marketsteamkeypriceg = marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
+        marketsteamkeypriceglobal = (marketsteamfounddata.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + marketsteamkeypriceglobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         marketsteamkeypricecheck = true;
         addloadingbar(33);
