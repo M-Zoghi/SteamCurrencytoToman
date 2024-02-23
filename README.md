@@ -22,7 +22,7 @@
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/Tooltip.png?raw=true)
 
-![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/Menu.png?raw=true)
+![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/MenuN.png?raw=true)
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/Widget.png?raw=true)
 
