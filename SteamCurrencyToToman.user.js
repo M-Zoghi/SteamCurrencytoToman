@@ -64,6 +64,7 @@ function CheckRegion(labelsr) {
                 window.location.href.indexOf("search") != -1 ||
                 window.location.href.indexOf("specials") != -1 ||
                 window.location.href.indexOf("sub") != -1 ||
+                window.location.href.indexOf("category") != -1 ||
                 window.location.href.indexOf("account") != -1 ||
                 window.location.href.indexOf("cart") != -1) {
                 region = document.querySelectorAll(`.global_action_link`);
