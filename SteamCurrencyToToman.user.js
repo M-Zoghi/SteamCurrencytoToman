@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.43
+// @version            1.44
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -291,10 +291,14 @@ var labels = [
     'salepreviewwidgets_StoreSalePriceWidgetContainer_tqNH0',
     '_1EKGZBnKFWOr3RqVdnLMRN',
     'Wh0L8EnwsPV_8VAu8TOYr',
+    '_2vwJCCeSZV6bqiwKh5cRxd',
     'cart_estimated_total',
     'price',
     'savings',
     'item_def_price',
+    'market_commodity_orders_header_promote',
+    'market_listing_price',
+    'normal_price',
 ];
 
 function UAHtoToman(labels) {
@@ -905,7 +909,7 @@ function waitloadingbar() {
     }
 })();
 
-function handleregion() {
+function convertcurrency() {
     if (currentregion === "UAH") {
         UAHtoToman(labels);
     } else if (currentregion === "USD") {
@@ -915,22 +919,38 @@ function handleregion() {
     }
 }
 
-const handlescroll = debounce(() => {
-    if (dragonsteamkeypricecheck && marketsteamkeypricecheck) {
-        handleregion();
+function handlemutations(mutationsList) {
+    for (let mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            for (let node of mutation.addedNodes) {
+                if (dragonsteamkeypricecheck && marketsteamkeypricecheck) {
+                    processnode(node);
+                }
+            }
+        }
     }
-}, 200);
+}
 
-window.addEventListener("scroll", handlescroll);
+function processnode(node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.classList) {
+            for (let className of labels) {
+                if (node.classList.contains(className)) {
+                    convertcurrency();
+                    return;
+                }
+            }
+        }
+        for (let childnode of node.childNodes) {
+            processnode(childnode);
+        }
+    }
+}
 
-function debounce(func, wait) {
-    let timeout;
-    return function () {
-        const context = this;
-        const args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            func.apply(context, args);
-        }, wait);
-    };
+const observer = new MutationObserver(handlemutations);
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+if (dragonsteamkeypricecheck && marketsteamkeypricecheck) {
+    processnode(document.body);
 }
