@@ -934,8 +934,8 @@ function handlemutations(mutationsList) {
 function processnode(node) {
     if (node.nodeType === Node.ELEMENT_NODE) {
         if (node.classList) {
-            for (let className of labels) {
-                if (node.classList.contains(className)) {
+            for (let classname of labels) {
+                if (node.classList.contains(classname)) {
                     convertcurrency();
                     return;
                 }
