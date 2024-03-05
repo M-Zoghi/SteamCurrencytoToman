@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.44
+// @version            1.45
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -290,9 +290,11 @@ var labels = [
     'salepreviewwidgets_StoreSaleDiscountedPriceCtn_3GLeQ',
     'salepreviewwidgets_StoreSalePriceWidgetContainer_tqNH0',
     '_1EKGZBnKFWOr3RqVdnLMRN',
-    'Wh0L8EnwsPV_8VAu8TOYr',
     '_2vwJCCeSZV6bqiwKh5cRxd',
-    'cart_estimated_total',
+    '_2WLaY5TxjBGVyuWe_6KS3N',
+    '_3h9iQSuChRQXyzpsu2ip8m',
+    '_2WBvzE2CywKDLD0QTnbmUE',
+    'Wh0L8EnwsPV_8VAu8TOYr',
     'price',
     'savings',
     'item_def_price',
