@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.45
+// @version            1.46
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -53,25 +53,28 @@ var labelsr = [
 
 function CheckRegion(labelsr) {
     let region;
+    const href = window.location.href;
     region = document.querySelectorAll(`.global_action_link`);
     for (labelr in labelsr) {
-        if (window.location.href.indexOf("steampowered") != -1) {
-            if (window.location.href.indexOf("bundle") != -1 ||
-                window.location.href.indexOf("communityrecommendations") != -1 ||
-                window.location.href.indexOf("wishlist") != -1 ||
-                window.location.href.indexOf("sale") != -1 ||
-                window.location.href.indexOf("itemstore") != -1 ||
-                window.location.href.indexOf("search") != -1 ||
-                window.location.href.indexOf("specials") != -1 ||
-                window.location.href.indexOf("sub") != -1 ||
-                window.location.href.indexOf("category") != -1 ||
-                window.location.href.indexOf("account") != -1 ||
-                window.location.href.indexOf("cart") != -1) {
+        if (href.indexOf("steampowered") != -1) {
+            if (href.indexOf("bundle") != -1 ||
+                href.indexOf("communityrecommendations") != -1 ||
+                href.indexOf("franchise") != -1 ||
+                href.indexOf("dlc") != -1 ||
+                href.indexOf("wishlist") != -1 ||
+                href.indexOf("sale") != -1 ||
+                href.indexOf("itemstore") != -1 ||
+                href.indexOf("search") != -1 ||
+                href.indexOf("specials") != -1 ||
+                href.indexOf("sub") != -1 ||
+                href.indexOf("category") != -1 ||
+                href.indexOf("account") != -1 ||
+                href.indexOf("cart") != -1) {
                 region = document.querySelectorAll(`.global_action_link`);
             } else {
                 region = document.querySelectorAll(`.${labelsr[labelr]}`);
             }
-        } else if (window.location.href.indexOf("market") != -1) {
+        } else if (href.indexOf("market") != -1) {
             region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price, .global_action_link, .marketWalletBalanceAmount`);
         }
 
