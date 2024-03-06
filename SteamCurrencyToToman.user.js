@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.46
+// @version            1.47
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -659,6 +659,9 @@ function addTooltip(element, tooltipText) {
         tooltip.style.top = e.pageY + 10 + 'px';
         tooltip.style.opacity = '1';
         element.style.cursor = 'help';
+        setTimeout(function() {
+            tooltip.style.opacity = '0';
+        }, 5000);
     });
 
     element.addEventListener('mouseout', function () {
