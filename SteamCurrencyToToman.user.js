@@ -60,6 +60,7 @@ function CheckRegion(labelsr) {
             if (href.indexOf("bundle") != -1 ||
                 href.indexOf("communityrecommendations") != -1 ||
                 href.indexOf("franchise") != -1 ||
+                href.indexOf("developer") != -1 ||
                 href.indexOf("publisher") != -1 ||
                 href.indexOf("dlc") != -1 ||
                 href.indexOf("wishlist") != -1 ||
