@@ -64,7 +64,11 @@ function CheckRegion(labelsr) {
                 region = document.querySelectorAll(`.${labelsr[labelr]}`);
             }
         } else if (href.indexOf("market") != -1) {
-            region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price, .global_action_link, .marketWalletBalanceAmount`);
+            if (checkwallet) {
+                region = document.querySelectorAll(`.global_action_link`);
+            } else {
+                region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price`);
+            }
         }
 
         if (region !== null && region.length > 0) {
