@@ -62,6 +62,7 @@ function CheckRegion(labelsr) {
                 href.indexOf("franchise") != -1 ||
                 href.indexOf("developer") != -1 ||
                 href.indexOf("publisher") != -1 ||
+                href.indexOf("curators") != -1 ||
                 href.indexOf("dlc") != -1 ||
                 href.indexOf("wishlist") != -1 ||
                 href.indexOf("sale") != -1 ||
