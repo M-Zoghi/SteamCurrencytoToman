@@ -69,6 +69,7 @@ function CheckRegion(labelsr) {
                 href.indexOf("sale") != -1 ||
                 href.indexOf("chart") != -1 ||
                 href.indexOf("explore") != -1 ||
+                href.indexOf("news") != -1 ||
                 href.indexOf("itemstore") != -1 ||
                 href.indexOf("search") != -1 ||
                 href.indexOf("specials") != -1 ||
