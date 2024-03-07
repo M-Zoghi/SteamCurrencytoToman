@@ -54,29 +54,11 @@ var labelsr = [
 function CheckRegion(labelsr) {
     let region;
     const href = window.location.href;
+    var checkwallet = document.getElementById('header_wallet_balance');
     region = document.querySelectorAll(`.global_action_link`);
     for (labelr in labelsr) {
         if (href.indexOf("steampowered") != -1) {
-            if (href.indexOf("bundle") != -1 ||
-                href.indexOf("recommend") != -1 ||
-                href.indexOf("franchise") != -1 ||
-                href.indexOf("developer") != -1 ||
-                href.indexOf("publisher") != -1 ||
-                href.indexOf("curators") != -1 ||
-                href.indexOf("dlc") != -1 ||
-                href.indexOf("tag") != -1 ||
-                href.indexOf("wishlist") != -1 ||
-                href.indexOf("sale") != -1 ||
-                href.indexOf("chart") != -1 ||
-                href.indexOf("explore") != -1 ||
-                href.indexOf("news") != -1 ||
-                href.indexOf("itemstore") != -1 ||
-                href.indexOf("search") != -1 ||
-                href.indexOf("specials") != -1 ||
-                href.indexOf("sub") != -1 ||
-                href.indexOf("category") != -1 ||
-                href.indexOf("account") != -1 ||
-                href.indexOf("cart") != -1) {
+            if (checkwallet) {
                 region = document.querySelectorAll(`.global_action_link`);
             } else {
                 region = document.querySelectorAll(`.${labelsr[labelr]}`);
