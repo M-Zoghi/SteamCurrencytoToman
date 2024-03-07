@@ -64,7 +64,7 @@ function CheckRegion(labelsr) {
                 href.indexOf("publisher") != -1 ||
                 href.indexOf("curators") != -1 ||
                 href.indexOf("dlc") != -1 ||
-                href.indexOf("tags") != -1 ||
+                href.indexOf("tag") != -1 ||
                 href.indexOf("wishlist") != -1 ||
                 href.indexOf("sale") != -1 ||
                 href.indexOf("itemstore") != -1 ||
@@ -289,6 +289,7 @@ var labels = [
     'discount_final_price',
     'game_purchase_price',
     'game_area_dlc_price',
+    'browse_tag_game_price',
     'salepreviewwidgets_InGameHover_2uFQ-',
     'salepreviewwidgets_StoreSalePriceBox_3j4dI',
     'salepreviewwidgets_StoreSalePriceBox_Wh0L8',
