@@ -58,7 +58,7 @@ function CheckRegion(labelsr) {
     for (labelr in labelsr) {
         if (href.indexOf("steampowered") != -1) {
             if (href.indexOf("bundle") != -1 ||
-                href.indexOf("communityrecommendations") != -1 ||
+                href.indexOf("recommend") != -1 ||
                 href.indexOf("franchise") != -1 ||
                 href.indexOf("developer") != -1 ||
                 href.indexOf("publisher") != -1 ||
