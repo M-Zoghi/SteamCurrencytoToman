@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.48
+// @version            1.49
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -732,7 +732,7 @@ function waitloadingbar() {
 
     var PopPop = document.createElement('style');
     PopPop.type = 'text/css';
-    PopPop.innerHTML = '.ico16 { background: none; } ';
+    PopPop.innerHTML = '.ico16sc { display: inline-block; width: 16px; height: 16px; background: none; vertical-align: text-top; }';
     document.getElementsByTagName('head')[0].appendChild(PopPop);
 
     const Popup = document.querySelector('#account_dropdown .popup_body');
@@ -752,7 +752,7 @@ function waitloadingbar() {
         KeyISP.appendChild(KeyISPA);
 
         const KeyISPI = document.createElement('img');
-        KeyISPI.className = 'ico16';
+        KeyISPI.className = 'ico16sc';
         KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
         KeyISP.prepend(KeyISPI);
 
@@ -770,7 +770,7 @@ function waitloadingbar() {
         KeyDSP.appendChild(KeyDSPA);
 
         const KeyDSPI = document.createElement('img');
-        KeyDSPI.className = 'ico16';
+        KeyDSPI.className = 'ico16sc';
         KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
         KeyDSP.prepend(KeyDSPI);
 
@@ -788,7 +788,7 @@ function waitloadingbar() {
         KeyMSP.appendChild(KeyMSPA);
 
         const KeyMSPI = document.createElement('img');
-        KeyMSPI.className = 'ico16';
+        KeyMSPI.className = 'ico16sc';
         KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
         KeyMSP.prepend(KeyMSPI);
 
