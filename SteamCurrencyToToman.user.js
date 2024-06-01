@@ -124,7 +124,7 @@ function LoadIRSteamPrice(IRSteamObject) {
     IRSteamElementsPopUp.forEach(function (element) {
         element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + ")";
     });
-		document.querySelectorAll(".buytf2btn").forEach(function (link) {
+    document.querySelectorAll(".buytf2btn").forEach(function (link) {
         link.href = 'https://iraniansteam.ir/tf2';
     });
 }
@@ -176,7 +176,7 @@ function LoadDRSteamPrice(DRSteamObject) {
     document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
         element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + ")";
     });
-	document.querySelectorAll(".buytf2btn").forEach(function (link) {
+    document.querySelectorAll(".buytf2btn").forEach(function (link) {
         link.href = 'https://dragonsteam.net/shop/tf2/key';
     });
 }
@@ -289,20 +289,20 @@ function WaitForPrices() {
 function GetFinalKeyPrice() {
     if (DRSteamPriceGlobal !== 0 && IRSteamPriceGlobal !== 0) {
         if (DRSteamPriceGlobal > IRSteamPriceGlobal) {
-			AddLoadingBar(33);
+            AddLoadingBar(33);
             FinalKeyPrice = IRSteamPriceGlobal;
             console.log("%c[SteamCurrencytoToman] %cUsing Iranian Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
         } else {
-			AddLoadingBar(33);
+            AddLoadingBar(33);
             FinalKeyPrice = DRSteamPriceGlobal;
             console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
         }
     } else if (DRSteamPriceGlobal == 0 && IRSteamPriceGlobal !== 0) {
-		AddLoadingBar(33);
+        AddLoadingBar(33);
         FinalKeyPrice = IRSteamPriceGlobal;
         console.log("%c[SteamCurrencytoToman] %cUsing Iranian Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
     } else if (DRSteamPriceGlobal !== 0 && IRSteamPriceGlobal == 0) {
-		AddLoadingBar(33);
+        AddLoadingBar(33);
         FinalKeyPrice = DRSteamPriceGlobal;
         console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
     }
@@ -318,6 +318,8 @@ function GetFinalKeyPrice() {
             EURtoTomanW();
             EURtoToman(labels);
         }
+    } else {
+        AddLoadingBar(33);
     }
 }
 
