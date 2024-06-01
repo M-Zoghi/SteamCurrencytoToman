@@ -307,7 +307,7 @@ function GetFinalKeyPrice() {
         console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
     }
 
-    if (FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
+    if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
             UAHtoToman(labels);
