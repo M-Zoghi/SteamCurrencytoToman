@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.51
+// @version            1.52
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -307,7 +307,7 @@ function GetFinalKeyPrice() {
         console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
     }
 
-    if (FinalKeyPrice !== null && MarketPriceCheck === true) {
+    if (FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
             UAHtoToman(labels);
