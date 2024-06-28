@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.52
+// @version            1.53
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -114,8 +114,6 @@ function LoadIRSteamPrice(IRSteamObject) {
     IRSteamAvailGlobal = Math.ceil(IRSteamDataFound.props.pageProps.tf2.quantity);
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + IRSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + IRSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
-    IRSteamPriceCheck = true;
-    AddLoadingBar(23);
     var IRSteamElements = document.querySelectorAll(".irsteamprice");
     var IRSteamElementsPopUp = document.querySelectorAll(".popupirsteamprice");
     IRSteamElements.forEach(function (element) {
@@ -127,6 +125,8 @@ function LoadIRSteamPrice(IRSteamObject) {
     document.querySelectorAll(".buytf2btn").forEach(function (link) {
         link.href = 'https://iraniansteam.ir/tf2';
     });
+    IRSteamPriceCheck = true;
+    AddLoadingBar(23);
 }
 
 function LoadIRSteamPriceTimeout() {
@@ -134,8 +134,6 @@ function LoadIRSteamPriceTimeout() {
     IRSteamPriceGlobal = 0;
     IRSteamAvailGlobal = 0;
     console.log("%c[SteamCurrencytoToman] %cIranian Steam Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
-    IRSteamPriceCheck = true;
-    AddLoadingBar(23);
     var IRSteamElements = document.querySelectorAll(".irsteamprice");
     var IRSteamElementsPopUp = document.querySelectorAll(".popupirsteamprice");
     IRSteamElements.forEach(function (element) {
@@ -144,6 +142,8 @@ function LoadIRSteamPriceTimeout() {
     IRSteamElementsPopUp.forEach(function (element) {
         element.textContent = "Error!";
     });
+    IRSteamPriceCheck = true;
+    AddLoadingBar(23);
 }
 
 function GetDRSteamPrice() {
@@ -168,8 +168,6 @@ function LoadDRSteamPrice(DRSteamObject) {
     DRSteamAvailGlobal = DRSteamDataFound.keyCount;
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + DRSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Quantity: " + DRSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
-    DRSteamPriceCheck = true;
-    AddLoadingBar(23);
     document.querySelectorAll(".dragonsteamprice").forEach(function (element) {
         element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + " In Stock)";
     });
@@ -179,6 +177,8 @@ function LoadDRSteamPrice(DRSteamObject) {
     document.querySelectorAll(".buytf2btn").forEach(function (link) {
         link.href = 'https://dragonsteam.net/shop/tf2/key';
     });
+    DRSteamPriceCheck = true;
+    AddLoadingBar(23);
 }
 
 function LoadDRSteamPriceTimeout() {
@@ -186,14 +186,14 @@ function LoadDRSteamPriceTimeout() {
     DRSteamPriceGlobal = 0;
     DRSteamAvailGlobal = 0;
     console.log("%c[SteamCurrencytoToman] %cDragon Steam Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
-    DRSteamPriceCheck = true;
-    AddLoadingBar(23);
     document.querySelectorAll(".dragonsteamprice").forEach(function (element) {
         element.textContent = "Error!";
     });
     document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
         element.textContent = "Error!";
     });
+    DRSteamPriceCheck = true;
+    AddLoadingBar(23);
 }
 
 function GetMarketPrice() {
@@ -229,38 +229,38 @@ function LoadMarketPrice(MarketPriceObject) {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.');
         MarketPriceGlobal = Math.floor(MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
         console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + MarketPriceGlobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
         });
         document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
         });
+        MarketPriceCheck = true;
+        AddLoadingBar(23);
     } else if (CurrRegion === "USD") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] %cKey Market Price: $" + MarketPriceGlobal, "color:#2196F3; font-weight:bold;", "color:null");
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
         });
         document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
             element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
         });
+        MarketPriceCheck = true;
+        AddLoadingBar(23);
     } else if (CurrRegion === "EUR") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00') * 0.87).toFixed(2);
         console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + MarketPriceGlobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
         });
         document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
         });
+        MarketPriceCheck = true;
+        AddLoadingBar(23);
     }
 }
 
