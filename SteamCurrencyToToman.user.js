@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.53
+// @version            1.54
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -1004,7 +1004,7 @@ function handlemutations(mutationsList) {
     for (let mutation of mutationsList) {
         if (mutation.type === 'childList') {
             for (let node of mutation.addedNodes) {
-                if (DRSteamPriceCheck && MarketPriceCheck) {
+                if (GotAllPrices()) {
                     processnode(node);
                 }
             }
@@ -1032,6 +1032,6 @@ const observer = new MutationObserver(handlemutations);
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-if (DRSteamPriceCheck && MarketPriceCheck) {
+if (GotAllPrices()) {
     processnode(document.body);
 }
