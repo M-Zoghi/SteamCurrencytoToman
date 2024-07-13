@@ -6,7 +6,9 @@
     [<img src="https://img.shields.io/badge/Edge-2A6FB9?style=flat-square&logo=microsoftedge&logoColor=white" align="center">](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd)
     [<img src="https://img.shields.io/badge/Opera-fa1e4e?style=flat-square&logo=opera&logoColor=white" align="center">](https://addons.opera.com/en/extensions/details/tampermonkey-beta/)
 
-2. Install Scripts
+2. Enable "Developer Mode" in your browser settings. See here for steps: https://www.tampermonkey.net/faq.php#Q209
+
+3. Install Scripts
    
     [<img src="https://img.shields.io/badge/Install-Steam%20Currency%20to%20Toman%20%F0%9F%94%91-55682D?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/SteamCurrencyToToman.user.js)
 
