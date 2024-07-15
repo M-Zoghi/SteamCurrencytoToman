@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.54
+// @version            1.55
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -364,6 +364,7 @@ var labels = [
     '_2WLaY5TxjBGVyuWe_6KS3N',
     '_3h9iQSuChRQXyzpsu2ip8m',
     '_2WBvzE2CywKDLD0QTnbmUE',
+    '_3j4dI1yA7cRfCvK8h406OB',
     'Wh0L8EnwsPV_8VAu8TOYr',
     'price',
     'savings',
