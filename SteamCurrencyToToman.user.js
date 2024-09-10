@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.58
+// @version            1.59
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -56,43 +56,45 @@ GetIRSteamPrice();
 GetDRSteamPrice();
 
 function CheckRegion(labelsr) {
+    let region;
     const href = window.location.href;
-    const checkwallet = document.getElementById('header_wallet_balance');
-    let selectors = [];
+    var checkwallet = document.getElementById('header_wallet_balance');
+    region = document.querySelectorAll(`.global_action_link`);
+    for (labelr in labelsr) {
+        if (href.indexOf("steampowered") != -1) {
+            if (checkwallet) {
+                region = document.querySelectorAll(`.global_action_link`);
+            } else {
+                region = document.querySelectorAll(`.${labelsr[labelr]}`);
+            }
+        } else if (href.indexOf("market") != -1) {
+            if (checkwallet) {
+                region = document.querySelectorAll(`.global_action_link`);
+            } else {
+                region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price`);
+            }
+        }
 
-    if (href.includes("steampowered")) {
-        selectors = checkwallet ? ['.global_action_link'] : labelsr.map(label => `.${label}`);
-    } else if (href.includes("market")) {
-        selectors = checkwallet ? ['.global_action_link'] : [
-            '.market_commodity_orders_header_promote',
-            '.market_listing_price',
-            '.normal_price'
-        ];
-    }
-
-    if (selectors.length === 0) return;
-
-    const region = document.querySelectorAll(selectors.join(', '));
-    let currency = null;
-
-    if (region && region.length > 0) {
-        for (let el of region) {
-            const innerHTML = el.innerHTML;
-            if (innerHTML.includes("₴")) {
-                currency = "UAH";
-                break;
-            } else if (innerHTML.includes("$")) {
-                currency = "USD";
-                break;
-            } else if (innerHTML.includes("€")) {
-                currency = "EUR";
-                break;
+        if (region !== null && region.length > 0) {
+            for (var i = 0, len = region.length; i < len; i++) {
+                if (region[i].innerHTML.indexOf("₴") !== -1) {
+                    CurrRegion = "UAH";
+                    RegionCheck = true;
+                    break;
+                } else if (region[i].innerHTML.indexOf("$") !== -1) {
+                    CurrRegion = "USD";
+                    RegionCheck = true;
+                    break;
+                } else if (region[i].innerHTML.indexOf("€") !== -1) {
+                    CurrRegion = "EUR";
+                    RegionCheck = true;
+                    break;
+                }
             }
         }
     }
 
-    if (currency) {
-        CurrRegion = currency;
+    if (CurrRegion) {
         console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
         RegionCheck = true;
         GetMarketPrice();
