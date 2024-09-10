@@ -52,8 +52,6 @@ var labelsr = [
 ];
 
 CheckRegion(labelsr);
-GetIRSteamPrice();
-GetDRSteamPrice();
 
 function CheckRegion(labelsr) {
     let region;
@@ -97,11 +95,11 @@ function CheckRegion(labelsr) {
     if (CurrRegion) {
         console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
         RegionCheck = true;
+        GetIRSteamPrice();
+        GetDRSteamPrice();
         GetMarketPrice();
         WaitForPrices();
         return;
-    } else {
-        AddLoadingBar(100);
     }
 }
 
