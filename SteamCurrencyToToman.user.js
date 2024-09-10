@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.57
+// @version            1.58
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -316,6 +316,7 @@ function GetFinalKeyPrice() {
     if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
+            UAHtoToman(labels);
             return;
         } else if (CurrRegion === "USD") {
             USDtoTomanW();
@@ -393,7 +394,7 @@ function UAHtoToman(labels) {
             for (ind in price) {
                 if (re.test(price[ind].textContent)) {
                     let matchItem = re.exec(price[ind].textContent);
-                    if (matchItem[0].indexOf('₴') >= 0) {
+                    if (matchItem[0].indexOf('₴') >= 0 && typeof FinalKeyPrice !== 'undefined' && FinalKeyPrice !== null && FinalKeyPrice !== '') {
                         if (matchItem[0].indexOf('Your Price:') >= 0) {
                             let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
                             if (p > MarketPriceGlobal) {
@@ -408,7 +409,9 @@ function UAHtoToman(labels) {
                                     var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                     var neededkey = Math.ceil(needed / MarketPriceGlobal);
                                     var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
+                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
+                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
+                                    }
                                 }
                             } else {
                                 var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
@@ -434,7 +437,9 @@ function UAHtoToman(labels) {
                                     var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                     var neededkey = Math.ceil(needed / MarketPriceGlobal);
                                     var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
+                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
+                                    }
                                 }
                             } else {
                                 var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
@@ -446,7 +451,9 @@ function UAHtoToman(labels) {
                                     var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
                                     var neededkey = Math.ceil(needed / MarketPriceGlobal);
                                     var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
+                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
+                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
+                                    }
                                 }
                             }
                         }
@@ -577,7 +584,6 @@ function UAHtoTomanW() {
             setTimeout(1000);
         }
     }
-    UAHtoToman(labels);
 }
 
 function USDtoToman(labels) {
