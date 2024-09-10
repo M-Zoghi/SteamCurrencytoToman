@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.56
+// @version            1.57
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -31,7 +31,6 @@ var CurrRegion;
 var RegionCheck = false;
 var Wallet;
 let LoadingBar;
-
 var labelsr = [
     'discount_final_price',
     'game_purchase_price',
@@ -52,44 +51,53 @@ var labelsr = [
     'item_def_price',
 ];
 
-function CheckRegion(labelsr) {
-    let region;
-    const href = window.location.href;
-    var checkwallet = document.getElementById('header_wallet_balance');
-    region = document.querySelectorAll(`.global_action_link`);
-    for (labelr in labelsr) {
-        if (href.indexOf("steampowered") != -1) {
-            if (checkwallet) {
-                region = document.querySelectorAll(`.global_action_link`);
-            } else {
-                region = document.querySelectorAll(`.${labelsr[labelr]}`);
-            }
-        } else if (href.indexOf("market") != -1) {
-            if (checkwallet) {
-                region = document.querySelectorAll(`.global_action_link`);
-            } else {
-                region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price`);
-            }
-        }
+CheckRegion(labelsr);
+GetIRSteamPrice();
+GetDRSteamPrice();
 
-        if (region !== null && region.length > 0) {
-            for (var i = 0, len = region.length; i < len; i++) {
-                if (region[i].innerHTML.indexOf("₴") !== -1) {
-                    CurrRegion = "UAH";
-                    RegionCheck = true;
-                } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                    CurrRegion = "USD";
-                    RegionCheck = true;
-                } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                    CurrRegion = "EUR";
-                    RegionCheck = true;
-                }
+function CheckRegion(labelsr) {
+    const href = window.location.href;
+    const checkwallet = document.getElementById('header_wallet_balance');
+    let selectors = [];
+
+    if (href.includes("steampowered")) {
+        selectors = checkwallet ? ['.global_action_link'] : labelsr.map(label => `.${label}`);
+    } else if (href.includes("market")) {
+        selectors = checkwallet ? ['.global_action_link'] : [
+            '.market_commodity_orders_header_promote',
+            '.market_listing_price',
+            '.normal_price'
+        ];
+    }
+
+    if (selectors.length === 0) return;
+
+    const region = document.querySelectorAll(selectors.join(', '));
+    let currency = null;
+
+    if (region && region.length > 0) {
+        for (let el of region) {
+            const innerHTML = el.innerHTML;
+            if (innerHTML.includes("₴")) {
+                currency = "UAH";
+                break;
+            } else if (innerHTML.includes("$")) {
+                currency = "USD";
+                break;
+            } else if (innerHTML.includes("€")) {
+                currency = "EUR";
+                break;
             }
         }
     }
 
-    if (CurrRegion) {
+    if (currency) {
+        CurrRegion = currency;
         console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
+        RegionCheck = true;
+        GetMarketPrice();
+        WaitForPrices();
+        return;
     }
 }
 
@@ -204,6 +212,7 @@ function GetMarketPrice() {
             dataType: 'json',
             onload: LoadMarketPrice,
         })
+        return;
     } else if (CurrRegion === "USD") {
         GM_xmlhttpRequest({
             method: 'GET',
@@ -211,6 +220,7 @@ function GetMarketPrice() {
             dataType: 'json',
             onload: LoadMarketPrice,
         })
+        return;
     } else if (CurrRegion === "EUR") {
         GM_xmlhttpRequest({
             method: 'GET',
@@ -218,6 +228,7 @@ function GetMarketPrice() {
             dataType: 'json',
             onload: LoadMarketPrice,
         })
+        return;
     }
 }
 
@@ -237,6 +248,7 @@ function LoadMarketPrice(MarketPriceObject) {
         });
         MarketPriceCheck = true;
         AddLoadingBar(23);
+        return;
     } else if (CurrRegion === "USD") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
@@ -249,6 +261,7 @@ function LoadMarketPrice(MarketPriceObject) {
         });
         MarketPriceCheck = true;
         AddLoadingBar(23);
+        return;
     } else if (CurrRegion === "EUR") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00') * 0.87).toFixed(2);
@@ -261,16 +274,9 @@ function LoadMarketPrice(MarketPriceObject) {
         });
         MarketPriceCheck = true;
         AddLoadingBar(23);
+        return;
     }
 }
-
-CheckRegion(labelsr);
-if (RegionCheck === true) {
-    GetIRSteamPrice();
-    GetDRSteamPrice();
-    GetMarketPrice();
-}
-WaitForPrices();
 
 function GotAllPrices() {
     return DRSteamPriceCheck && MarketPriceCheck && IRSteamPriceCheck;
@@ -310,13 +316,15 @@ function GetFinalKeyPrice() {
     if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
-            UAHtoToman(labels);
+            return;
         } else if (CurrRegion === "USD") {
             USDtoTomanW();
             USDtoToman(labels);
+            return;
         } else if (CurrRegion === "EUR") {
             EURtoTomanW();
             EURtoToman(labels);
+            return;
         }
     } else {
         AddLoadingBar(33);
@@ -391,8 +399,6 @@ function UAHtoToman(labels) {
                             if (p > MarketPriceGlobal) {
                                 if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
                                     var walletcal = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                                } else {
-                                    var walletcal = 0;
                                 }
                                 var calpricesteam = Math.ceil(p / MarketPriceGlobal);
                                 var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
@@ -418,8 +424,6 @@ function UAHtoToman(labels) {
                             if (p > MarketPriceGlobal) {
                                 if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
                                     var walletcal = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                                } else {
-                                    var walletcal = 0;
                                 }
                                 var calpricesteam = Math.ceil(p / MarketPriceGlobal);
                                 var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
@@ -573,6 +577,7 @@ function UAHtoTomanW() {
             setTimeout(1000);
         }
     }
+    UAHtoToman(labels);
 }
 
 function USDtoToman(labels) {
@@ -736,7 +741,7 @@ function addTooltip(element, tooltipText) {
         element.style.cursor = 'help';
         setTimeout(function() {
             tooltip.style.opacity = '0';
-        }, 5000);
+        }, 7000);
     });
 
     element.addEventListener('mouseout', function () {
@@ -995,10 +1000,13 @@ function waitloadingbar() {
 function convertcurrency() {
     if (CurrRegion === "UAH") {
         UAHtoToman(labels);
+        return;
     } else if (CurrRegion === "USD") {
         USDtoToman(labels);
+        return;
     } else if (CurrRegion === "EUR") {
         EURtoToman(labels);
+        return;
     }
 }
 
