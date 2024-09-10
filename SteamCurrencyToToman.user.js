@@ -100,6 +100,8 @@ function CheckRegion(labelsr) {
         GetMarketPrice();
         WaitForPrices();
         return;
+    } else {
+        AddLoadingBar(100);
     }
 }
 
