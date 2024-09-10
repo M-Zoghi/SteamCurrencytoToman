@@ -294,7 +294,7 @@ function WaitForPrices() {
 
 function GetFinalKeyPrice() {
     if (DRSteamPriceGlobal !== 0 && IRSteamPriceGlobal !== 0) {
-        if (DRSteamPriceGlobal > IRSteamPriceGlobal) {
+        if (DRSteamPrice > IRSteamPrice) {
             AddLoadingBar(33);
             FinalKeyPrice = IRSteamPriceGlobal;
             console.log("%c[SteamCurrencytoToman] %cUsing Iranian Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
