@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.60
+// @version            1.61
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -49,6 +49,7 @@ var labelsr = [
     'price',
     'savings',
     'item_def_price',
+    '_79DIT7RUQ5g-',
 ];
 
 CheckRegion(labelsr);
@@ -379,6 +380,8 @@ var labels = [
     '_3fFFsvII7Y2KXNLDk_krOW',
     't7Gt8aeopD7JPlhcNTqGV',
     'Wh0L8EnwsPV_8VAu8TOYr',
+    'DOnsaVcV0Is-',
+    'ywNldZ-YzEE-',
     'price',
     'savings',
     'item_def_price',
@@ -560,7 +563,7 @@ function UAHtoToman(labels) {
 
 function UAHtoTomanW() {
     var rew = /(\D*)(\d *\S*)/;
-    let pricew = document.querySelectorAll(`.global_action_link`);
+    let pricew = document.querySelectorAll(`.global_action_link, ._79DIT7RUQ5g-`);
     for (indw in pricew) {
         if (rew.test(pricew[indw].textContent)) {
             let matchItemw = rew.exec(pricew[indw].textContent);
