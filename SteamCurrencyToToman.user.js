@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.62
+// @version            1.63
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -1010,13 +1010,13 @@ function waitloadingbar() {
 })();
 
 function convertcurrency() {
-    if (CurrRegion === "UAH") {
+    if (CurrRegion === "UAH" && typeof FinalKeyPrice !== "undefined") {
         UAHtoToman(labels);
         return;
-    } else if (CurrRegion === "USD") {
+    } else if (CurrRegion === "USD" && typeof FinalKeyPrice !== "undefined") {
         USDtoToman(labels);
         return;
-    } else if (CurrRegion === "EUR") {
+    } else if (CurrRegion === "EUR" && typeof FinalKeyPrice !== "undefined") {
         EURtoToman(labels);
         return;
     }
