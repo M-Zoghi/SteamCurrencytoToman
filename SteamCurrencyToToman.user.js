@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.63
+// @version            1.64
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -9,6 +9,7 @@
 // @match              http*://steamcommunity.com/*
 // @require            http://code.jquery.com/jquery.min.js
 // @grant              GM_xmlhttpRequest
+// @connect            fastkeys.ir
 // @connect            iraniansteam.ir
 // @connect            dragonsteam.net
 // @connect            steamcommunity.com
@@ -18,6 +19,10 @@
 var MarketPrice;
 var MarketPriceGlobal;
 var MarketPriceCheck = false;
+var FKSteamPrice;
+var FKSteamPriceGlobal;
+var FKSteamAvailGlobal;
+var FKSteamPriceCheck = false;
 var IRSteamPrice;
 var IRSteamPriceGlobal;
 var IRSteamAvailGlobal;
@@ -96,6 +101,7 @@ function CheckRegion(labelsr) {
     if (CurrRegion) {
         console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
         RegionCheck = true;
+        GetFKSteamPrice();
         GetIRSteamPrice();
         GetDRSteamPrice();
         GetMarketPrice();
@@ -104,17 +110,104 @@ function CheckRegion(labelsr) {
     }
 }
 
-function GetIRSteamPrice() {
+function GetFKSteamPrice(retryCount = 0) {
+    const maxRetries = 3;
+    const retryDelay = 1000;
+
+    GM_xmlhttpRequest({
+        method: 'GET',
+        url: 'https://fastkeys.ir/buy/tf2-key',
+        dataType: 'json',
+        timeout: 3500,
+        onload: function(response) {
+            LoadFKSteamPrice(response);
+        },
+        ontimeout: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetFKSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadFKSteamPriceTimeout(response);
+            }
+        },
+        onerror: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetFKSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadFKSteamPriceTimeout(response);
+            }
+        },
+    });
+}
+
+
+function LoadFKSteamPrice(FKSteamObject) {
+    var FKSteamParser = new DOMParser();
+    var FKSteamResponseDoc = FKSteamParser.parseFromString(FKSteamObject.responseText, "text/html");
+    var FKSteamDataFound = FKSteamResponseDoc.getElementById('item_price_irt').innerHTML;
+    var FKSteamDataFoundAvail = FKSteamResponseDoc.querySelector('p.h6.text-white');
+    FKSteamPrice = FKSteamDataFound;
+    FKSteamPriceGlobal = Math.ceil(FKSteamPrice.replace(',', '.'));
+    FKSteamAvailGlobal = parseInt(FKSteamDataFoundAvail.textContent.match(/\d+/)[0], 10);
+    console.log("%c[SteamCurrencytoToman] %cFast Keys Price: " + FKSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
+    console.log("%c[SteamCurrencytoToman] %cFast Keys Quantity: " + FKSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
+    var FKSteamElements = document.querySelectorAll(".fksteamprice");
+    var FKSteamElementsPopUp = document.querySelectorAll(".popupfksteamprice");
+    FKSteamElements.forEach(function (element) {
+        element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + " In Stock)";
+    });
+    FKSteamElementsPopUp.forEach(function (element) {
+        element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + ")";
+    });
+    FKSteamPriceCheck = true;
+    AddLoadingBar(18);
+}
+
+function LoadFKSteamPriceTimeout() {
+    FKSteamPrice = 0;
+    FKSteamPriceGlobal = 0;
+    FKSteamAvailGlobal = 0;
+    console.log("%c[SteamCurrencytoToman] %cFast Keys Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
+    var FKSteamElements = document.querySelectorAll(".fksteamprice");
+    var FKSteamElementsPopUp = document.querySelectorAll(".popupfksteamprice");
+    FKSteamElements.forEach(function (element) {
+        element.textContent = "Error!";
+    });
+    FKSteamElementsPopUp.forEach(function (element) {
+        element.textContent = "Error!";
+    });
+    FKSteamPriceCheck = true;
+    AddLoadingBar(18);
+}
+
+function GetIRSteamPrice(retryCount = 0) {
+    const maxRetries = 3;
+    const retryDelay = 1000;
+
     GM_xmlhttpRequest({
         method: 'GET',
         url: 'https://iraniansteam.ir/tf2',
         dataType: 'json',
         timeout: 3500,
-        onload: LoadIRSteamPrice,
-        ontimeout: LoadIRSteamPriceTimeout,
-        onerror: LoadIRSteamPriceTimeout,
-    })
+        onload: function(response) {
+            LoadIRSteamPrice(response);
+        },
+        ontimeout: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetIRSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadIRSteamPriceTimeout(response);
+            }
+        },
+        onerror: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetIRSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadIRSteamPriceTimeout(response);
+            }
+        },
+    });
 }
+
 
 function LoadIRSteamPrice(IRSteamObject) {
     var IRSteamParser = new DOMParser();
@@ -133,11 +226,8 @@ function LoadIRSteamPrice(IRSteamObject) {
     IRSteamElementsPopUp.forEach(function (element) {
         element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + ")";
     });
-    document.querySelectorAll(".buytf2btn").forEach(function (link) {
-        link.href = 'https://iraniansteam.ir/tf2';
-    });
     IRSteamPriceCheck = true;
-    AddLoadingBar(23);
+    AddLoadingBar(18);
 }
 
 function LoadIRSteamPriceTimeout() {
@@ -154,21 +244,39 @@ function LoadIRSteamPriceTimeout() {
         element.textContent = "Error!";
     });
     IRSteamPriceCheck = true;
-    AddLoadingBar(23);
+    AddLoadingBar(18);
 }
 
-function GetDRSteamPrice() {
+function GetDRSteamPrice(retryCount = 0) {
+    const maxRetries = 3;
+    const retryDelay = 1000;
+
     GM_xmlhttpRequest({
         method: 'POST',
         url: 'https://dragonsteam.net/tf2/key/info',
         data: {},
         dataType: 'json',
         timeout: 1000,
-        onload: LoadDRSteamPrice,
-        ontimeout: LoadDRSteamPriceTimeout,
-        onerror: LoadDRSteamPriceTimeout,
-    })
+        onload: function(response) {
+            LoadDRSteamPrice(response);
+        },
+        ontimeout: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetDRSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadDRSteamPriceTimeout(response);
+            }
+        },
+        onerror: function(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => GetDRSteamPrice(retryCount + 1), retryDelay);
+            } else {
+                LoadDRSteamPriceTimeout(response);
+            }
+        },
+    });
 }
+
 
 function LoadDRSteamPrice(DRSteamObject) {
     var DRSteamParser = new DOMParser();
@@ -185,11 +293,8 @@ function LoadDRSteamPrice(DRSteamObject) {
     document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
         element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + ")";
     });
-    document.querySelectorAll(".buytf2btn").forEach(function (link) {
-        link.href = 'https://dragonsteam.net/shop/tf2/key';
-    });
     DRSteamPriceCheck = true;
-    AddLoadingBar(23);
+    AddLoadingBar(18);
 }
 
 function LoadDRSteamPriceTimeout() {
@@ -204,7 +309,7 @@ function LoadDRSteamPriceTimeout() {
         element.textContent = "Error!";
     });
     DRSteamPriceCheck = true;
-    AddLoadingBar(23);
+    AddLoadingBar(18);
 }
 
 function GetMarketPrice() {
@@ -242,7 +347,7 @@ function LoadMarketPrice(MarketPriceObject) {
     if (CurrRegion === "UAH") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.');
         MarketPriceGlobal = Math.floor(MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
-        console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + MarketPriceGlobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + MarketPriceGlobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
         });
@@ -255,7 +360,7 @@ function LoadMarketPrice(MarketPriceObject) {
     } else if (CurrRegion === "USD") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cKey Market Price: $" + MarketPriceGlobal, "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: $" + MarketPriceGlobal, "color:#2196F3; font-weight:bold;", "color:null");
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
         });
@@ -268,7 +373,7 @@ function LoadMarketPrice(MarketPriceObject) {
     } else if (CurrRegion === "EUR") {
         MarketPrice = MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
         MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cKey Market Price: " + MarketPriceGlobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
+        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + MarketPriceGlobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
         document.querySelectorAll(".marketsteamprice").forEach(function (element) {
             element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
         });
@@ -282,7 +387,7 @@ function LoadMarketPrice(MarketPriceObject) {
 }
 
 function GotAllPrices() {
-    return DRSteamPriceCheck && MarketPriceCheck && IRSteamPriceCheck;
+    return DRSteamPriceCheck && MarketPriceCheck && IRSteamPriceCheck && FKSteamPriceCheck;
 }
 
 function WaitForPrices() {
@@ -296,24 +401,56 @@ function WaitForPrices() {
 }
 
 function GetFinalKeyPrice() {
-    if (DRSteamPriceGlobal !== 0 && IRSteamPriceGlobal !== 0) {
-        if (DRSteamPrice > IRSteamPrice) {
-            AddLoadingBar(33);
-            FinalKeyPrice = IRSteamPriceGlobal;
-            console.log("%c[SteamCurrencytoToman] %cUsing Iranian Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
-        } else {
-            AddLoadingBar(33);
-            FinalKeyPrice = DRSteamPriceGlobal;
-            console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
+    const priceOptions = [];
+
+    if (DRSteamPriceGlobal !== 0) {
+        priceOptions.push({
+            price: DRSteamPriceGlobal,
+            label: "Dragon Steam Pricing"
+        });
+    }
+    if (IRSteamPriceGlobal !== 0) {
+        priceOptions.push({
+            price: IRSteamPriceGlobal,
+            label: "Iranian Steam Pricing"
+        });
+    }
+    if (FKSteamPriceGlobal !== 0) {
+        priceOptions.push({
+            price: FKSteamPriceGlobal,
+            label: "Fast Keys Pricing"
+        });
+    }
+
+    if (priceOptions.length > 0) {
+        const bestOption = priceOptions.reduce((prev, curr) => {
+            return prev.price < curr.price ? prev : curr;
+        });
+        FinalKeyPrice = bestOption.price;
+        AddLoadingBar(33);
+        console.log(
+            `%c[SteamCurrencytoToman] %cUsing ${bestOption.label}`,
+            "color:#2196F3; font-weight:bold;",
+            "color:null"
+        );
+
+        if (bestOption.label === "Iranian Steam Pricing") {
+            document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                link.href = 'https://iraniansteam.ir/tf2';
+            });
+        } else if (bestOption.label === "Dragon Steam Pricing") {
+            document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                link.href = 'https://dragonsteam.net/shop/tf2/key';
+            });
+        } else if (bestOption.label === "Fast Keys Pricing") {
+            document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                link.href = 'https://fastkeys.ir/buy/tf2-key';
+            });
         }
-    } else if (DRSteamPriceGlobal == 0 && IRSteamPriceGlobal !== 0) {
+
+
+    } else {
         AddLoadingBar(33);
-        FinalKeyPrice = IRSteamPriceGlobal;
-        console.log("%c[SteamCurrencytoToman] %cUsing Iranian Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
-    } else if (DRSteamPriceGlobal !== 0 && IRSteamPriceGlobal == 0) {
-        AddLoadingBar(33);
-        FinalKeyPrice = DRSteamPriceGlobal;
-        console.log("%c[SteamCurrencytoToman] %cUsing Dragon Steam Key Pricing", "color:#2196F3; font-weight:bold;", "color:null");
     }
 
     if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
@@ -836,6 +973,24 @@ function waitloadingbar() {
     const Popup = document.querySelector('#account_dropdown .popup_body');
 
     if (Popup) {
+        const KeyFKP = document.createElement('a');
+        KeyFKP.rel = 'noopener';
+        KeyFKP.target = '_blank';
+        KeyFKP.className = 'popup_menu_item PopPop';
+        KeyFKP.href = 'https://fastkeys.ir/buy/tf2-key';
+        KeyFKP.title = ("Buy keys from Fast Keys");
+        KeyFKP.textContent = " Fast Keys: ";
+
+        const KeyFKPA = document.createElement('a');
+        KeyFKPA.textContent = "Loading..."
+        KeyFKPA.className = 'account_name popupfksteamprice';
+        KeyFKP.appendChild(KeyFKPA);
+
+        const KeyFKPI = document.createElement('img');
+        KeyFKPI.className = 'ico16sc';
+        KeyFKPI.src = 'https://fastkeys.ir/favicon.ico';
+        KeyFKP.prepend(KeyFKPI);
+
         const KeyISP = document.createElement('a');
         KeyISP.rel = 'noopener';
         KeyISP.target = '_blank';
@@ -890,6 +1045,7 @@ function waitloadingbar() {
         KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
         KeyMSP.prepend(KeyMSPI);
 
+        Popup.appendChild(KeyFKP);
         Popup.appendChild(KeyISP);
         Popup.appendChild(KeyDSP);
         Popup.appendChild(KeyMSP);
@@ -945,6 +1101,22 @@ function waitloadingbar() {
 
     blockInner.appendChild(link);
 
+    const fksteamprice = document.createElement('a');
+    fksteamprice.className = 'rightcolumn fksteamprice';
+    fksteamprice.title = ("Buy keys from Fast Keys");
+    fksteamprice.target = '_blank';
+    fksteamprice.href = 'https://fastkeys.ir/buy/tf2-key';
+    fksteamprice.textContent = "Loading...";
+
+    let line = document.createElement('p');
+    let lineText = document.createElement('span');
+    lineText.className = 'leftcolumn';
+    lineText.textContent = ("Fast Keys: ");
+    line.appendChild(lineText);
+    line.appendChild(fksteamprice);
+
+    blockInner.appendChild(line);
+
     const irsteamprice = document.createElement('a');
     irsteamprice.className = 'rightcolumn irsteamprice';
     irsteamprice.title = ("Buy keys from Iranian Steam");
@@ -952,8 +1124,8 @@ function waitloadingbar() {
     irsteamprice.href = 'https://iraniansteam.ir/tf2';
     irsteamprice.textContent = "Loading...";
 
-    let line = document.createElement('p');
-    let lineText = document.createElement('span');
+    line = document.createElement('p');
+    lineText = document.createElement('span');
     lineText.className = 'leftcolumn';
     lineText.textContent = ("Iranian Steam: ");
     line.appendChild(lineText);
