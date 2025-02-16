@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.64
+// @version            1.65
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -35,6 +35,7 @@ var FinalKeyPrice;
 var CurrRegion;
 var RegionCheck = false;
 var Wallet;
+var lastUpdatedGlobal;
 let LoadingBar;
 var labelsr = [
     'discount_final_price',
@@ -101,12 +102,206 @@ function CheckRegion(labelsr) {
     if (CurrRegion) {
         console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
         RegionCheck = true;
+        CheckStorage();
+        return;
+    }
+}
+
+function CheckStorage() {
+    const StoredData = localStorage.getItem('SCTTData');
+
+    if (StoredData) {
+        const data = JSON.parse(StoredData);
+        const currentTime = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000;
+        const timestamp = data.timestamp;
+        const lastUpdated = new Date(timestamp);
+        let time = lastUpdated.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+
+        time = time.toUpperCase();
+
+        let date = lastUpdated.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        lastUpdatedGlobal = time + " - " + date;
+
+        if (currentTime - data.timestamp < thirtyMinutes) {
+            FinalKeyPrice = data.FinalKeyPrice;
+            MarketPrice = data.MarketPrice;
+            MarketPriceGlobal = data.MarketPriceGlobal;
+            FKSteamPrice = data.FKSteamPrice;
+            FKSteamPriceGlobal = data.FKSteamPriceGlobal
+            FKSteamAvailGlobal = data.FKSteamAvailGlobal;
+            IRSteamPrice = data.IRSteamPrice;
+            IRSteamPriceGlobal = data.IRSteamPriceGlobal;
+            IRSteamAvailGlobal = data.IRSteamAvailGlobal;
+            DRSteamPrice = data.DRSteamPrice;
+            DRSteamPriceGlobal = data.DRSteamPriceGlobal
+            DRSteamAvailGlobal = data.DRSteamAvailGlobal;
+            FKSteamPriceCheck = true;
+            IRSteamPriceCheck = true;
+            DRSteamPriceCheck = true;
+            MarketPriceCheck = true;
+
+            if (CurrRegion === "UAH") {
+                UAHtoTomanW();
+                UAHtoToman(labels);
+            } else if (CurrRegion === "USD") {
+                USDtoTomanW();
+                USDtoToman(labels);
+            } else if (CurrRegion === "EUR") {
+                EURtoTomanW();
+                EURtoToman(labels);
+            }
+
+            waitForElements(".lastupdated", function (elements) {
+                const lastupdated = elements[0];
+                lastupdated.textContent = lastUpdatedGlobal;
+
+                const updateline = lastupdated.closest('p');
+                updateline.style.display = 'block';
+            });
+
+            waitForElements(".fksteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + " In Stock)";
+                });
+            });
+
+            waitForElements(".popupfksteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + ")";
+                });
+            });
+
+            waitForElements(".irsteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + " In Stock)";
+                });
+            });
+
+            waitForElements(".popupirsteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + ")";
+                });
+            });
+
+            waitForElements(".dragonsteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + " In Stock)";
+                });
+            });
+
+            waitForElements(".popupdragonsteamprice", (elements) => {
+                elements.forEach((element) => {
+                    element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + ")";
+                });
+            });
+
+
+            if (CurrRegion === "UAH") {
+                waitForElements(".marketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
+                    });
+                });
+
+                waitForElements(".popupmarketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
+                    });
+                });
+            } else if (CurrRegion === "USD") {
+                waitForElements(".marketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
+                    });
+                });
+
+                waitForElements(".popupmarketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
+                    });
+                });
+            } else if (CurrRegion === "EUR") {
+                waitForElements(".marketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
+                    });
+                });
+
+                waitForElements(".popupmarketsteamprice", (elements) => {
+                    elements.forEach((element) => {
+                        element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
+                    });
+                });
+            }
+
+            const priceOptions = [];
+
+            if (DRSteamPriceGlobal !== 0) {
+                priceOptions.push({
+                    price: DRSteamPriceGlobal,
+                    label: "Dragon Steam Pricing"
+                });
+            }
+            if (IRSteamPriceGlobal !== 0) {
+                priceOptions.push({
+                    price: IRSteamPriceGlobal,
+                    label: "Iranian Steam Pricing"
+                });
+            }
+            if (FKSteamPriceGlobal !== 0) {
+                priceOptions.push({
+                    price: FKSteamPriceGlobal,
+                    label: "Fast Keys Pricing"
+                });
+            }
+
+            if (priceOptions.length > 0) {
+                const bestOption = priceOptions.reduce((prev, curr) => {
+                    return prev.price < curr.price ? prev : curr;
+                });
+
+                if (bestOption.label === "Iranian Steam Pricing") {
+                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                        link.href = 'https://iraniansteam.ir/tf2';
+                    });
+                } else if (bestOption.label === "Dragon Steam Pricing") {
+                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                        link.href = 'https://dragonsteam.net/shop/tf2/key';
+                    });
+                } else if (bestOption.label === "Fast Keys Pricing") {
+                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                        link.href = 'https://fastkeys.ir/buy/tf2-key';
+                    });
+                }
+            }
+
+            console.log(`%c[SteamCurrencytoToman] %cLoaded prices from local storage: ${FinalKeyPrice} Toman , ${MarketPriceGlobal}₴`,"color:#2196F3; font-weight:bold;", "color:null");
+            console.log(`%c[SteamCurrencytoToman] %cLast updated on: ${lastUpdatedGlobal}`, "color:#2196F3; font-weight:bold;", "color:null");
+            return;
+        } else {
+            GetFKSteamPrice();
+            GetIRSteamPrice();
+            GetDRSteamPrice();
+            GetMarketPrice();
+            WaitForPrices();
+        }
+    } else {
         GetFKSteamPrice();
         GetIRSteamPrice();
         GetDRSteamPrice();
         GetMarketPrice();
         WaitForPrices();
-        return;
     }
 }
 
@@ -454,6 +649,9 @@ function GetFinalKeyPrice() {
     }
 
     if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
+        setTimeout(() => {
+            SavePrices();
+        }, 1000);
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
             UAHtoToman(labels);
@@ -471,6 +669,26 @@ function GetFinalKeyPrice() {
         AddLoadingBar(33);
     }
 }
+
+function SavePrices() {
+    const data = {
+        FinalKeyPrice,
+        MarketPrice,
+        MarketPriceGlobal,
+        FKSteamPrice,
+        FKSteamPriceGlobal,
+        FKSteamAvailGlobal,
+        IRSteamPrice,
+        IRSteamPriceGlobal,
+        IRSteamAvailGlobal,
+        DRSteamPrice,
+        DRSteamPriceGlobal,
+        DRSteamAvailGlobal,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('SCTTData', JSON.stringify(data));
+}
+
 
 function eToNumber(num) {
     let sign = "";
@@ -942,6 +1160,26 @@ function waitloadingbar() {
     });
 }
 
+function waitForElements(selector, callback) {
+    let elements = document.querySelectorAll(selector);
+
+    if (elements.length > 0) {
+        callback(elements);
+        return;
+    }
+
+    const observer = new MutationObserver((mutations, observer) => {
+        let elements = document.querySelectorAll(selector);
+        if (elements.length > 0) {
+            observer.disconnect();
+            callback(elements);
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+
 (function () {
     LoadingBar = document.createElement('div');
     LoadingBar.id = 'loading-bar';
@@ -1164,6 +1402,21 @@ function waitloadingbar() {
     line.appendChild(marketsteamprice);
 
     blockInner.appendChild(line);
+
+    const lastupdated = document.createElement('a');
+    lastupdated.className = 'rightcolumn lastupdated';
+    lastupdated.title = ("Last time prices were updated");
+    lastupdated.textContent = "Never";
+
+    let updateline = document.createElement('p');
+    let updatelineText = document.createElement('span');
+    updatelineText.className = 'leftcolumn';
+    updatelineText.textContent = ("Last Update On: ");
+    updateline.appendChild(updatelineText);
+    updateline.appendChild(lastupdated);
+    updateline.style.display = 'none';
+
+    blockInner.appendChild(updateline);
 
     container.insertBefore(block, container.firstChild);
 
