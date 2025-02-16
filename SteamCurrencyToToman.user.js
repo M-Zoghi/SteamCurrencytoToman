@@ -238,46 +238,48 @@ function CheckStorage() {
                 });
             }
 
-            const priceOptions = [];
+            waitForElements(".buytf2btn", (elements) => {
+                const priceOptions = [];
 
-            if (DRSteamPriceGlobal !== 0) {
-                priceOptions.push({
-                    price: DRSteamPriceGlobal,
-                    label: "Dragon Steam Pricing"
-                });
-            }
-            if (IRSteamPriceGlobal !== 0) {
-                priceOptions.push({
-                    price: IRSteamPriceGlobal,
-                    label: "Iranian Steam Pricing"
-                });
-            }
-            if (FKSteamPriceGlobal !== 0) {
-                priceOptions.push({
-                    price: FKSteamPriceGlobal,
-                    label: "Fast Keys Pricing"
-                });
-            }
-
-            if (priceOptions.length > 0) {
-                const bestOption = priceOptions.reduce((prev, curr) => {
-                    return prev.price < curr.price ? prev : curr;
-                });
-
-                if (bestOption.label === "Iranian Steam Pricing") {
-                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                        link.href = 'https://iraniansteam.ir/tf2';
-                    });
-                } else if (bestOption.label === "Dragon Steam Pricing") {
-                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                        link.href = 'https://dragonsteam.net/shop/tf2/key';
-                    });
-                } else if (bestOption.label === "Fast Keys Pricing") {
-                    document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                        link.href = 'https://fastkeys.ir/buy/tf2-key';
+                if (DRSteamPriceGlobal !== 0) {
+                    priceOptions.push({
+                        price: DRSteamPriceGlobal,
+                        label: "Dragon Steam Pricing"
                     });
                 }
-            }
+                if (IRSteamPriceGlobal !== 0) {
+                    priceOptions.push({
+                        price: IRSteamPriceGlobal,
+                        label: "Iranian Steam Pricing"
+                    });
+                }
+                if (FKSteamPriceGlobal !== 0) {
+                    priceOptions.push({
+                        price: FKSteamPriceGlobal,
+                        label: "Fast Keys Pricing"
+                    });
+                }
+
+                if (priceOptions.length > 0) {
+                    const bestOption = priceOptions.reduce((prev, curr) => {
+                        return prev.price < curr.price ? prev : curr;
+                    });
+
+                    if (bestOption.label === "Iranian Steam Pricing") {
+                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                            link.href = 'https://iraniansteam.ir/tf2';
+                        });
+                    } else if (bestOption.label === "Dragon Steam Pricing") {
+                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                            link.href = 'https://dragonsteam.net/shop/tf2/key';
+                        });
+                    } else if (bestOption.label === "Fast Keys Pricing") {
+                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
+                            link.href = 'https://fastkeys.ir/buy/tf2-key';
+                        });
+                    }
+                }
+            });
 
             console.log(`%c[SteamCurrencytoToman] %cLoaded prices from local storage: ${FinalKeyPrice} Toman , ${MarketPriceGlobal}₴`,"color:#2196F3; font-weight:bold;", "color:null");
             console.log(`%c[SteamCurrencytoToman] %cLast updated on: ${lastUpdatedGlobal}`, "color:#2196F3; font-weight:bold;", "color:null");
@@ -643,8 +645,27 @@ function GetFinalKeyPrice() {
 
     if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
         setTimeout(() => {
+            const lastUpdated = new Date();
             SavePrices();
+            let time = lastUpdated.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+
+            time = time.toUpperCase();
+            lastUpdatedGlobal = time;
+
+            waitForElements(".lastupdated", function (elements) {
+                const lastupdated = elements[0];
+                lastupdated.textContent = lastUpdatedGlobal;
+
+                const updateline = lastupdated.closest('p');
+                updateline.style.display = 'block';
+            });
         }, 1000);
+
         if (CurrRegion === "UAH") {
             UAHtoTomanW();
             UAHtoToman(labels);
