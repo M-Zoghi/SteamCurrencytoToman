@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.65
+// @version            1.66
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -124,14 +124,7 @@ function CheckStorage() {
         });
 
         time = time.toUpperCase();
-
-        let date = lastUpdated.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-
-        lastUpdatedGlobal = time + " - " + date;
+        lastUpdatedGlobal = time;
 
         if (currentTime - data.timestamp < thirtyMinutes) {
             FinalKeyPrice = data.FinalKeyPrice;
@@ -1405,13 +1398,18 @@ function waitForElements(selector, callback) {
 
     const lastupdated = document.createElement('a');
     lastupdated.className = 'rightcolumn lastupdated';
-    lastupdated.title = ("Last time prices were updated");
+    lastupdated.title = "Last time prices were updated. Click to refresh.";
     lastupdated.textContent = "Never";
+    lastupdated.style.cursor = 'pointer';
+    lastupdated.addEventListener('click', function() {
+        localStorage.removeItem('SCTTData');
+        location.reload();
+    });
 
     let updateline = document.createElement('p');
     let updatelineText = document.createElement('span');
     updatelineText.className = 'leftcolumn';
-    updatelineText.textContent = ("Last Update On: ");
+    updatelineText.textContent = "Last Update On: ";
     updateline.appendChild(updatelineText);
     updateline.appendChild(lastupdated);
     updateline.style.display = 'none';
@@ -1481,6 +1479,33 @@ observer.observe(document.body, { childList: true, subtree: true });
 
 if (GotAllPrices()) {
     processnode(document.body);
+}
+
+if (window.location.href.indexOf("wishlist") != -1) {
+    window.addEventListener('scroll', () => {
+        convertcurrency();
+    });
+
+    const observer = new MutationObserver(() => {
+        const innerScrollElement = document.querySelector('body.VuAIAiWhjcg- .khI3dKnN9c8-.o5zcnn2HXfA-');
+        if (innerScrollElement) {
+            if (document.readyState === "complete") {
+                innerScrollElement.addEventListener('scroll', () => {
+                    convertcurrency();
+                });
+                observer.disconnect();
+            } else {
+                window.addEventListener('load', () => {
+                    innerScrollElement.addEventListener('scroll', () => {
+                        convertcurrency();
+                    });
+                    observer.disconnect();
+                });
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 window.onload = function () {
