@@ -15,15 +15,15 @@
     [<img src="https://img.shields.io/badge/Install-Steam%20Upcoming%20Iranian%20Date%20%F0%9F%93%85-3E5C76?style=for-the-badge&logo=tampermonkey">](https://github.com/M-Zoghi/SteamCurrencytoToman/raw/main/Steam%20Upcoming%20Iranian%20Date.user.js)
 
 ## Features
-- Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] prices on Steam Store to Toman (Using TF2 key pricing)
-- Converts UAH₴ prices on Steam Community Market to Toman (Using TF2 key pricing)
-- You can hover over the converted prices to see the original pricing in a tooltip
-- If you are in UAH₴ region, the tooltip will calculate based on your current wallet
-- The prices are saved into the browser for faster navigation
-- The script will attempt to get new prices if the data is more than 30 minutes old
-- Adds key price info to the user menu (Right side of notification area)
-- Adds a widget to the game's page to show key prices
-- Adds a button to the game's page to buy TF2 keys
+- Converts UAH₴ / EUR€ / USD$ [CIS, SA, LATAM & MENA] regions to Toman using TF2 key pricing.
+- Converts UAH₴ prices on the Steam Community Market to Toman, also based on TF2 key pricing.
+- Hover over converted prices to view the original amount in a tooltip.
+- If you're in UAH₴ region, the tooltip calculates prices based on your current wallet balance.
+- Prices are cached in the browser for faster navigation and to reduce load on price sources.
+- The script automatically fetches updated prices if the data is older than 30 minutes.
+- Key price info is added to the user menu (top-right notification area).
+- Price widget is added on game pages to display price information.
+- Buy Keys button is added to game pages for quick access.
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/InfoMarket.png?raw=true)
 
