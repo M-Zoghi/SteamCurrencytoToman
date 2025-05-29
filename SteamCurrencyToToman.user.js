@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.67
+// @version            1.68
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -331,6 +331,7 @@ function GetFKSteamPrice(retryCount = 0) {
 
 
 function LoadFKSteamPrice(FKSteamObject) {
+    try {
     var FKSteamParser = new DOMParser();
     var FKSteamResponseDoc = FKSteamParser.parseFromString(FKSteamObject.responseText, "text/html");
     var FKSteamDataFound = FKSteamResponseDoc.getElementById('item_price_irt').innerHTML;
@@ -350,6 +351,9 @@ function LoadFKSteamPrice(FKSteamObject) {
     });
     FKSteamPriceCheck = true;
     AddLoadingBar(18);
+    } catch {
+        LoadFKSteamPriceTimeout();
+    }
 }
 
 function LoadFKSteamPriceTimeout() {
@@ -400,6 +404,7 @@ function GetIRSteamPrice(retryCount = 0) {
 
 
 function LoadIRSteamPrice(IRSteamObject) {
+    try {
     var IRSteamParser = new DOMParser();
     var IRSteamResponseDoc = IRSteamParser.parseFromString(IRSteamObject.responseText, "text/html");
     var IRSteamDataFound = JSON.parse(IRSteamResponseDoc.getElementById('__NEXT_DATA__').innerHTML);
@@ -418,6 +423,9 @@ function LoadIRSteamPrice(IRSteamObject) {
     });
     IRSteamPriceCheck = true;
     AddLoadingBar(18);
+    } catch {
+        LoadIRSteamPriceTimeout();
+    }
 }
 
 function LoadIRSteamPriceTimeout() {
@@ -469,6 +477,7 @@ function GetDRSteamPrice(retryCount = 0) {
 
 
 function LoadDRSteamPrice(DRSteamObject) {
+    try {
     var DRSteamParser = new DOMParser();
     var DRSteamResponseDoc = DRSteamParser.parseFromString(DRSteamObject.responseText, "text/html");
     var DRSteamDataFound = JSON.parse(DRSteamResponseDoc.querySelector("body").innerHTML);
@@ -485,6 +494,9 @@ function LoadDRSteamPrice(DRSteamObject) {
     });
     DRSteamPriceCheck = true;
     AddLoadingBar(18);
+    } catch {
+        LoadDRSteamPriceTimeout();
+    }
 }
 
 function LoadDRSteamPriceTimeout() {
