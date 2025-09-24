@@ -759,6 +759,7 @@ var labels = [
     '_2WBvzE2CywKDLD0QTnbmUE',
     '_3j4dI1yA7cRfCvK8h406OB',
     '_3fFFsvII7Y2KXNLDk_krOW',
+    '_1xgg-R84IHS6h5_x6ZycXi',
     '_2L23Sk2CNSFCplu_7mMmQx',
     't7Gt8aeopD7JPlhcNTqGV',
     'Wh0L8EnwsPV_8VAu8TOYr',
@@ -1545,4 +1546,5 @@ if (window.location.href.indexOf("wishlist") != -1) {
 window.onload = function () {
     convertcurrency();
 };
+
 
