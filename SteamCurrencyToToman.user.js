@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.69
+// @version            1.70
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -16,28 +16,52 @@
 // @license            MIT License
 // ==/UserScript==
 
-var MarketPrice;
-var MarketPriceGlobal;
-var MarketPriceCheck = false;
-var FKSteamPrice;
-var FKSteamPriceGlobal;
-var FKSteamAvailGlobal;
-var FKSteamPriceCheck = false;
-var IRSteamPrice;
-var IRSteamPriceGlobal;
-var IRSteamAvailGlobal;
-var IRSteamPriceCheck = false;
-var DRSteamPrice;
-var DRSteamPriceGlobal;
-var DRSteamAvailGlobal;
-var DRSteamPriceCheck = false;
-var FinalKeyPrice;
-var CurrRegion;
-var RegionCheck = false;
-var Wallet;
-var lastUpdatedGlobal;
+'use strict';
+
+const LOG_TAG = '%c[SteamCurrencytoToman] %c';
+const LOG_STYLES = ['color:#2196F3; font-weight:bold;', ''];
+
+const STEAM_FEE = 0.87;
+
+const PROVIDERS = {
+    fk: { name: 'Fast Keys', url: 'https://fastkeys.ir/buy/tf2-key', cls: 'fksteamprice', popupCls: 'popupfksteamprice' },
+    ir: { name: 'Iranian Steam',url: 'https://iraniansteam.ir/tf2', cls: 'irsteamprice', popupCls: 'popupirsteamprice' },
+    dr: { name: 'Dragon Steam', url: 'https://dragonsteam.net/tf2/mann-co-supply-crate-key', cls: 'dragonsteamprice', popupCls: 'popupdragonsteamprice' },
+};
+
+const MARKET_URLS = {
+    UAH: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=18',
+    USD: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=1',
+    EUR: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=3',
+};
+
+const MARKET_KEY_URL = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+
+let MarketPrice;
+let MarketPriceGlobal;
+let MarketPriceCheck = false;
+let FKSteamPrice;
+let FKSteamPriceGlobal;
+let FKSteamAvailGlobal;
+let FKSteamPriceCheck = false;
+let IRSteamPrice;
+let IRSteamPriceGlobal;
+let IRSteamAvailGlobal;
+let IRSteamPriceCheck = false;
+let DRSteamPrice;
+let DRSteamPriceGlobal;
+let DRSteamAvailGlobal;
+let DRSteamPriceCheck = false;
+let FinalKeyPrice;
+let CurrRegion;
+let RegionCheck = false;
+let Wallet;
+let WalletValue;
+let lastUpdatedGlobal;
 let LoadingBar;
-var labelsr = [
+let _tooltipPollingStarted = false;
+
+const labelsr = [
     'discount_final_price',
     'game_purchase_price',
     'game_area_dlc_price',
@@ -56,690 +80,19 @@ var labelsr = [
     'savings',
     'item_def_price',
     '_79DIT7RUQ5g-',
+    'global_action_link',
+    'market_commodity_orders_header_promote',
+    'market_listing_price',
+    'normal_price',
+    'NI9oaXH36YQ-',
+    'LL0I8Yv1KjM-',
+    'EZ-ocZV850k-',
+    'Thio3V0imwc-',
+    'f6hU22EA7Z8peFWZVBJU',
+    '_3hEeummFKRey8l5VXxZwxz',
 ];
 
-CheckRegion(labelsr);
-
-function CheckRegion(labelsr) {
-    let region;
-    const href = window.location.href;
-    var checkwallet = document.getElementById('header_wallet_balance');
-    region = document.querySelectorAll(`.global_action_link`);
-    for (labelr in labelsr) {
-        if (href.indexOf("steampowered") != -1) {
-            if (checkwallet) {
-                region = document.querySelectorAll(`.global_action_link`);
-            } else {
-                region = document.querySelectorAll(`.${labelsr[labelr]}`);
-            }
-        } else if (href.indexOf("market") != -1) {
-            if (checkwallet) {
-                region = document.querySelectorAll(`.global_action_link`);
-            } else {
-                region = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price, .normal_price`);
-            }
-        }
-
-        if (region !== null && region.length > 0) {
-            for (var i = 0, len = region.length; i < len; i++) {
-                if (region[i].innerHTML.indexOf("₴") !== -1) {
-                    CurrRegion = "UAH";
-                    RegionCheck = true;
-                    break;
-                } else if (region[i].innerHTML.indexOf("$") !== -1) {
-                    CurrRegion = "USD";
-                    RegionCheck = true;
-                    break;
-                } else if (region[i].innerHTML.indexOf("€") !== -1) {
-                    CurrRegion = "EUR";
-                    RegionCheck = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (CurrRegion) {
-        console.log(`%c[SteamCurrencytoToman] %cCurrency: "${CurrRegion}"`, "color:#2196F3; font-weight:bold;", "color:null");
-        RegionCheck = true;
-        CheckStorage();
-        return;
-    }
-}
-
-function CheckStorage() {
-    const StoredData = localStorage.getItem('SCTTData');
-
-    if (StoredData) {
-        const data = JSON.parse(StoredData);
-        const currentTime = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000;
-        const timestamp = data.timestamp;
-        const lastUpdated = new Date(timestamp);
-        let time = lastUpdated.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-
-        time = time.toUpperCase();
-        lastUpdatedGlobal = time;
-
-        if (currentTime - data.timestamp < thirtyMinutes) {
-            FinalKeyPrice = data.FinalKeyPrice;
-            MarketPrice = data.MarketPrice;
-            MarketPriceGlobal = data.MarketPriceGlobal;
-            FKSteamPrice = data.FKSteamPrice;
-            FKSteamPriceGlobal = data.FKSteamPriceGlobal
-            FKSteamAvailGlobal = data.FKSteamAvailGlobal;
-            IRSteamPrice = data.IRSteamPrice;
-            IRSteamPriceGlobal = data.IRSteamPriceGlobal;
-            IRSteamAvailGlobal = data.IRSteamAvailGlobal;
-            DRSteamPrice = data.DRSteamPrice;
-            DRSteamPriceGlobal = data.DRSteamPriceGlobal
-            DRSteamAvailGlobal = data.DRSteamAvailGlobal;
-            FKSteamPriceCheck = true;
-            IRSteamPriceCheck = true;
-            DRSteamPriceCheck = true;
-            MarketPriceCheck = true;
-
-            if (CurrRegion === "UAH") {
-                UAHtoTomanW();
-                UAHtoToman(labels);
-            } else if (CurrRegion === "USD") {
-                USDtoTomanW();
-                USDtoToman(labels);
-            } else if (CurrRegion === "EUR") {
-                EURtoTomanW();
-                EURtoToman(labels);
-            }
-
-            waitForElements(".lastupdated", function (elements) {
-                const lastupdated = elements[0];
-                lastupdated.textContent = lastUpdatedGlobal;
-
-                const updateline = lastupdated.closest('p');
-                updateline.style.display = 'block';
-            });
-
-            waitForElements(".fksteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + " In Stock)";
-                });
-            });
-
-            waitForElements(".popupfksteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + ")";
-                });
-            });
-
-            waitForElements(".irsteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + " In Stock)";
-                });
-            });
-
-            waitForElements(".popupirsteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + ")";
-                });
-            });
-
-            waitForElements(".dragonsteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + " In Stock)";
-                });
-            });
-
-            waitForElements(".popupdragonsteamprice", (elements) => {
-                elements.forEach((element) => {
-                    element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + ")";
-                });
-            });
-
-
-            if (CurrRegion === "UAH") {
-                waitForElements(".marketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
-                    });
-                });
-
-                waitForElements(".popupmarketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
-                    });
-                });
-            } else if (CurrRegion === "USD") {
-                waitForElements(".marketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
-                    });
-                });
-
-                waitForElements(".popupmarketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
-                    });
-                });
-            } else if (CurrRegion === "EUR") {
-                waitForElements(".marketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
-                    });
-                });
-
-                waitForElements(".popupmarketsteamprice", (elements) => {
-                    elements.forEach((element) => {
-                        element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
-                    });
-                });
-            }
-
-            waitForElements(".buytf2btn", (elements) => {
-                const priceOptions = [];
-
-                if (DRSteamPriceGlobal !== 0) {
-                    priceOptions.push({
-                        price: DRSteamPriceGlobal,
-                        label: "Dragon Steam Pricing"
-                    });
-                }
-                if (IRSteamPriceGlobal !== 0) {
-                    priceOptions.push({
-                        price: IRSteamPriceGlobal,
-                        label: "Iranian Steam Pricing"
-                    });
-                }
-                if (FKSteamPriceGlobal !== 0) {
-                    priceOptions.push({
-                        price: FKSteamPriceGlobal,
-                        label: "Fast Keys Pricing"
-                    });
-                }
-
-                if (priceOptions.length > 0) {
-                    const bestOption = priceOptions.reduce((prev, curr) => {
-                        return prev.price < curr.price ? prev : curr;
-                    });
-
-                    if (bestOption.label === "Iranian Steam Pricing") {
-                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                            link.href = 'https://iraniansteam.ir/tf2';
-                        });
-                    } else if (bestOption.label === "Dragon Steam Pricing") {
-                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                            link.href = 'https://dragonsteam.net/shop/tf2/key';
-                        });
-                    } else if (bestOption.label === "Fast Keys Pricing") {
-                        document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                            link.href = 'https://fastkeys.ir/buy/tf2-key';
-                        });
-                    }
-                }
-            });
-
-            console.log(`%c[SteamCurrencytoToman] %cLoaded prices from local storage: ${FinalKeyPrice} Toman , ${MarketPriceGlobal}₴`,"color:#2196F3; font-weight:bold;", "color:null");
-            console.log(`%c[SteamCurrencytoToman] %cLast updated on: ${lastUpdatedGlobal}`, "color:#2196F3; font-weight:bold;", "color:null");
-            return;
-        } else {
-            GetFKSteamPrice();
-            GetIRSteamPrice();
-            GetDRSteamPrice();
-            GetMarketPrice();
-            WaitForPrices();
-        }
-    } else {
-        GetFKSteamPrice();
-        GetIRSteamPrice();
-        GetDRSteamPrice();
-        GetMarketPrice();
-        WaitForPrices();
-    }
-}
-
-function GetFKSteamPrice(retryCount = 0) {
-    const maxRetries = 3;
-    const retryDelay = 1000;
-
-    GM_xmlhttpRequest({
-        method: 'GET',
-        url: 'https://fastkeys.ir/buy/tf2-key',
-        dataType: 'json',
-        timeout: 3500,
-        onload: function(response) {
-            LoadFKSteamPrice(response);
-        },
-        ontimeout: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetFKSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadFKSteamPriceTimeout(response);
-            }
-        },
-        onerror: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetFKSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadFKSteamPriceTimeout(response);
-            }
-        },
-    });
-}
-
-
-function LoadFKSteamPrice(FKSteamObject) {
-    try {
-    var FKSteamParser = new DOMParser();
-    var FKSteamResponseDoc = FKSteamParser.parseFromString(FKSteamObject.responseText, "text/html");
-    var FKSteamDataFound = FKSteamResponseDoc.getElementById('item_price_irt').innerHTML;
-    var FKSteamDataFoundAvail = FKSteamResponseDoc.querySelector('p.h6.text-white');
-    FKSteamPrice = FKSteamDataFound;
-    FKSteamPriceGlobal = Math.ceil(FKSteamPrice.replace(',', '.'));
-    FKSteamAvailGlobal = parseInt(FKSteamDataFoundAvail.textContent.match(/\d+/)[0], 10);
-    console.log("%c[SteamCurrencytoToman] %cFast Keys Price: " + FKSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[SteamCurrencytoToman] %cFast Keys Quantity: " + FKSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
-    var FKSteamElements = document.querySelectorAll(".fksteamprice");
-    var FKSteamElementsPopUp = document.querySelectorAll(".popupfksteamprice");
-    FKSteamElements.forEach(function (element) {
-        element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + " In Stock)";
-    });
-    FKSteamElementsPopUp.forEach(function (element) {
-        element.textContent = FKSteamPrice + " T (" + FKSteamAvailGlobal + ")";
-    });
-    FKSteamPriceCheck = true;
-    AddLoadingBar(18);
-    } catch {
-        LoadFKSteamPriceTimeout();
-    }
-}
-
-function LoadFKSteamPriceTimeout() {
-    FKSteamPrice = 0;
-    FKSteamPriceGlobal = 0;
-    FKSteamAvailGlobal = 0;
-    console.log("%c[SteamCurrencytoToman] %cFast Keys Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
-    var FKSteamElements = document.querySelectorAll(".fksteamprice");
-    var FKSteamElementsPopUp = document.querySelectorAll(".popupfksteamprice");
-    FKSteamElements.forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    FKSteamElementsPopUp.forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    FKSteamPriceCheck = true;
-    AddLoadingBar(18);
-}
-
-function GetIRSteamPrice(retryCount = 0) {
-    const maxRetries = 3;
-    const retryDelay = 1000;
-
-    GM_xmlhttpRequest({
-        method: 'GET',
-        url: 'https://iraniansteam.ir/tf2',
-        dataType: 'json',
-        timeout: 3500,
-        onload: function(response) {
-            LoadIRSteamPrice(response);
-        },
-        ontimeout: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetIRSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadIRSteamPriceTimeout(response);
-            }
-        },
-        onerror: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetIRSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadIRSteamPriceTimeout(response);
-            }
-        },
-    });
-}
-
-
-function LoadIRSteamPrice(IRSteamObject) {
-    try {
-    var IRSteamParser = new DOMParser();
-    var IRSteamResponseDoc = IRSteamParser.parseFromString(IRSteamObject.responseText, "text/html");
-    var IRSteamDataFound = JSON.parse(IRSteamResponseDoc.getElementById('__NEXT_DATA__').innerHTML);
-    IRSteamPrice = IRSteamDataFound.props.pageProps.tf2.prices.keyPrice;
-    IRSteamPriceGlobal = Math.ceil(IRSteamPrice.replace(',', '.'));
-    IRSteamAvailGlobal = Math.ceil(IRSteamDataFound.props.pageProps.tf2.quantity);
-    console.log("%c[SteamCurrencytoToman] %cIranian Steam Price: " + IRSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[SteamCurrencytoToman] %cIranian Steam Quantity: " + IRSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
-    var IRSteamElements = document.querySelectorAll(".irsteamprice");
-    var IRSteamElementsPopUp = document.querySelectorAll(".popupirsteamprice");
-    IRSteamElements.forEach(function (element) {
-        element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + " In Stock)";
-    });
-    IRSteamElementsPopUp.forEach(function (element) {
-        element.textContent = IRSteamPrice + " T (" + IRSteamAvailGlobal + ")";
-    });
-    IRSteamPriceCheck = true;
-    AddLoadingBar(18);
-    } catch {
-        LoadIRSteamPriceTimeout();
-    }
-}
-
-function LoadIRSteamPriceTimeout() {
-    IRSteamPrice = 0;
-    IRSteamPriceGlobal = 0;
-    IRSteamAvailGlobal = 0;
-    console.log("%c[SteamCurrencytoToman] %cIranian Steam Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
-    var IRSteamElements = document.querySelectorAll(".irsteamprice");
-    var IRSteamElementsPopUp = document.querySelectorAll(".popupirsteamprice");
-    IRSteamElements.forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    IRSteamElementsPopUp.forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    IRSteamPriceCheck = true;
-    AddLoadingBar(18);
-}
-
-function GetDRSteamPrice(retryCount = 0) {
-    const maxRetries = 3;
-    const retryDelay = 1000;
-
-    GM_xmlhttpRequest({
-        method: 'POST',
-        url: 'https://dragonsteam.net/tf2/key/info',
-        data: {},
-        dataType: 'json',
-        timeout: 1000,
-        onload: function(response) {
-            LoadDRSteamPrice(response);
-        },
-        ontimeout: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetDRSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadDRSteamPriceTimeout(response);
-            }
-        },
-        onerror: function(response) {
-            if (retryCount < maxRetries) {
-                setTimeout(() => GetDRSteamPrice(retryCount + 1), retryDelay);
-            } else {
-                LoadDRSteamPriceTimeout(response);
-            }
-        },
-    });
-}
-
-
-function LoadDRSteamPrice(DRSteamObject) {
-    try {
-    var DRSteamParser = new DOMParser();
-    var DRSteamResponseDoc = DRSteamParser.parseFromString(DRSteamObject.responseText, "text/html");
-    var DRSteamDataFound = JSON.parse(DRSteamResponseDoc.querySelector("body").innerHTML);
-    DRSteamPrice = DRSteamDataFound.keyPrice.price_sell.toLocaleString();
-    DRSteamPriceGlobal = Math.ceil(DRSteamPrice.replace(',', '.'));
-    DRSteamAvailGlobal = DRSteamDataFound.keyCount;
-    console.log("%c[SteamCurrencytoToman] %cDragon Steam Price: " + DRSteamPriceGlobal + " Toman", "color:#2196F3; font-weight:bold;", "color:null");
-    console.log("%c[SteamCurrencytoToman] %cDragon Steam Quantity: " + DRSteamAvailGlobal + " Keys", "color:#2196F3; font-weight:bold;", "color:null");
-    document.querySelectorAll(".dragonsteamprice").forEach(function (element) {
-        element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + " In Stock)";
-    });
-    document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
-        element.textContent = DRSteamPrice + " T (" + DRSteamAvailGlobal + ")";
-    });
-    DRSteamPriceCheck = true;
-    AddLoadingBar(18);
-    } catch {
-        LoadDRSteamPriceTimeout();
-    }
-}
-
-function LoadDRSteamPriceTimeout() {
-    DRSteamPrice = 0;
-    DRSteamPriceGlobal = 0;
-    DRSteamAvailGlobal = 0;
-    console.log("%c[SteamCurrencytoToman] %cDragon Steam Timed out!", "color:#2196F3; font-weight:bold;", "color:null");
-    document.querySelectorAll(".dragonsteamprice").forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    document.querySelectorAll(".popupdragonsteamprice").forEach(function (element) {
-        element.textContent = "Error!";
-    });
-    DRSteamPriceCheck = true;
-    AddLoadingBar(18);
-}
-
-function GetMarketPrice() {
-    if (CurrRegion === "UAH") {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=18',
-            dataType: 'json',
-            onload: LoadMarketPrice,
-        })
-        return;
-    } else if (CurrRegion === "USD") {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=1',
-            dataType: 'json',
-            onload: LoadMarketPrice,
-        })
-        return;
-    } else if (CurrRegion === "EUR") {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: 'https://steamcommunity.com/market/priceoverview/?appid=440&market_hash_name=Mann%20Co.%20Supply%20Crate%20Key&currency=3',
-            dataType: 'json',
-            onload: LoadMarketPrice,
-        })
-        return;
-    }
-}
-
-function LoadMarketPrice(MarketPriceObject) {
-    var MarketPriceParser = new DOMParser();
-    var MarketPriceResponseDoc = MarketPriceParser.parseFromString(MarketPriceObject.responseText, "text/html");
-    var MarketPriceDataFound = JSON.parse(MarketPriceResponseDoc.querySelector("body").innerHTML);
-    if (CurrRegion === "UAH") {
-        MarketPrice = MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.');
-        MarketPriceGlobal = Math.floor(MarketPriceDataFound.lowest_price.replace('₴', '').replace(',', '.') * 0.87);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + MarketPriceGlobal + "₴", "color:#2196F3; font-weight:bold;", "color:null");
-        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
-            element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
-        });
-        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
-            element.textContent = MarketPrice.replace('.', ',') + "₴ (" + MarketPriceGlobal + "₴)";
-        });
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
-        return;
-    } else if (CurrRegion === "USD") {
-        MarketPrice = MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.');
-        MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('$', '').replace(',', '.') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: $" + MarketPriceGlobal, "color:#2196F3; font-weight:bold;", "color:null");
-        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
-            element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
-        });
-        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
-            element.textContent = "$" + MarketPrice + " ($" + MarketPriceGlobal + ")";
-        });
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
-        return;
-    } else if (CurrRegion === "EUR") {
-        MarketPrice = MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
-        MarketPriceGlobal = (MarketPriceDataFound.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00') * 0.87).toFixed(2);
-        console.log("%c[SteamCurrencytoToman] %cMarket Price: " + MarketPriceGlobal + "€", "color:#2196F3; font-weight:bold;", "color:null");
-        document.querySelectorAll(".marketsteamprice").forEach(function (element) {
-            element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
-        });
-        document.querySelectorAll(".popupmarketsteamprice").forEach(function (element) {
-            element.textContent = MarketPrice.replace('.', ',') + "€ (" + MarketPriceGlobal.replace('.', ',') + "€)";
-        });
-        MarketPriceCheck = true;
-        AddLoadingBar(23);
-        return;
-    }
-}
-
-function GotAllPrices() {
-    return DRSteamPriceCheck && MarketPriceCheck && IRSteamPriceCheck && FKSteamPriceCheck;
-}
-
-function WaitForPrices() {
-    const interval = 500;
-    const CheckPrices = setInterval(() => {
-        if (GotAllPrices()) {
-            clearInterval(CheckPrices);
-            GetFinalKeyPrice();
-        }
-    }, interval);
-}
-
-function GetFinalKeyPrice() {
-    const priceOptions = [];
-
-    if (DRSteamPriceGlobal !== 0) {
-        priceOptions.push({
-            price: DRSteamPriceGlobal,
-            label: "Dragon Steam Pricing"
-        });
-    }
-    if (IRSteamPriceGlobal !== 0) {
-        priceOptions.push({
-            price: IRSteamPriceGlobal,
-            label: "Iranian Steam Pricing"
-        });
-    }
-    if (FKSteamPriceGlobal !== 0) {
-        priceOptions.push({
-            price: FKSteamPriceGlobal,
-            label: "Fast Keys Pricing"
-        });
-    }
-
-    if (priceOptions.length > 0) {
-        const bestOption = priceOptions.reduce((prev, curr) => {
-            return prev.price < curr.price ? prev : curr;
-        });
-        FinalKeyPrice = bestOption.price;
-        AddLoadingBar(33);
-        console.log(
-            `%c[SteamCurrencytoToman] %cUsing ${bestOption.label}`,
-            "color:#2196F3; font-weight:bold;",
-            "color:null"
-        );
-
-        if (bestOption.label === "Iranian Steam Pricing") {
-            document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                link.href = 'https://iraniansteam.ir/tf2';
-            });
-        } else if (bestOption.label === "Dragon Steam Pricing") {
-            document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                link.href = 'https://dragonsteam.net/shop/tf2/key';
-            });
-        } else if (bestOption.label === "Fast Keys Pricing") {
-            document.querySelectorAll(".buytf2btn").forEach(function(link) {
-                link.href = 'https://fastkeys.ir/buy/tf2-key';
-            });
-        }
-
-
-    } else {
-        AddLoadingBar(33);
-    }
-
-    if (typeof FinalKeyPrice !== "undefined" && MarketPriceCheck === true) {
-        setTimeout(() => {
-            const lastUpdated = new Date();
-            SavePrices();
-            let time = lastUpdated.toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-
-            time = time.toUpperCase();
-            lastUpdatedGlobal = time;
-
-            waitForElements(".lastupdated", function (elements) {
-                const lastupdated = elements[0];
-                lastupdated.textContent = lastUpdatedGlobal;
-
-                const updateline = lastupdated.closest('p');
-                updateline.style.display = 'block';
-            });
-        }, 1000);
-
-        if (CurrRegion === "UAH") {
-            UAHtoTomanW();
-            UAHtoToman(labels);
-            return;
-        } else if (CurrRegion === "USD") {
-            USDtoTomanW();
-            USDtoToman(labels);
-            return;
-        } else if (CurrRegion === "EUR") {
-            EURtoTomanW();
-            EURtoToman(labels);
-            return;
-        }
-    } else {
-        AddLoadingBar(33);
-    }
-}
-
-function SavePrices() {
-    const data = {
-        FinalKeyPrice,
-        MarketPrice,
-        MarketPriceGlobal,
-        FKSteamPrice,
-        FKSteamPriceGlobal,
-        FKSteamAvailGlobal,
-        IRSteamPrice,
-        IRSteamPriceGlobal,
-        IRSteamAvailGlobal,
-        DRSteamPrice,
-        DRSteamPriceGlobal,
-        DRSteamAvailGlobal,
-        timestamp: Date.now()
-    };
-    localStorage.setItem('SCTTData', JSON.stringify(data));
-}
-
-
-function eToNumber(num) {
-    let sign = "";
-    (num += "").charAt(0) == "-" && (num = num.substring(1), sign = "-");
-    let arr = num.split(/[e]/ig);
-    if (arr.length < 2)
-        return sign + num;
-    let dot = (.1).toLocaleString().substr(1, 1),
-        n = arr[0],
-        exp = +arr[1],
-        w = (n = n.replace(/^0+/, '')).replace(dot, ''),
-        pos = n.split(dot)[1] ? n.indexOf(dot) + exp : w.length + exp,
-        L = pos - w.length,
-        s = "" + BigInt(w);
-    w = exp >= 0 ? (L >= 0 ? s + "0".repeat(L) : r()) : (pos <= 0 ? "0" + dot + "0".repeat(Math.abs(pos)) + s : r());
-    L = w.split(dot);
-    if (L[0] == 0 && L[1] == 0 || (+w == 0 && +s == 0))
-        w = 0;
-    return sign + w;
-    function r() {
-        return w.replace(new RegExp(`^(.{${pos}})(.)`), `$1${dot}$2`)
-    }
-}
-
-var labels = [
+const labels = [
     'discount_original_price',
     'discount_final_price',
     'game_purchase_price',
@@ -771,582 +124,1048 @@ var labels = [
     'market_commodity_orders_header_promote',
     'market_listing_price',
     'normal_price',
+    'NI9oaXH36YQ-',
+    'LL0I8Yv1KjM-',
+    'EZ-ocZV850k-',
+    'Thio3V0imwc-',
+    'f6hU22EA7Z8peFWZVBJU',
+    '_3hEeummFKRey8l5VXxZwxz',
 ];
 
-function UAHtoToman(labels) {
-    if (window.location.href.indexOf("steampowered") != -1) {
-        var re = /(\D*)(\d *\S*)/;
-        for (label in labels) {
-            let price = document.querySelectorAll(`.${labels[label]}`);
-            if (price.length == 0)
-                continue;
-            for (ind in price) {
-                if (re.test(price[ind].textContent)) {
-                    let matchItem = re.exec(price[ind].textContent);
-                    if (matchItem[0].indexOf('₴') >= 0 && typeof FinalKeyPrice !== 'undefined' && FinalKeyPrice !== null && FinalKeyPrice !== '') {
-                        if (matchItem[0].indexOf('Your Price:') >= 0) {
-                            let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                            if (p > MarketPriceGlobal) {
-                                if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
-                                    var walletcal = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                                }
-                                var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                } else {
-                                    var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
-                                    var neededkey = Math.ceil(needed / MarketPriceGlobal);
-                                    var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
-                                        price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                    }
-                                }
-                            } else {
-                                var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\">" + calpricefinal + " T (" + calpricesteam + "🔑)" + "</div></div>";
-                                } else {
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                }
-                            }
-                        } else {
-                            let p = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                            if (p > MarketPriceGlobal) {
-                                if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
-                                    var walletcal = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                                }
-                                var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                    price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]");
-                                } else {
-                                    var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
-                                    var neededkey = Math.ceil(needed / MarketPriceGlobal);
-                                    var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
-                                    }
-                                }
-                            } else {
-                                var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcal) {
-                                    price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcal.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]");
-                                } else {
-                                    var needed = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcal);
-                                    var neededkey = Math.ceil(needed / MarketPriceGlobal);
-                                    var neededfinal = (neededkey * FinalKeyPrice).toLocaleString("en-US");
-                                    if (typeof walletcal !== 'undefined' && walletcal !== null && walletcal !== '') {
-                                        price[ind].setAttribute('ogpricetooltip', "[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcal.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededfinal + " T (" + neededkey + "🔑) = " + needed.toFixed(2).toString().replace('.', ',') + "₴[/R]");
-                                    }
-                                }
-                            }
-                        }
-                    }
+function clog(msg) {
+    console.log(LOG_TAG + msg, ...LOG_STYLES);
+}
+
+function isValidValue(val) {
+    return typeof val !== 'undefined' && val !== null && val !== '';
+}
+
+function formatTime(date) {
+    return date.toLocaleTimeString('en-GB', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true,
+    }).toUpperCase();
+}
+
+CheckRegion(labelsr);
+
+function CheckRegion(labelsr) {
+    const href = window.location.href;
+
+    const wallet = document.getElementById('header_wallet_balance');
+    const isStore = href.includes('steampowered');
+    const isMkt = href.includes('market');
+    const isInventory = href.includes('/inventory');
+    const isCommunity = href.includes('steamcommunity') && !isMkt;
+
+    const SYMBOLS = [
+        { sym: '₴', region: 'UAH' },
+        { sym: '$', region: 'USD' },
+        { sym: '€', region: 'EUR' },
+    ];
+
+    outer:
+    for (const labelr of labelsr) {
+        let region;
+        if (isStore) {
+
+            region = wallet
+                ? document.querySelectorAll('.global_action_link')
+                : document.querySelectorAll(`.${labelr}`);
+        } else if (isMkt || isCommunity) {
+            region = document.querySelectorAll(`.${labelr}`);
+        }
+
+        if (!region || region.length === 0) continue;
+
+        for (const el of region) {
+            for (const { sym, region: reg } of SYMBOLS) {
+                if (el.innerHTML.includes(sym)) {
+                    CurrRegion = reg;
+                    RegionCheck = true;
+                    break outer;
                 }
-            }
-            if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
-                initializeTooltips();
-            } else {
-                setTimeout(1000);
             }
         }
     }
 
-    if (window.location.href.indexOf("market") != -1) {
-        var rem = /(\D*)(.*(?:[₴]))/;
-        let pricem = document.querySelectorAll(`.market_commodity_orders_header_promote, .market_listing_price`);
-        for (labelmarket in pricem) {
-            if (pricem.length == 0)
-                continue;
-            for (indm in pricem) {
-                if (rem.test(pricem[indm].textContent)) {
-                    let matchItem = rem.exec(pricem[indm].textContent);
-                    if (matchItem[0].indexOf('₴') >= 0) {
-                        let pm = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                        var walletcalm = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                        var calpricesteamm = (pm / MarketPriceGlobal).toPrecision(2);
-                        var calpricefinalm = Math.ceil(calpricesteamm * FinalKeyPrice).toLocaleString("en-US");
-                        if (pricem[indm].innerHTML.indexOf("🔑") == -1) {
-                            if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcalm) {
-                                pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcalm.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\"><font color=\"silver\">" + calpricefinalm + " T (" + eToNumber(calpricesteamm) + "🔑)</font></div></div>";
-                            } else {
-                                var neededm = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcalm);
-                                var neededmkey = (neededm / MarketPriceGlobal).toPrecision(2);
-                                var neededmfinal = Math.ceil(neededmkey * FinalKeyPrice).toLocaleString("en-US");
-                                pricem[indm].innerHTML = "<font color=\"white\">" + matchItem[2] + "</font><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcalm.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededmfinal + " T (" + eToNumber(neededmkey) + "🔑) = " + neededm.toFixed(2).toString().replace('.', ',') + "₴[/R]\"><font color=\"silver\">" + calpricefinalm + " T (" + eToNumber(calpricesteamm) + "🔑)</font></div></div>";
-                            }
-                        }
-                    }
-                }
+    if (CurrRegion) {
+        clog(`Currency: "${CurrRegion}"`);
+        CheckStorage();
+    }
+}
+
+function CheckStorage() {
+    const raw = localStorage.getItem('SCTTData');
+
+    if (raw) {
+        const data = JSON.parse(raw);
+        const thirtyMinutes = 30 * 60 * 1000;
+        lastUpdatedGlobal = formatTime(new Date(data.timestamp));
+
+        if (Date.now() - data.timestamp < thirtyMinutes) {
+
+            ({
+                FinalKeyPrice,
+                MarketPrice, MarketPriceGlobal,
+                FKSteamPrice, FKSteamPriceGlobal, FKSteamAvailGlobal,
+                IRSteamPrice, IRSteamPriceGlobal, IRSteamAvailGlobal,
+                DRSteamPrice, DRSteamPriceGlobal, DRSteamAvailGlobal,
+            } = data);
+            FKSteamPriceCheck = IRSteamPriceCheck = DRSteamPriceCheck = MarketPriceCheck = true;
+
+            runConversionForRegion();
+
+            waitForElements('.lastupdated', elements => {
+                elements[0].textContent = lastUpdatedGlobal;
+                elements[0].closest('p').style.display = 'block';
+            });
+
+            for (const [key, prov] of Object.entries(PROVIDERS)) {
+                const price = key === 'fk' ? FKSteamPrice : key === 'ir' ? IRSteamPrice : DRSteamPrice;
+                const avail = key === 'fk' ? FKSteamAvailGlobal : key === 'ir' ? IRSteamAvailGlobal : DRSteamAvailGlobal;
+                waitForElements(`.${prov.cls}`, els => els.forEach(el => { el.textContent = `${price} T (${avail} In Stock)`; }));
+                waitForElements(`.${prov.popupCls}`, els => els.forEach(el => { el.textContent = `${price} T (${avail})`; }));
             }
-            if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
+
+            updateMarketPriceElements();
+            waitForElements('.buytf2btn', () => { updateBuyButtonUrl(); });
+
+            clog(`Loaded prices from local storage: ${FinalKeyPrice} Toman , ${MarketPriceGlobal}₴`);
+            clog(`Last updated on: ${lastUpdatedGlobal}`);
+            return;
+        }
+    }
+
+    GetFKSteamPrice();
+    GetIRSteamPrice();
+    GetDRSteamPrice();
+    GetMarketPrice();
+    WaitForPrices();
+}
+
+function updateMarketPriceElements() {
+    let text;
+    if (CurrRegion === 'UAH') {
+        text = `${String(MarketPrice).replace('.', ',')}₴ (${MarketPriceGlobal}₴)`;
+    } else if (CurrRegion === 'USD') {
+        text = `$${MarketPrice} ($${MarketPriceGlobal})`;
+    } else if (CurrRegion === 'EUR') {
+        text = `${String(MarketPrice).replace('.', ',')}€ (${String(MarketPriceGlobal).replace('.', ',')}€)`;
+    }
+    if (!text) return;
+    waitForElements('.marketsteamprice', els => els.forEach(el => { el.textContent = text; }));
+    waitForElements('.popupmarketsteamprice', els => els.forEach(el => { el.textContent = text; }));
+}
+
+function runConversionForRegion() {
+    if (CurrRegion === 'UAH') { UAHtoTomanW(); UAHtoToman(labels); }
+    else if (CurrRegion === 'USD') { USDtoTomanW(); USDtoToman(labels); }
+    else if (CurrRegion === 'EUR') { EURtoTomanW(); EURtoToman(labels); }
+
+    if (window.location.href.includes('market') || window.location.href.includes('/inventory')) setupTooltipObserver();
+}
+
+function makeRequest({ url, method = 'GET', data, timeout = 3500, onload, onFail, retryCount = 0, maxRetries = 3, retryDelay = 1000 }) {
+    GM_xmlhttpRequest({
+        method, url, data, dataType: 'json', timeout,
+        onload,
+        ontimeout(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => makeRequest({ url, method, data, timeout, onload, onFail, retryCount: retryCount + 1, maxRetries, retryDelay }), retryDelay);
+            } else { onFail(response); }
+        },
+        onerror(response) {
+            if (retryCount < maxRetries) {
+                setTimeout(() => makeRequest({ url, method, data, timeout, onload, onFail, retryCount: retryCount + 1, maxRetries, retryDelay }), retryDelay);
+            } else { onFail(response); }
+        },
+    });
+}
+
+function setProviderElements(cls, popupCls, priceText, availText) {
+    document.querySelectorAll(`.${cls}`).forEach(el => { el.textContent = `${priceText} T (${availText} In Stock)`; });
+    document.querySelectorAll(`.${popupCls}`).forEach(el => { el.textContent = `${priceText} T (${availText})`; });
+}
+
+function setProviderElementsError(cls, popupCls) {
+    document.querySelectorAll(`.${cls}`).forEach(el => { el.textContent = 'Error!'; });
+    document.querySelectorAll(`.${popupCls}`).forEach(el => { el.textContent = 'Error!'; });
+}
+
+function GetFKSteamPrice(retryCount = 0) {
+    makeRequest({ url: PROVIDERS.fk.url, retryCount, onload: LoadFKSteamPrice, onFail: LoadFKSteamPriceTimeout });
+}
+
+function LoadFKSteamPrice(response) {
+    try {
+        const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
+        const rawPrice = doc.getElementById('item_price_irt').innerHTML;
+        const availEl = doc.querySelector('p.h6.text-white');
+        FKSteamPrice = rawPrice;
+        FKSteamPriceGlobal = Math.ceil(rawPrice.replace(',', '.'));
+        FKSteamAvailGlobal = parseInt(availEl.textContent.match(/\d+/)[0], 10);
+        clog(`Fast Keys Price: ${FKSteamPriceGlobal} Toman`);
+        clog(`Fast Keys Quantity: ${FKSteamAvailGlobal} Keys`);
+        setProviderElements(PROVIDERS.fk.cls, PROVIDERS.fk.popupCls, FKSteamPrice, FKSteamAvailGlobal);
+        FKSteamPriceCheck = true;
+        AddLoadingBar(18);
+    } catch { LoadFKSteamPriceTimeout(); }
+}
+
+function LoadFKSteamPriceTimeout() {
+    FKSteamPrice = FKSteamPriceGlobal = FKSteamAvailGlobal = 0;
+    clog('Fast Keys Timed out!');
+    setProviderElementsError(PROVIDERS.fk.cls, PROVIDERS.fk.popupCls);
+    FKSteamPriceCheck = true;
+    AddLoadingBar(18);
+}
+
+function GetIRSteamPrice(retryCount = 0) {
+    makeRequest({ url: PROVIDERS.ir.url, retryCount, onload: LoadIRSteamPrice, onFail: LoadIRSteamPriceTimeout });
+}
+
+function LoadIRSteamPrice(response) {
+    try {
+        const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
+        const json = JSON.parse(doc.getElementById('__NEXT_DATA__').innerHTML);
+        IRSteamPrice = json.props.pageProps.tf2.prices.keyPrice;
+        IRSteamPriceGlobal = Math.ceil(String(IRSteamPrice).replace(',', '.'));
+        IRSteamAvailGlobal = Math.ceil(json.props.pageProps.tf2.quantity);
+        clog(`Iranian Steam Price: ${IRSteamPriceGlobal} Toman`);
+        clog(`Iranian Steam Quantity: ${IRSteamAvailGlobal} Keys`);
+        setProviderElements(PROVIDERS.ir.cls, PROVIDERS.ir.popupCls, IRSteamPrice, IRSteamAvailGlobal);
+        IRSteamPriceCheck = true;
+        AddLoadingBar(18);
+    } catch { LoadIRSteamPriceTimeout(); }
+}
+
+function LoadIRSteamPriceTimeout() {
+    IRSteamPrice = IRSteamPriceGlobal = IRSteamAvailGlobal = 0;
+    clog('Iranian Steam Timed out!');
+    setProviderElementsError(PROVIDERS.ir.cls, PROVIDERS.ir.popupCls);
+    IRSteamPriceCheck = true;
+    AddLoadingBar(18);
+}
+
+function GetDRSteamPrice(retryCount = 0) {
+    makeRequest({ url: 'https://dragonsteam.net/api/tf2/prices', method: 'GET', timeout: 10000, retryCount, onload: LoadDRSteamPrice, onFail: LoadDRSteamPriceTimeout });
+}
+
+function LoadDRSteamPrice(response) {
+    try {
+        const json = JSON.parse(response.responseText);
+        DRSteamPriceGlobal = Math.ceil(json.keySell);
+        DRSteamPrice = DRSteamPriceGlobal.toLocaleString('en-US');
+        clog(`Dragon Steam Price: ${DRSteamPriceGlobal} Toman`);
+        makeRequest({ url: 'https://dragonsteam.net/api/tf2/inventory-summary', method: 'GET', timeout: 10000, retryCount: 0,
+            onload: (res) => {
+                try { DRSteamAvailGlobal = JSON.parse(res.responseText).keys; }
+                catch { DRSteamAvailGlobal = 0; }
+                clog(`Dragon Steam Quantity: ${DRSteamAvailGlobal} Keys`);
+                setProviderElements(PROVIDERS.dr.cls, PROVIDERS.dr.popupCls, DRSteamPrice, DRSteamAvailGlobal);
+                DRSteamPriceCheck = true;
+                AddLoadingBar(18);
+            },
+            onFail: () => {
+                DRSteamAvailGlobal = 0;
+                setProviderElements(PROVIDERS.dr.cls, PROVIDERS.dr.popupCls, DRSteamPrice, DRSteamAvailGlobal);
+                DRSteamPriceCheck = true;
+                AddLoadingBar(18);
+            }
+        });
+    } catch { LoadDRSteamPriceTimeout(); }
+}
+
+function LoadDRSteamPriceTimeout() {
+    DRSteamPrice = DRSteamPriceGlobal = DRSteamAvailGlobal = 0;
+    clog('Dragon Steam Timed out!');
+    setProviderElementsError(PROVIDERS.dr.cls, PROVIDERS.dr.popupCls);
+    DRSteamPriceCheck = true;
+    AddLoadingBar(18);
+}
+
+
+function GetMarketPrice() {
+    const url = MARKET_URLS[CurrRegion];
+    if (!url) return;
+    GM_xmlhttpRequest({ method: 'GET', url, dataType: 'json', onload: LoadMarketPrice });
+}
+
+function LoadMarketPrice(response) {
+    const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
+    const data = JSON.parse(doc.querySelector('body').innerHTML);
+
+    if (CurrRegion === 'UAH') {
+        const raw = data.lowest_price.replace('₴', '').replace(',', '.');
+        MarketPrice = raw;
+        MarketPriceGlobal = Math.floor(parseFloat(raw) * STEAM_FEE);
+        clog(`Market Price: ${MarketPriceGlobal}₴`);
+        const text = `${String(MarketPrice).replace('.', ',')}₴ (${MarketPriceGlobal}₴)`;
+        document.querySelectorAll('.marketsteamprice, .popupmarketsteamprice').forEach(el => { el.textContent = text; });
+    } else if (CurrRegion === 'USD') {
+        const raw = data.lowest_price.replace('$', '').replace(',', '.');
+        MarketPrice = raw;
+        MarketPriceGlobal = (parseFloat(raw) * STEAM_FEE).toFixed(2);
+        clog(`Market Price: $${MarketPriceGlobal}`);
+        const text = `$${MarketPrice} ($${MarketPriceGlobal})`;
+        document.querySelectorAll('.marketsteamprice, .popupmarketsteamprice').forEach(el => { el.textContent = text; });
+    } else if (CurrRegion === 'EUR') {
+        const raw = data.lowest_price.replace('€', '').replace(',', '.').replace('.--', '.00');
+        MarketPrice = raw;
+        MarketPriceGlobal = (parseFloat(raw) * STEAM_FEE).toFixed(2);
+        clog(`Market Price: ${MarketPriceGlobal}€`);
+        const text = `${String(MarketPrice).replace('.', ',')}€ (${String(MarketPriceGlobal).replace('.', ',')}€)`;
+        document.querySelectorAll('.marketsteamprice, .popupmarketsteamprice').forEach(el => { el.textContent = text; });
+    }
+
+    MarketPriceCheck = true;
+    AddLoadingBar(23);
+}
+
+function GotAllPrices() {
+    return DRSteamPriceCheck && MarketPriceCheck && IRSteamPriceCheck && FKSteamPriceCheck;
+}
+
+function WaitForPrices() {
+    const timer = setInterval(() => {
+        if (GotAllPrices()) {
+            clearInterval(timer);
+            GetFinalKeyPrice();
+        }
+    }, 500);
+}
+
+function updateBuyButtonUrl() {
+    const options = [];
+    if (DRSteamPriceGlobal) options.push({ price: DRSteamPriceGlobal, url: PROVIDERS.dr.url, label: 'Dragon Steam Pricing' });
+    if (IRSteamPriceGlobal) options.push({ price: IRSteamPriceGlobal, url: PROVIDERS.ir.url, label: 'Iranian Steam Pricing' });
+    if (FKSteamPriceGlobal) options.push({ price: FKSteamPriceGlobal, url: PROVIDERS.fk.url, label: 'Fast Keys Pricing' });
+
+    if (!options.length) return null;
+    const best = options.reduce((prev, curr) => prev.price < curr.price ? prev : curr);
+    document.querySelectorAll('.buytf2btn').forEach(el => { el.href = best.url; });
+    clog(`Using ${best.label}`);
+    return best;
+}
+
+function GetFinalKeyPrice() {
+    const best = updateBuyButtonUrl();
+    if (best) {
+        FinalKeyPrice = best.price;
+        AddLoadingBar(33);
+    } else {
+        AddLoadingBar(33);
+    }
+
+    if (isValidValue(FinalKeyPrice) && MarketPriceCheck) {
+        setTimeout(() => {
+            lastUpdatedGlobal = formatTime(new Date());
+            SavePrices();
+            waitForElements('.lastupdated', elements => {
+                elements[0].textContent = lastUpdatedGlobal;
+                elements[0].closest('p').style.display = 'block';
+            });
+        }, 1000);
+        runConversionForRegion();
+    } else {
+        AddLoadingBar(33);
+    }
+}
+
+function SavePrices() {
+    const data = {
+        FinalKeyPrice,
+        MarketPrice, MarketPriceGlobal,
+        FKSteamPrice, FKSteamPriceGlobal, FKSteamAvailGlobal,
+        IRSteamPrice, IRSteamPriceGlobal, IRSteamAvailGlobal,
+        DRSteamPrice, DRSteamPriceGlobal, DRSteamAvailGlobal,
+        timestamp: Date.now(),
+    };
+    localStorage.setItem('SCTTData', JSON.stringify(data));
+}
+
+function eToNumber(num) {
+    let sign = '';
+    num = String(num);
+    if (num.charAt(0) === '-') { num = num.substring(1); sign = '-'; }
+    const arr = num.split(/[e]/i);
+    if (arr.length < 2) return sign + num;
+    const dot = (0.1).toLocaleString().substr(1, 1);
+    let n = arr[0];
+    const exp = +arr[1];
+    let w = (n = n.replace(/^0+/, '')).replace(dot, '');
+    const pos = n.split(dot)[1] ? n.indexOf(dot) + exp : w.length + exp;
+    const L = pos - w.length;
+    const s = String(BigInt(w));
+    function r() { return w.replace(new RegExp(`^(.{${pos}})(.)`), `$1${dot}$2`); }
+    w = exp >= 0
+        ? (L >= 0 ? s + '0'.repeat(L) : r())
+        : (pos <= 0 ? '0' + dot + '0'.repeat(Math.abs(pos)) + s : r());
+    const parts = w.split(dot);
+    if ((parts[0] == 0 && parts[1] == 0) || (+w == 0 && +s == 0)) w = 0;
+    return sign + w;
+}
+
+function convertTextNodes(el) {
+    const UAH_RE = /(\d[\d,]*(?:\s\d{3})*(?:,\d+)?₴)/g;
+    for (const node of Array.from(el.childNodes)) {
+        if (node.nodeType !== Node.TEXT_NODE) continue;
+        if (!node.textContent.includes('₴')) continue;
+
+        const text = node.textContent;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let anyMatch = false;
+
+        UAH_RE.lastIndex = 0;
+        let m;
+        while ((m = UAH_RE.exec(text)) !== null) {
+            const pm = normalizeUAH(m[0]);
+            if (!pm || isNaN(pm)) continue;
+            const cs = (pm / MarketPriceGlobal).toPrecision(2);
+            const cf = Math.ceil(cs * FinalKeyPrice).toLocaleString('en-US');
+
+            if (m.index > lastIndex) {
+                fragment.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+            }
+            fragment.appendChild(document.createTextNode(m[0]));
+            fragment.appendChild(document.createElement('br'));
+            fragment.appendChild(document.createTextNode(`${cf} T (${eToNumber(cs)}🔑)`));
+
+            lastIndex = m.index + m[0].length;
+            anyMatch = true;
+        }
+
+        if (!anyMatch) continue;
+        if (lastIndex < text.length) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+        node.parentNode.replaceChild(fragment, node);
+    }
+}
+
+function stripConvertedNodes(el) {
+    for (const br of Array.from(el.querySelectorAll('br[data-sctt]'))) {
+        if (br.nextSibling &&
+            br.nextSibling.nodeType === Node.TEXT_NODE &&
+            br.nextSibling.textContent.includes('🔑')) {
+            br.nextSibling.remove();
+        }
+        br.remove();
+    }
+}
+
+function convertTextNodesLive(el) {
+    const UAH_RE = /(\d[\d,]*(?:\s\d{3})*(?:,\d+)?₴)/g;
+    for (const node of Array.from(el.childNodes)) {
+        if (node.nodeType !== Node.TEXT_NODE) continue;
+        UAH_RE.lastIndex = 0;
+        const m = UAH_RE.exec(node.textContent);
+        if (!m) continue;
+        const pm = normalizeUAH(m[0]);
+        if (!pm || isNaN(pm)) continue;
+        const cs = (pm / MarketPriceGlobal).toPrecision(2);
+        const cf = Math.ceil(cs * FinalKeyPrice).toLocaleString('en-US');
+        const br = document.createElement('br');
+        br.dataset.sctt = '1';
+        br.dataset.scttPrice = String(pm);
+        node.after(br, document.createTextNode(`${cf} T (${eToNumber(cs)}🔑)`));
+    }
+}
+
+function setupTooltipObserver() {
+    if (_tooltipPollingStarted) return;
+    _tooltipPollingStarted = true;
+    setInterval(() => {
+        if (!GotAllPrices()) return;
+        document.querySelectorAll('.iRapBRRENfU- .NI9oaXH36YQ-, .U1qtAHnPvEo-.NI9oaXH36YQ- .NI9oaXH36YQ-').forEach(el => {
+
+            if (el.querySelector('.NI9oaXH36YQ-')) {
+
+                delete el.dataset.scttConv;
+                delete el.dataset.scttPrice;
+                return;
+            }
+
+            if (el.textContent.includes('🔑')) {
+                delete el.dataset.scttConv;
+                delete el.dataset.scttPrice;
+                return;
+            }
+            if (!el.textContent.includes('₴')) {
+
+                delete el.dataset.scttConv;
+                delete el.dataset.scttPrice;
+                return;
+            }
+            const m = /\d[\d,]*(?:\s\d{3})*(?:,\d+)?₴/.exec(el.textContent);
+            if (!m) return;
+            const currentPm = normalizeUAH(m[0]);
+            if (!currentPm || isNaN(currentPm)) return;
+            const storedPm = parseFloat(el.dataset.scttPrice || '0');
+            if (Math.abs(currentPm - storedPm) < 0.01 && el.dataset.scttConv) return;
+            const cs = (currentPm / MarketPriceGlobal).toPrecision(2);
+            const cf = Math.ceil(cs * FinalKeyPrice).toLocaleString('en-US');
+            el.dataset.scttConv = `${cf} T (${eToNumber(cs)}🔑)`;
+            el.dataset.scttPrice = String(currentPm);
+            const origDisplay = currentPm.toLocaleString('en-US') + '₴';
+            const tooltipText = buildTooltipText(currentPm, origDisplay);
+            if (tooltipText) {
+                el.setAttribute('ogpricetooltip', tooltipText);
+                el.removeAttribute('ogpricetooltip-initialized');
                 initializeTooltips();
-            } else {
-                setTimeout(1000);
             }
-        }
+        });
+    }, 100);
+}
 
-        let pricems = document.querySelectorAll(`.normal_price`);
-        for (labelmarkets in pricems) {
-            if (pricems.length == 0)
-                continue;
-            for (indms in pricems) {
-                if (rem.test(pricems[indms].textContent)) {
-                    let matchItem = rem.exec(pricems[indms].textContent);
-                    if (matchItem[0].indexOf('₴') >= 0) {
-                        let pms = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                        var walletcalms = parseFloat(Wallet.replace(' ', '').replace('₴', '').replace(',', '.'));
-                        var calpricesteamms = (pms / MarketPriceGlobal).toPrecision(2);
-                        var calpricefinalms = Math.ceil(calpricesteamms * FinalKeyPrice).toLocaleString("en-US");
-                        if (pricems[indms].innerHTML.indexOf("🔑") == -1) {
-                            if (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') < walletcalms) {
-                                pricems[indms].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R] " + walletcalms.toString().replace('.', ',') + "₴[/R]\n[C]*You can buy it!*[/C]\"><font color=\"silver\">" + calpricefinalms + " T (" + eToNumber(calpricesteamms) + "🔑)</font></div></div>";
-                            } else {
-                                var neededms = (matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.') - walletcalms);
-                                var neededmskey = (neededms / MarketPriceGlobal).toPrecision(2);
-                                var neededmsfinal = Math.ceil(neededmskey * FinalKeyPrice).toLocaleString("en-US");
-                                pricems[indms].innerHTML = "Starting at:<br><font color=\"white\">" + matchItem[2] + "</font><br><div ogpricetooltip=\"[L]*Original Price:  *[/L][R]" + matchItem[2].replace(' ', '') + "[/R]\n*Your Wallet: *[R]- " + walletcalms.toString().replace('.', ',') + "₴[/R]\n*You Need:  *[R]" + neededmsfinal + " T (" + eToNumber(neededmskey) + "🔑) = " + neededms.toFixed(2).toString().replace('.', ',') + "₴[/R]\"><font color=\"silver\">" + calpricefinalms + " T (" + eToNumber(calpricesteamms) + "🔑)</font></div></div>";
-                            }
+function buildTooltipText(pm, origDisplay) {
+    if (!isValidValue(WalletValue)) return null;
+    const wd = WalletValue.toString().replace('.', ',');
+    if (pm < WalletValue) {
+        return `[L]*Original Price:  *[/L][R]${origDisplay}[/R]\n*Your Wallet: *[R] ${wd}₴[/R]\n[C]*You can buy it!*[/C]`;
+    }
+    const needed = pm - WalletValue;
+    const neededKey = (needed / MarketPriceGlobal).toPrecision(2);
+    const neededFinal = Math.ceil(neededKey * FinalKeyPrice).toLocaleString('en-US');
+    return `[L]*Original Price:  *[/L][R]${origDisplay}[/R]\n*Your Wallet: *[R]- ${wd}₴[/R]\n*You Need:  *[R]${neededFinal} T (${eToNumber(neededKey)}🔑) = ${needed.toFixed(2).replace('.', ',')}₴[/R]`;
+}
+
+function normalizeUAH(str) {
+    return parseFloat(String(str).replace(' ', '').replace('₴', '').replace(',', '.'));
+}
+
+function normalizeUAHText(str) {
+    return parseFloat(String(str).replace(/[\s,]/g, ''));
+}
+
+function isUAHPrice(text) {
+    return text.includes('₴') || /\bUAH\b/i.test(text);
+}
+
+function UAHtoToman(labels) {
+    if (window.location.href.includes('steampowered')) {
+        const re = /(\D*)(\d[\d,]*(?:\s\d{3})*(?:,\d+)?[^\s\d,]*)/;
+        for (const label of labels) {
+            const prices = document.querySelectorAll(`.${label}`);
+            if (!prices.length) continue;
+            for (const el of prices) {
+                if (!re.test(el.textContent)) continue;
+                const matchItem = re.exec(el.textContent);
+                if (!isUAHPrice(matchItem[0]) || !isValidValue(FinalKeyPrice)) continue;
+
+                const p = matchItem[0].includes('₴')
+                    ? normalizeUAH(matchItem[2])
+                    : normalizeUAHText(matchItem[2]);
+
+                const walletcal = WalletValue;
+
+                const rawClean = matchItem[0].includes('₴')
+                    ? matchItem[2].replace(' ', '')
+                    : `UAH ${matchItem[2].replace(/\s/g, '')}`;
+
+                if (matchItem[0].includes('Your Price:')) {
+                    if (p > MarketPriceGlobal) {
+                        const calpricesteam = Math.ceil(p / MarketPriceGlobal);
+                        const calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                        if (isValidValue(walletcal) && p < walletcal) {
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div ogpricetooltip="[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R] ${walletcal.toString().replace('.', ',')}₴[/R]\n[C]*You can buy it!*[/C]">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                        } else if (isValidValue(walletcal)) {
+                            const needed = p - walletcal;
+                            const neededkey = Math.ceil(needed / MarketPriceGlobal);
+                            const neededfinal = (neededkey * FinalKeyPrice).toLocaleString('en-US');
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div ogpricetooltip="[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R]- ${walletcal.toString().replace('.', ',')}₴[/R]\n*You Need:  *[R]${neededfinal} T (${neededkey}🔑) = ${needed.toFixed(2).replace('.', ',')}₴[/R]">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                        } else {
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div>${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                        }
+                    } else {
+                        const calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
+                        const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                        if (isValidValue(walletcal) && p < walletcal) {
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div ogpricetooltip="[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R] ${walletcal.toString().replace('.', ',')}₴[/R]\n[C]*You can buy it!*[/C]">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                        } else if (isValidValue(walletcal)) {
+                            const needed = p - walletcal;
+                            const neededkey = Math.ceil(needed / MarketPriceGlobal);
+                            const neededfinal = (neededkey * FinalKeyPrice).toLocaleString('en-US');
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div ogpricetooltip="[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R]- ${walletcal.toString().replace('.', ',')}₴[/R]\n*You Need:  *[R]${neededfinal} T (${neededkey}🔑) = ${needed.toFixed(2).replace('.', ',')}₴[/R]">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                        } else {
+                            el.innerHTML = `<div class="your_price_label">Your Price:</div><div>${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
                         }
                     }
-                }
-                if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
-                    initializeTooltips();
                 } else {
-                    setTimeout(1000);
-                }
-            }
-        }
-
-        let pricemsw = document.querySelectorAll(`.user_info_text`);
-        for (labelmarketsw in pricemsw) {
-            if (pricemsw.length == 0)
-                continue;
-            for (indmsw in pricemsw) {
-                if (rem.test(pricemsw[indmsw].textContent)) {
-                    let matchItem = rem.exec(pricemsw[indmsw].textContent);
-                    if (matchItem[0].indexOf('₴') >= 0) {
-                        let pmsw = matchItem[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                        var calpricesteammsw = (pmsw / MarketPriceGlobal).toPrecision(3);
-                        var calpricefinalmsw = Math.ceil(calpricesteammsw * FinalKeyPrice).toLocaleString("en-US");
-                        if (pricemsw[indmsw].innerHTML.indexOf("🔑") == -1) {
-                            pricemsw[indmsw].innerHTML = "<a id=\"marketWalletBalance\" href=\"https://store.steampowered.com/account/\">Wallet balance <span id=\"marketWalletBalanceAmount\">" + matchItem[2] + " (" + eToNumber(calpricesteammsw) + "🔑)</span></a><br><a href=\"https://steamcommunity.com/my/inventory/\">View Inventory</a></span>"
+                    if (p > MarketPriceGlobal) {
+                        const calpricesteam = Math.ceil(p / MarketPriceGlobal);
+                        const calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                        el.textContent = `${calpricefinal} T (${calpricesteam}🔑)`;
+                        if (isValidValue(walletcal) && p < walletcal) {
+                            el.setAttribute('ogpricetooltip', `[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R] ${walletcal.toString().replace('.', ',')}₴[/R]\n[C]*You can buy it!*[/C]`);
+                        } else if (isValidValue(walletcal)) {
+                            const needed = p - walletcal;
+                            const neededkey = Math.ceil(needed / MarketPriceGlobal);
+                            const neededfinal = (neededkey * FinalKeyPrice).toLocaleString('en-US');
+                            el.setAttribute('ogpricetooltip', `[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R]- ${walletcal.toString().replace('.', ',')}₴[/R]\n*You Need:  *[R]${neededfinal} T (${neededkey}🔑) = ${needed.toFixed(2).replace('.', ',')}₴[/R]`);
+                        }
+                    } else {
+                        const calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
+                        const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                        el.textContent = `${calpricefinal} T (${calpricesteam}🔑)`;
+                        if (isValidValue(walletcal) && p < walletcal) {
+                            el.setAttribute('ogpricetooltip', `[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R] ${walletcal.toString().replace('.', ',')}₴[/R]\n[C]*You can buy it!*[/C]`);
+                        } else if (isValidValue(walletcal)) {
+                            const needed = p - walletcal;
+                            const neededkey = Math.ceil(needed / MarketPriceGlobal);
+                            const neededfinal = (neededkey * FinalKeyPrice).toLocaleString('en-US');
+                            el.setAttribute('ogpricetooltip', `[L]*Original Price:  *[/L][R]${rawClean}[/R]\n*Your Wallet: *[R]- ${walletcal.toString().replace('.', ',')}₴[/R]\n*You Need:  *[R]${neededfinal} T (${neededkey}🔑) = ${needed.toFixed(2).replace('.', ',')}₴[/R]`);
                         }
                     }
                 }
             }
+        }
+        if (isValidValue(WalletValue)) initializeTooltips();
+    }
+
+    if (window.location.href.includes('market')) {
+
+        const rem = /(\D*)(\d[\d,]*(?:\s\d{3})*(?:,\d+)?[^\s\d,]*)/;
+        const walletcalm = WalletValue;
+
+        const pricem = document.querySelectorAll(
+            '.NI9oaXH36YQ-, .market_commodity_orders_header_promote, .market_listing_price,' +
+            '.normal_price, .Thio3V0imwc-'
+        );
+        for (const el of pricem) {
+            if (el.innerHTML.includes('🔑')) continue;
+
+            if (el.querySelector('.NI9oaXH36YQ-')) continue;
+
+            if (el.classList.contains('EZ-ocZV850k-') ||
+                el.classList.contains('LL0I8Yv1KjM-') ||
+                el.classList.contains('Thio3V0imwc-')) {
+                if (el.textContent.includes('₴')) {
+                    const tm = /\d[\d,]*(?:\s\d{3})*(?:,\d+)?₴/.exec(el.textContent);
+                    if (tm && !el.getAttribute('ogpricetooltip')) {
+                        const tpm = el.classList.contains('LL0I8Yv1KjM-') || el.classList.contains('EZ-ocZV850k-')
+                            ? normalizeUAH(tm[0])
+                            : normalizeUAH(tm[0]);
+                        const todd = buildTooltipText(tpm, tpm.toLocaleString('en-US') + '₴');
+                        if (todd) el.setAttribute('ogpricetooltip', todd);
+                    }
+                    convertTextNodes(el);
+                }
+                continue;
+            }
+
+            if (!rem.test(el.textContent)) continue;
+            const matchItem = rem.exec(el.textContent);
+            if (!isUAHPrice(matchItem[0])) continue;
+
+            const pm = matchItem[0].includes('₴')
+                ? normalizeUAH(matchItem[2])
+                : normalizeUAHText(matchItem[2]);
+            if (!pm || isNaN(pm)) continue;
+
+
+
+            if (el.closest('.iRapBRRENfU-') && el.textContent.includes('₴')) {
+
+                if (el.querySelector('.iRapBRRENfU-')) continue;
+
+                if (el.textContent.includes('🔑')) { delete el.dataset.scttConv; delete el.dataset.scttPrice; continue; }
+                const cs = (pm / MarketPriceGlobal).toPrecision(2);
+                const cf = Math.ceil(cs * FinalKeyPrice).toLocaleString('en-US');
+                el.dataset.scttConv = `${cf} T (${eToNumber(cs)}🔑)`;
+                el.dataset.scttPrice = String(pm);
+                continue;
+            }
+
+            const origDisplay = pm.toLocaleString('en-US') + '₴';
+            const elemColor = el.style.color;
+            const convColor = elemColor || 'silver';
+            const calpricesteamm = (pm / MarketPriceGlobal).toPrecision(2);
+            const calpricefinalm = Math.ceil(calpricesteamm * FinalKeyPrice).toLocaleString('en-US');
+
+
+            const hasFrom = /\bfrom\b/i.test(matchItem[1] || '');
+            const origHTML = `<span style="color:${elemColor || 'white'}">${hasFrom ? 'From ' : ''}${origDisplay}</span>`;
+            const convText = `${calpricefinalm} T (${eToNumber(calpricesteamm)}🔑)`;
+            const convSpan = `<span style="color:${convColor}">${convText}</span>`;
+
+
+            const needsCenter = !!el.closest('.SXmRNU-nKEQ-');
+            const wS = needsCenter ? '<div style="text-align:center">' : '';
+            const wE = needsCenter ? '</div>' : '';
+
+            if (isValidValue(walletcalm) && pm < walletcalm) {
+                el.innerHTML = `${wS}${origHTML}<div ogpricetooltip="[L]*Original Price:  *[/L][R]${origDisplay}[/R]\n*Your Wallet: *[R] ${walletcalm.toString().replace('.', ',')}₴[/R]\n[C]*You can buy it!*[/C]">${convSpan}</div>${wE}`;
+            } else if (isValidValue(walletcalm)) {
+                const neededm = pm - walletcalm;
+                const neededmkey = (neededm / MarketPriceGlobal).toPrecision(2);
+                const neededmfinal = Math.ceil(neededmkey * FinalKeyPrice).toLocaleString('en-US');
+                el.innerHTML = `${wS}${origHTML}<div ogpricetooltip="[L]*Original Price:  *[/L][R]${origDisplay}[/R]\n*Your Wallet: *[R]- ${walletcalm.toString().replace('.', ',')}₴[/R]\n*You Need:  *[R]${neededmfinal} T (${eToNumber(neededmkey)}🔑) = ${neededm.toFixed(2).replace('.', ',')}₴[/R]">${convSpan}</div>${wE}`;
+            } else {
+                el.innerHTML = `${wS}${origHTML} ${convSpan}${wE}`;
+            }
+        }
+        if (isValidValue(WalletValue)) initializeTooltips();
+
+
+        const pricemsw = document.querySelectorAll('.user_info_text');
+        for (const el of pricemsw) {
+            if (el.innerHTML.includes('🔑')) continue;
+            if (!rem.test(el.textContent)) continue;
+            const matchItem = rem.exec(el.textContent);
+            if (matchItem[0].indexOf('₴') < 0) continue;
+            const pmsw = normalizeUAH(matchItem[2]);
+            const calpricesteammsw = (pmsw / MarketPriceGlobal).toPrecision(3);
+            const calpricefinalmsw = Math.ceil(calpricesteammsw * FinalKeyPrice).toLocaleString('en-US');
+            el.innerHTML = `<a id="marketWalletBalance" href="https://store.steampowered.com/account/">Wallet balance <span id="marketWalletBalanceAmount">${matchItem[2]} (${eToNumber(calpricesteammsw)}🔑)</span></a><br><a href="https://steamcommunity.com/my/inventory/">View Inventory</a></span>`;
+        }
+    }
+
+        if (window.location.href.includes('/inventory')) {
+        const invPrices = document.querySelectorAll('.f6hU22EA7Z8peFWZVBJU');
+        for (const el of invPrices) {
+            if (el.innerHTML.includes('🔑')) continue;
+            if (!el.textContent.includes('₴')) continue;
+            const m = /\d[\d,]*(?:\s\d{3})*(?:,\d+)?₴/.exec(el.textContent);
+            if (!m) continue;
+            const pm = normalizeUAH(m[0]);
+            if (!pm || isNaN(pm)) continue;
+            convertTextNodes(el);
+        }
+    }
+
+    if (window.location.href.includes('steamcommunity') && !window.location.href.includes('market')) {
+        const commPrices = document.querySelectorAll('._3hEeummFKRey8l5VXxZwxz');
+        for (const el of commPrices) {
+            if (el.innerHTML.includes('🔑')) continue;
+            const priceSpan = el.querySelector('span');
+            if (!priceSpan || !priceSpan.textContent.includes('₴')) continue;
+            convertTextNodes(priceSpan);
         }
     }
 }
 
 function UAHtoTomanW() {
-    var rew = /(\D*)(\d *\S*)/;
-    let pricew = document.querySelectorAll(`.global_action_link, ._79DIT7RUQ5g-, .account_name`);
-    for (indw in pricew) {
-        if (rew.test(pricew[indw].textContent)) {
-            let matchItemw = rew.exec(pricew[indw].textContent);
-            if (matchItemw[0].indexOf('₴') >= 0 && matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace('Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
-                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:', ' Pending:');
-                var pendingn = pending.replace(' Pending:', '').replace(' ', '').replace('₴', '').replace(',', '.');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                var calpricesteamwpending = (pendingn / MarketPriceGlobal).toPrecision(3);
-                Wallet = pricew[indw].textContent.replace(/\Pending: .*/, '');
-                const pendingtooltipelement = document.querySelector('.tooltip');
-                var pendingtooltip = pendingtooltipelement.getAttribute('data-tooltip-html');
-                pricew[indw].innerHTML = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)<br><span class=\"tooltip\" ogpricetooltip=\"" + pendingtooltip.replace('. ', '.<br>') + "\">" + pending + " (" + calpricesteamwpending + "🔑)</span>";
-            } else if (matchItemw[0].indexOf('₴') >= 0 && !matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace(' ', '').replace('₴', '').replace(',', '.');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                Wallet = pricew[indw].textContent;
-                pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
+    const rew = /(\D*)(\d *\S*)/;
+    const pricew = document.querySelectorAll('.global_action_link, ._79DIT7RUQ5g-, .account_name, .lHc2D8LzCAM-, .HOrB6lehQpg-');
+    for (const el of pricew) {
+        if (el.textContent.includes('🔑')) continue;
+        if (!rew.test(el.textContent)) continue;
+        const matchItemw = rew.exec(el.textContent);
+        if (matchItemw[0].indexOf('₴') < 0) continue;
+
+        if (matchItemw[0].includes('Pending')) {
+            const pw = normalizeUAH(matchItemw[2].replace('Pending:', ''));
+            const pending = el.textContent.substring(el.textContent.indexOf('Pending:')).replace('Pending:', ' Pending:');
+            const pendingn = normalizeUAH(pending.replace(' Pending:', ''));
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            const calpricesteamwp = (pendingn / MarketPriceGlobal).toPrecision(3);
+            Wallet = el.textContent.replace(/Pending: .*/, '');
+            WalletValue = pw;
+            const pendingEl = document.querySelector('.tooltip');
+            const pendingTooltip = pendingEl ? pendingEl.getAttribute('data-tooltip-html') : '';
+            el.innerHTML = `${el.textContent.replace(/Pending: .*/, '')} (${calpricesteamw}🔑)<br><span class="tooltip" ogpricetooltip="${(pendingTooltip || '').replace('. ', '.<br>')}">${pending} (${calpricesteamwp}🔑)</span>`;
+        } else {
+            const pw = normalizeUAH(matchItemw[2]);
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            Wallet = el.textContent;
+            WalletValue = pw;
+
+            if (el.classList.contains('_79DIT7RUQ5g-')) {
+
+                el.style.whiteSpace = 'nowrap';
+                el.textContent = `${el.textContent} (${calpricesteamw}🔑)`;
+            } else if (el.classList.contains('lHc2D8LzCAM-')) {
+
+            } else {
+                el.style.whiteSpace = 'nowrap';
+                el.textContent = `${el.textContent} (${calpricesteamw}🔑)`;
             }
         }
-        if (typeof Wallet !== 'undefined' && Wallet !== null && Wallet !== '') {
-            initializeTooltips();
-        } else {
-            setTimeout(1000);
-        }
+
+        if (isValidValue(WalletValue)) initializeTooltips();
     }
 }
 
 function USDtoToman(labels) {
     try {
-        if (window.location.href.indexOf("steampowered") != -1) {
-            var re = /(\D*)(\d\S*)/;
-            for (label in labels) {
-                let price = document.querySelectorAll(`.${labels[label]}`);
-                if (price.length == 0)
-                    continue;
-                for (ind in price) {
-                    if (re.test(price[ind].textContent)) {
-                        let matchItem = re.exec(price[ind].textContent);
-                        if (matchItem[0].indexOf('$') >= 0) {
-                            if (matchItem[0].indexOf('Your Price:') >= 0) {
-                                let p = matchItem[0].replace(',', '.').replace('$', '').replace('Your Price:', '');
-                                if (p > parseFloat(MarketPriceGlobal)) {
-                                    var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                    var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                } else {
-                                    var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                    var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                }
-                            } else {
-                                let p = matchItem[0].replace(',', '.').replace('$', '');
-                                if (p > parseFloat(MarketPriceGlobal)) {
-                                    var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                    var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', "$" + matchItem[2]);
-                                } else {
-                                    var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                    var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', "$" + matchItem[2]);
-                                }
-                            }
-                        }
-                    }
+        if (!window.location.href.includes('steampowered')) return;
+        const re = /(\D*)(\d\S*)/;
+        for (const label of labels) {
+            const prices = document.querySelectorAll(`.${label}`);
+            if (!prices.length) continue;
+            for (const el of prices) {
+                if (!re.test(el.textContent)) continue;
+                const matchItem = re.exec(el.textContent);
+                if (matchItem[0].indexOf('$') < 0) continue;
+
+                if (matchItem[0].includes('Your Price:')) {
+                    const p = parseFloat(matchItem[0].replace(',', '.').replace('$', '').replace('Your Price:', ''));
+                    const calpricesteam = p > parseFloat(MarketPriceGlobal) ? Math.ceil(p / MarketPriceGlobal) : (p / MarketPriceGlobal).toPrecision(2);
+                    const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                    el.innerHTML = `<div class="your_price_label">Your Price:</div><div title="${matchItem[2]}">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                } else {
+                    const p = parseFloat(matchItem[0].replace(',', '.').replace('$', ''));
+                    const calpricesteam = p > parseFloat(MarketPriceGlobal) ? Math.ceil(p / MarketPriceGlobal) : (p / MarketPriceGlobal).toPrecision(2);
+                    const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                    el.textContent = `${calpricefinal} T (${calpricesteam}🔑)`;
+                    el.setAttribute('title', `$${matchItem[2]}`);
                 }
             }
         }
-    } catch (ex) {}
+    } catch { }
 }
 
 function USDtoTomanW() {
-    var rew = /(\D*)(\d\S*$)/;
-    let pricew = document.querySelectorAll(`.global_action_link`);
-    for (indw in pricew) {
-        if (rew.test(pricew[indw].textContent)) {
-            let matchItemw = rew.exec(pricew[indw].textContent);
-            if (matchItemw[0].indexOf('$') >= 0 && matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace('Pending:', '').replace(',', '.').replace('$', '');
-                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:', ' Pending:');
-                var pendingn = pending.replace(' Pending:', '').replace(',', '.').replace('$', '');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                var calpricesteamwpending = (pendingn / MarketPriceGlobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
-            } else if (matchItemw[0].indexOf('$') >= 0 && !matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace(',', '.').replace('$', '');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
-            }
+    const rew = /(\D*)(\d\S*$)/;
+    const pricew = document.querySelectorAll('.global_action_link');
+    for (const el of pricew) {
+        if (!rew.test(el.textContent)) continue;
+        const matchItemw = rew.exec(el.textContent);
+        if (matchItemw[0].indexOf('$') < 0) continue;
+
+        if (matchItemw[0].includes('Pending')) {
+            const pw = parseFloat(matchItemw[2].replace('Pending:', '').replace(',', '.').replace('$', ''));
+            const pending = el.textContent.substring(el.textContent.indexOf('Pending:')).replace('Pending:', ' Pending:');
+            const pendingn = parseFloat(pending.replace(' Pending:', '').replace(',', '.').replace('$', ''));
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            const calpricesteamwp = (pendingn / MarketPriceGlobal).toPrecision(3);
+            el.textContent = `${el.textContent.replace(/Pending: .*/, '')} (${calpricesteamw}🔑)${pending} (${calpricesteamwp}🔑)`;
+        } else {
+            const pw = parseFloat(matchItemw[2].replace(',', '.').replace('$', ''));
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            el.textContent = `${el.textContent} (${calpricesteamw}🔑)`;
         }
     }
+}
+
+
+function normalizeEUR(str) {
+    return parseFloat(String(str).replace(',--€', '').replace(',', '.').replace('€', ''));
 }
 
 function EURtoToman(labels) {
     try {
-        if (window.location.href.indexOf("steampowered") != -1) {
-            var re = /(\D*)(\d\S*)/;
-            for (label in labels) {
-                let price = document.querySelectorAll(`.${labels[label]}`);
-                if (price.length == 0)
-                    continue;
-                for (ind in price) {
-                    if (re.test(price[ind].textContent)) {
-                        let matchItem = re.exec(price[ind].textContent);
-                        if (matchItem[0].indexOf('€') >= 0) {
-                            if (matchItem[0].indexOf('Your Price:') >= 0) {
-                                let p = matchItem[2].replace(',--€', '').replace(',', '.').replace('€', '').replace('Your Price:', '');
-                                if (p > MarketPriceGlobal) {
-                                    var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                    var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                } else {
-                                    var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                    var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].innerHTML = "<div class=\"your_price_label\">Your Price:</div><div title=\"" + matchItem[2] + "\">" + calpricefinal + " T (" + calpricesteam + "🔑)</div></div>";
-                                }
-                            } else {
-                                let p = matchItem[2].replace(',--€', '').replace(',', '.').replace('€', '');
-                                if (p > MarketPriceGlobal) {
-                                    var calpricesteam = Math.ceil(p / MarketPriceGlobal);
-                                    var calpricefinal = (calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]) + "€";
-                                } else {
-                                    var calpricesteam = (p / MarketPriceGlobal).toPrecision(2);
-                                    var calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString("en-US");
-                                    price[ind].textContent = calpricefinal + " T (" + calpricesteam + "🔑)";
-                                    price[ind].setAttribute('title', matchItem[2]) + "€";
-                                }
-                            }
-                        }
-                    }
+        if (!window.location.href.includes('steampowered')) return;
+        const re = /(\D*)(\d\S*)/;
+        for (const label of labels) {
+            const prices = document.querySelectorAll(`.${label}`);
+            if (!prices.length) continue;
+            for (const el of prices) {
+                if (!re.test(el.textContent)) continue;
+                const matchItem = re.exec(el.textContent);
+                if (matchItem[0].indexOf('€') < 0) continue;
+
+                if (matchItem[0].includes('Your Price:')) {
+                    const p = normalizeEUR(matchItem[2].replace('Your Price:', ''));
+                    const calpricesteam = p > MarketPriceGlobal ? Math.ceil(p / MarketPriceGlobal) : (p / MarketPriceGlobal).toPrecision(2);
+                    const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                    el.innerHTML = `<div class="your_price_label">Your Price:</div><div title="${matchItem[2]}">${calpricefinal} T (${calpricesteam}🔑)</div></div>`;
+                } else {
+                    const p = normalizeEUR(matchItem[2]);
+                    const calpricesteam = p > MarketPriceGlobal ? Math.ceil(p / MarketPriceGlobal) : (p / MarketPriceGlobal).toPrecision(2);
+                    const calpricefinal = Math.ceil(calpricesteam * FinalKeyPrice).toLocaleString('en-US');
+                    el.textContent = `${calpricefinal} T (${calpricesteam}🔑)`;
+                    el.setAttribute('title', matchItem[2] + '€');
                 }
             }
         }
-    } catch (ex) {}
+    } catch { }
 }
 
 function EURtoTomanW() {
-    var rew = /(\D*)(\d\S*€)/;
-    let pricew = document.querySelectorAll(`.global_action_link`);
-    for (indw in pricew) {
-        if (rew.test(pricew[indw].textContent)) {
-            let matchItemw = rew.exec(pricew[indw].textContent);
-            if (matchItemw[0].indexOf('€') >= 0 && matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace('Pending:', '').replace(',--€', '').replace(',', '.').replace('€', '');
-                var pending = pricew[indw].textContent.substring(pricew[indw].textContent.indexOf("Pending:")).replace('Pending:', ' Pending:');
-                var pendingn = pending.replace(' Pending:', '').replace(',--€', '').replace(',', '.').replace('€', '');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                var calpricesteamwpending = (pendingn / MarketPriceGlobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent.replace(/\Pending: .*/, '') + " (" + calpricesteamw + "🔑)" + pending + " (" + calpricesteamwpending + "🔑)";
-            } else if (matchItemw[0].indexOf('€') >= 0 && !matchItemw[0].includes('Pending')) {
-                let pw = matchItemw[2].replace(',--€', '').replace(',', '.').replace('€', '');
-                var calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-                pricew[indw].textContent = pricew[indw].textContent + " (" + calpricesteamw + "🔑)";
-            }
+    const rew = /(\D*)(\d\S*€)/;
+    const pricew = document.querySelectorAll('.global_action_link');
+    for (const el of pricew) {
+        if (!rew.test(el.textContent)) continue;
+        const matchItemw = rew.exec(el.textContent);
+        if (matchItemw[0].indexOf('€') < 0) continue;
+
+        if (matchItemw[0].includes('Pending')) {
+            const pw = normalizeEUR(matchItemw[2].replace('Pending:', ''));
+            const pending = el.textContent.substring(el.textContent.indexOf('Pending:')).replace('Pending:', ' Pending:');
+            const pendingn = normalizeEUR(pending.replace(' Pending:', ''));
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            const calpricesteamwp = (pendingn / MarketPriceGlobal).toPrecision(3);
+            el.textContent = `${el.textContent.replace(/Pending: .*/, '')} (${calpricesteamw}🔑)${pending} (${calpricesteamwp}🔑)`;
+        } else {
+            const pw = normalizeEUR(matchItemw[2]);
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            el.textContent = `${el.textContent} (${calpricesteamw}🔑)`;
         }
     }
+}
+
+function parseTooltipText(text) {
+    return text
+        .replace(/\*(.*?)\*/g, '<span style="font-weight:bold;">$1</span>')
+        .replace(/\[L\]/g, '<span style="text-align:left;">')
+        .replace(/\[\/L\]/g, '</span>')
+        .replace(/\[R\]/g, '<span style="float:right;">')
+        .replace(/\[\/R\]/g, '</span>')
+        .replace(/\[C\]/g, '<span style="display:block; text-align:center;">')
+        .replace(/\[\/C\]/g, '</span>')
+        .replace(/🔑/g, '<span style="color: transparent; text-shadow: 1px 1px 1px #3d3d3f;">🔑</span>')
+        .replace(/\[P\]/g, '<span style="position: relative; bottom: 2px;">')
+        .replace(/\[\/P\]/g, '</span>');
 }
 
 function addTooltip(element, tooltipText) {
-    var tooltip = document.createElement('span');
+    const tooltip = document.createElement('span');
     tooltip.setAttribute('class', 'ogprice-tooltip');
     tooltip.innerHTML = parseTooltipText(tooltipText);
+    Object.assign(tooltip.style, {
+        position:        'absolute',
+        backgroundColor: '#c2c2c2',
+        color:           '#3d3d3f',
+        fontFamily:      'Motiva Sans',
+        fontSize:        '11px',
+        textAlign:       'left',
+        padding:         '5px',
+        borderRadius:    '2px',
+        boxShadow:       '0 0 3px #000',
+        zIndex:          '9999',
+        opacity:         '0',
+        transition:      'opacity 0.2s ease',
+        whiteSpace:      'pre-line',
+        pointerEvents:   'none',
+    });
     document.body.appendChild(tooltip);
-    tooltip.style.position = 'absolute';
-    tooltip.style.backgroundColor = '#c2c2c2';
-    tooltip.style.color = '#3d3d3f';
-    tooltip.style.fontFamily = 'Motiva Sans';
-    tooltip.style.fontSize = '11px';
-    tooltip.style.textAlign = 'left';
-    tooltip.style.padding = '5px';
-    tooltip.style.borderRadius = '2px';
-    tooltip.style.boxShadow = '0 0 3px #000';
-    tooltip.style.zIndex = '9999';
-    tooltip.style.opacity = '0';
-    tooltip.style.transition = 'opacity 0.2s ease';
-    tooltip.style.whiteSpace = 'pre-line';
-    tooltip.style.pointerEvents = 'none';
 
-    element.addEventListener('mouseover', function (e) {
-        tooltip.style.left = e.pageX + 10 + 'px';
-        tooltip.style.top = e.pageY + 10 + 'px';
+    element.addEventListener('mouseover', e => {
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
         tooltip.style.opacity = '1';
         element.style.cursor = 'help';
-        setTimeout(function() {
-            tooltip.style.opacity = '0';
-        }, 7000);
+        setTimeout(() => { tooltip.style.opacity = '0'; }, 7000);
     });
-
-    element.addEventListener('mouseout', function () {
+    element.addEventListener('mouseout', () => {
         tooltip.style.opacity = '0';
         element.style.cursor = 'default';
     });
-
-    function parseTooltipText(text) {
-        text = text.replace(/\*(.*?)\*/g, '<span style="font-weight:bold;">$1</span>');
-        text = text.replace(/\[L\]/g, '<span style="text-align:left;">');
-        text = text.replace(/\[\/L\]/g, '</span>');
-        text = text.replace(/\[R\]/g, '<span style="float:right;">');
-        text = text.replace(/\[\/R\]/g, '</span>');
-        text = text.replace(/\[C\]/g, '<span style="display:block; text-align:center;">');
-        text = text.replace(/\[\/C\]/g, '</span>');
-        text = text.replace(/🔑/g, '<span style="color: transparent; text-shadow: 1px 1px 1px #3d3d3f;">🔑</span>');
-        text = text.replace(/\[P\]/g, '<span style="position: relative; bottom: 2px;">');
-        text = text.replace(/\[\/P\]/g, '</span>');
-        return text;
-    }
 }
 
 function initializeTooltips() {
-    var elementsWithTooltip = document.querySelectorAll('[ogpricetooltip]:not([ogpricetooltip-initialized])');
-    elementsWithTooltip.forEach(function (element) {
-        var tooltipText = element.getAttribute('ogpricetooltip');
-        addTooltip(element, tooltipText);
-        element.setAttribute('ogpricetooltip-initialized', 'true');
+    document.querySelectorAll('[ogpricetooltip]:not([ogpricetooltip-initialized])').forEach(el => {
+        addTooltip(el, el.getAttribute('ogpricetooltip'));
+        el.setAttribute('ogpricetooltip-initialized', 'true');
     });
 }
 
-function AddLoadingBar(amount) {
-    var currentwidth = parseFloat(LoadingBar.style.width) || 0;
-    var newwidth = Math.min(currentwidth + amount, 100);
-    LoadingBar.style.width = newwidth + '%';
-}
-
-function waitloadingbar() {
-    return new Promise(resolve => {
-        var checkwidth = function () {
-            var currentWidth = parseFloat(LoadingBar.style.width) || 0;
-            if (currentWidth >= 99) {
-                resolve();
-            } else {
-                setTimeout(checkwidth, 100);
-            }
-        };
-        checkwidth();
-    });
-}
-
-function waitForElements(selector, callback) {
-    let elements = document.querySelectorAll(selector);
-
-    if (elements.length > 0) {
-        callback(elements);
-        return;
-    }
-
-    const observer = new MutationObserver((mutations, observer) => {
-        let elements = document.querySelectorAll(selector);
-        if (elements.length > 0) {
-            observer.disconnect();
-            callback(elements);
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-}
-
-
-(function () {
+(function initLoadingBar() {
     LoadingBar = document.createElement('div');
     LoadingBar.id = 'loading-bar';
-    LoadingBar.style.position = 'fixed';
-    LoadingBar.style.top = '0';
-    LoadingBar.style.left = '0';
-    LoadingBar.style.width = '0%';
-    LoadingBar.style.height = '3px';
-    LoadingBar.style.backgroundColor = '#00adee';
-    LoadingBar.style.zIndex = '9999';
-    LoadingBar.style.transition = 'opacity 0.5s ease, width 0.5s ease';
+    Object.assign(LoadingBar.style, {
+        position: 'fixed', top: '0', left: '0', width: '0%', height: '3px',
+        backgroundColor: '#00adee', zIndex: '9999',
+        transition: 'opacity 0.5s ease, width 0.5s ease',
+    });
     document.body.appendChild(LoadingBar);
 
     waitloadingbar().then(() => {
         LoadingBar.style.width = '100%';
         setTimeout(() => {
             LoadingBar.style.opacity = '0';
-            setTimeout(() => {
-                LoadingBar.remove();
-            }, 500);
+            setTimeout(() => { LoadingBar.remove(); }, 500);
         }, 500);
     });
+})();
 
-    var PopPop = document.createElement('style');
-    PopPop.type = 'text/css';
-    PopPop.innerHTML = '.ico16sc { display: inline-block; width: 16px; height: 16px; background: none; vertical-align: text-top; }';
-    document.getElementsByTagName('head')[0].appendChild(PopPop);
+function AddLoadingBar(amount) {
+    if (!LoadingBar) return;
+    const current = parseFloat(LoadingBar.style.width) || 0;
+    LoadingBar.style.width = `${Math.min(current + amount, 100)}%`;
+}
 
-    const Popup = document.querySelector('#account_dropdown .popup_body');
+function waitloadingbar() {
+    return new Promise(resolve => {
+        (function check() {
+            if ((parseFloat(LoadingBar.style.width) || 0) >= 99) resolve();
+            else setTimeout(check, 100);
+        })();
+    });
+}
 
-    if (Popup) {
-        const KeyFKP = document.createElement('a');
-        KeyFKP.rel = 'noopener';
-        KeyFKP.target = '_blank';
-        KeyFKP.className = 'popup_menu_item PopPop';
-        KeyFKP.href = 'https://fastkeys.ir/buy/tf2-key';
-        KeyFKP.title = ("Buy keys from Fast Keys");
-        KeyFKP.textContent = " Fast Keys: ";
+function waitForElements(selector, callback) {
+    const found = document.querySelectorAll(selector);
+    if (found.length > 0) { callback(found); return; }
+    const obs = new MutationObserver((_, observer) => {
+        const els = document.querySelectorAll(selector);
+        if (els.length > 0) { observer.disconnect(); callback(els); }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+}
 
-        const KeyFKPA = document.createElement('a');
-        KeyFKPA.textContent = "Loading..."
-        KeyFKPA.className = 'account_name popupfksteamprice';
-        KeyFKP.appendChild(KeyFKPA);
+(function injectUI() {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+        .ico16sc           { display: inline-block; width: 16px; height: 16px; background: none; vertical-align: text-top; }
+        .widget            { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }
+        .key               { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out; }
+        .widget:hover .key { opacity: 1; }
+        .leftcolumn        { min-width: 90px; margin-right: 5px; display: inline-block; }
+        .rightcolumn       { color: #67c1f5; position: absolute; }
+        .U1qtAHnPvEo-:not(.eHC015acU04-)     { display: block; text-align: center; }
+        .WlnQdqsCe5s- > .NI9oaXH36YQ-:not(.KX9eQJSfx5A-):not(.U1qtAHnPvEo-):not(.LB7oRJG7djU-):not(.ifBXpA-M7mM-)  { display: block; text-align: right; }
+        .iRapBRRENfU- .NI9oaXH36YQ-[data-sctt-conv]::after {
+            content: attr(data-sctt-conv);
+            display: block;
+            text-align: center;
+            color: inherit;
+            font-size: 0.9em;
+        }
+    `;
 
-        const KeyFKPI = document.createElement('img');
-        KeyFKPI.className = 'ico16sc';
-        KeyFKPI.src = 'https://fastkeys.ir/favicon.ico';
-        KeyFKP.prepend(KeyFKPI);
+    document.head.appendChild(sheet);
 
-        const KeyISP = document.createElement('a');
-        KeyISP.rel = 'noopener';
-        KeyISP.target = '_blank';
-        KeyISP.className = 'popup_menu_item PopPop';
-        KeyISP.href = 'https://iraniansteam.ir/tf2';
-        KeyISP.title = ("Buy keys from Iranian Steam");
-        KeyISP.textContent = " Iranian Steam: ";
+    function injectPopupItems(popup, isNewStyle = false) {
+        if (!popup || popup.dataset.scttInjected) return;
+        popup.dataset.scttInjected = 'true';
 
-        const KeyISPA = document.createElement('a');
-        KeyISPA.textContent = "Loading..."
-        KeyISPA.className = 'account_name popupirsteamprice';
-        KeyISP.appendChild(KeyISPA);
+        const popupEntries = [
+            { cls: 'popupfksteamprice', href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: ' Fast Keys: ', favicon: 'https://fastkeys.ir/favicon.ico' },
+            { cls: 'popupirsteamprice', href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: ' Iranian Steam: ', favicon: 'https://iraniansteam.ir/favicon.ico' },
+            { cls: 'popupdragonsteamprice', href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: ' Dragon Steam: ', favicon: 'https://dragonsteam.net/images/logo/favicon.ico' },
+            { cls: 'popupmarketsteamprice', href: MARKET_KEY_URL, title: 'View keys on Community Market', label: ' Steam Market: ', favicon: 'https://store.steampowered.com/favicon.ico' },
+        ];
+        for (const entry of popupEntries) {
+            const item = document.createElement('a');
+            item.rel = 'noopener';
+            item.target = '_blank';
 
-        const KeyISPI = document.createElement('img');
-        KeyISPI.className = 'ico16sc';
-        KeyISPI.src = 'https://iraniansteam.ir/favicon.ico';
-        KeyISP.prepend(KeyISPI);
+            item.className = isNewStyle ? 'TwsehSqoph8- PopPop' : 'popup_menu_item PopPop';
+            item.href = entry.href;
+            item.title = entry.title;
+            item.textContent = entry.label;
+            item.setAttribute('tabindex', '0');
 
-        const KeyDSP = document.createElement('a');
-        KeyDSP.rel = 'noopener';
-        KeyDSP.target = '_blank';
-        KeyDSP.className = 'popup_menu_item PopPop';
-        KeyDSP.href = 'https://dragonsteam.net/shop/tf2/key';
-        KeyDSP.title = ("Buy keys from Dragon Steam");
-        KeyDSP.textContent = " Dragon Steam: ";
+            const priceEl = document.createElement(isNewStyle ? 'span' : 'a');
+            priceEl.textContent = 'Loading...';
+            priceEl.className = isNewStyle
+                ? `HOrB6lehQpg- account_name ${entry.cls}`
+                : `account_name ${entry.cls}`;
+            item.appendChild(priceEl);
 
-        const KeyDSPA = document.createElement('a');
-        KeyDSPA.textContent = "Loading...";
-        KeyDSPA.className = 'account_name popupdragonsteamprice';
-        KeyDSP.appendChild(KeyDSPA);
+            const icon = document.createElement('img');
+            icon.className = 'ico16sc';
+            icon.src = entry.favicon;
+            item.prepend(icon);
 
-        const KeyDSPI = document.createElement('img');
-        KeyDSPI.className = 'ico16sc';
-        KeyDSPI.src = 'https://dragonsteam.net/images/logo/favicon.ico';
-        KeyDSP.prepend(KeyDSPI);
-
-        const KeyMSP = document.createElement('a');
-        KeyMSP.rel = 'noopener';
-        KeyMSP.target = '_blank';
-        KeyMSP.className = 'popup_menu_item PopPop';
-        KeyMSP.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
-        KeyMSP.title = ("View keys on Community Market");
-        KeyMSP.textContent = " Steam Market: ";
-
-        const KeyMSPA = document.createElement('a');
-        KeyMSPA.textContent = "Loading...";
-        KeyMSPA.className = 'account_name popupmarketsteamprice';
-        KeyMSP.appendChild(KeyMSPA);
-
-        const KeyMSPI = document.createElement('img');
-        KeyMSPI.className = 'ico16sc';
-        KeyMSPI.src = 'https://store.steampowered.com/favicon.ico';
-        KeyMSP.prepend(KeyMSPI);
-
-        Popup.appendChild(KeyFKP);
-        Popup.appendChild(KeyISP);
-        Popup.appendChild(KeyDSP);
-        Popup.appendChild(KeyMSP);
+            popup.appendChild(item);
+        }
     }
+
+    injectPopupItems(document.querySelector('#account_dropdown .popup_body'), false);
+    waitForElements('.Hxi-pnf9Xlw- .F0YMvqVKHkY-', els => injectPopupItems(els[0], true));
+
+    new MutationObserver(() => {
+        const dropdown = document.querySelector('.Hxi-pnf9Xlw- .F0YMvqVKHkY-:not([data-sctt-injected])');
+        if (dropdown) injectPopupItems(dropdown, true);
+    }).observe(document.body, { childList: true, subtree: true });
 
     const container = document.querySelector('.game_meta_data');
-
-    var widget = document.createElement('style');
-    widget.type = 'text/css';
-    widget.innerHTML = '.widget { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }';
-    document.getElementsByTagName('head')[0].appendChild(widget);
-
-    var key = document.createElement('style');
-    key.type = 'text/css';
-    key.innerHTML = '.key { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out;}';
-    document.getElementsByTagName('head')[0].appendChild(key);
-
-    var widgethover = document.createElement('style');
-    widgethover.type = 'text/css';
-    widgethover.innerHTML = '.widget:hover .key { opacity: 1; }';
-    document.getElementsByTagName('head')[0].appendChild(widgethover);
-
-    var leftcolumn = document.createElement('style');
-    leftcolumn.type = 'text/css';
-    leftcolumn.innerHTML = '.leftcolumn { min-width: 90px; margin-right: 5px; display: inline-block; }';
-    document.getElementsByTagName('head')[0].appendChild(leftcolumn);
-
-    var rightcolumn = document.createElement('style');
-    rightcolumn.type = 'text/css';
-    rightcolumn.innerHTML = '.rightcolumn { color: #67c1f5; position: absolute; }';
-    document.getElementsByTagName('head')[0].appendChild(rightcolumn);
-
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
     const blockInner = document.createElement('div');
     blockInner.className = 'block_content_inner';
@@ -1355,196 +1174,175 @@ function waitForElements(selector, callback) {
     block.className = 'block responsive_apppage_details_right widget';
     block.appendChild(blockInner);
 
-    const link = document.createElement('a');
-    link.className = 'key';
-    link.title = ("View on Community Market");
-    link.target = '_blank';
-    link.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+    const keyLink = document.createElement('a');
+    keyLink.className = 'key';
+    keyLink.title = 'View on Community Market';
+    keyLink.target = '_blank';
+    keyLink.href = MARKET_KEY_URL;
+    const keyImg = document.createElement('img');
+    keyImg.src = 'https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f';
+    keyLink.appendChild(keyImg);
+    blockInner.appendChild(keyLink);
 
-    const image = document.createElement('img');
-    image.src = "https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/54fx54f";
-    link.appendChild(image);
+    const widgetRows = [
+        { cls: PROVIDERS.fk.cls, href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: 'Fast Keys: ' },
+        { cls: PROVIDERS.ir.cls, href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: 'Iranian Steam: ' },
+        { cls: PROVIDERS.dr.cls, href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: 'Dragon Steam: ' },
+        { cls: 'marketsteamprice', href: MARKET_KEY_URL, title: 'View on Community Market', label: 'Steam Market: ' },
+    ];
 
-    blockInner.appendChild(link);
+    for (const row of widgetRows) {
+        const priceLink = document.createElement('a');
+        priceLink.className = `rightcolumn ${row.cls}`;
+        priceLink.title = row.title;
+        priceLink.target = '_blank';
+        priceLink.href = row.href;
+        priceLink.textContent = 'Loading...';
 
-    const fksteamprice = document.createElement('a');
-    fksteamprice.className = 'rightcolumn fksteamprice';
-    fksteamprice.title = ("Buy keys from Fast Keys");
-    fksteamprice.target = '_blank';
-    fksteamprice.href = 'https://fastkeys.ir/buy/tf2-key';
-    fksteamprice.textContent = "Loading...";
-
-    let line = document.createElement('p');
-    let lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Fast Keys: ");
-    line.appendChild(lineText);
-    line.appendChild(fksteamprice);
-
-    blockInner.appendChild(line);
-
-    const irsteamprice = document.createElement('a');
-    irsteamprice.className = 'rightcolumn irsteamprice';
-    irsteamprice.title = ("Buy keys from Iranian Steam");
-    irsteamprice.target = '_blank';
-    irsteamprice.href = 'https://iraniansteam.ir/tf2';
-    irsteamprice.textContent = "Loading...";
-
-    line = document.createElement('p');
-    lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Iranian Steam: ");
-    line.appendChild(lineText);
-    line.appendChild(irsteamprice);
-
-    blockInner.appendChild(line);
-
-    const dragonsteamprice = document.createElement('a');
-    dragonsteamprice.className = 'rightcolumn dragonsteamprice';
-    dragonsteamprice.title = ("Buy keys from Dragon Steam");
-    dragonsteamprice.target = '_blank';
-    dragonsteamprice.href = 'https://dragonsteam.net/shop/tf2/key';
-    dragonsteamprice.textContent = "Loading...";
-
-    line = document.createElement('p');
-    lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Dragon Steam: ");
-    line.appendChild(lineText);
-    line.appendChild(dragonsteamprice);
-
-    blockInner.appendChild(line);
-
-    const marketsteamprice = document.createElement('a');
-    marketsteamprice.className = 'rightcolumn marketsteamprice';
-    marketsteamprice.title = ("View on Community Market");
-    marketsteamprice.target = '_blank';
-    marketsteamprice.href = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
-    marketsteamprice.textContent = "Loading...";
-
-    line = document.createElement('p');
-    lineText = document.createElement('span');
-    lineText.className = 'leftcolumn';
-    lineText.textContent = ("Steam Market: ");
-    line.appendChild(lineText);
-    line.appendChild(marketsteamprice);
-
-    blockInner.appendChild(line);
+        const line = document.createElement('p');
+        const lineText = document.createElement('span');
+        lineText.className = 'leftcolumn';
+        lineText.textContent = row.label;
+        line.appendChild(lineText);
+        line.appendChild(priceLink);
+        blockInner.appendChild(line);
+    }
 
     const lastupdated = document.createElement('a');
     lastupdated.className = 'rightcolumn lastupdated';
-    lastupdated.title = "Last time prices were updated. Click to refresh.";
-    lastupdated.textContent = "Never";
+    lastupdated.title = 'Last time prices were updated. Click to refresh.';
+    lastupdated.textContent = 'Never';
     lastupdated.style.cursor = 'pointer';
-    lastupdated.addEventListener('click', function() {
+    lastupdated.addEventListener('click', () => {
         localStorage.removeItem('SCTTData');
         location.reload();
     });
 
-    let updateline = document.createElement('p');
-    let updatelineText = document.createElement('span');
-    updatelineText.className = 'leftcolumn';
-    updatelineText.textContent = "Last Update On: ";
-    updateline.appendChild(updatelineText);
-    updateline.appendChild(lastupdated);
-    updateline.style.display = 'none';
-
-    blockInner.appendChild(updateline);
+    const updateLine = document.createElement('p');
+    const updateLineText = document.createElement('span');
+    updateLineText.className = 'leftcolumn';
+    updateLineText.textContent = 'Last Update On: ';
+    updateLine.appendChild(updateLineText);
+    updateLine.appendChild(lastupdated);
+    updateLine.style.display = 'none';
+    blockInner.appendChild(updateLine);
 
     container.insertBefore(block, container.firstChild);
 
-    const containerbtn = document.getElementById('ignoreBtn');
-    if (containerbtn) {
-        const link = document.createElement('a');
-        link.className = 'btnv6_blue_hoverfade btn_medium buytf2btn';
-        link.target = '_blank';
-        link.href = 'https://dragonsteam.net/shop/tf2/key';
-        const element = document.createElement('span');
-        element.dataset.tooltipText = "Buy TF2 Keys";
-        element.innerHTML = "<span>Buy 🔑</span>";
-        link.appendChild(element);
-        containerbtn.append(link, containerbtn.firstChild);
+    const btnContainer = document.getElementById('ignoreBtn');
+    if (btnContainer) {
+        const buyLink = document.createElement('a');
+        buyLink.className = 'btnv6_blue_hoverfade btn_medium buytf2btn';
+        buyLink.target = '_blank';
+        buyLink.href = PROVIDERS.dr.url;
+        const buySpan = document.createElement('span');
+        buySpan.dataset.tooltipText = 'Buy TF2 Keys';
+        buySpan.innerHTML = '<span>Buy 🔑</span>';
+        buyLink.appendChild(buySpan);
+        btnContainer.append(buyLink, btnContainer.firstChild);
     }
 })();
 
 function convertcurrency() {
-    if (CurrRegion === "UAH" && typeof FinalKeyPrice !== "undefined") {
-        UAHtoToman(labels);
-        return;
-    } else if (CurrRegion === "USD" && typeof FinalKeyPrice !== "undefined") {
-        USDtoToman(labels);
-        return;
-    } else if (CurrRegion === "EUR" && typeof FinalKeyPrice !== "undefined") {
-        EURtoToman(labels);
-        return;
-    }
-}
-
-function handlemutations(mutationsList) {
-    for (let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-            for (let node of mutation.addedNodes) {
-                if (GotAllPrices()) {
-                    processnode(node);
-                }
-            }
-        }
-    }
+    if (!isValidValue(FinalKeyPrice)) return;
+    if (CurrRegion === 'UAH') UAHtoToman(labels);
+    else if (CurrRegion === 'USD') USDtoToman(labels);
+    else if (CurrRegion === 'EUR') EURtoToman(labels);
 }
 
 function processnode(node) {
-    if (node.nodeType === Node.ELEMENT_NODE) {
-        if (node.classList) {
-            for (let classname of labels) {
-                if (node.classList.contains(classname)) {
-                    convertcurrency();
-                    return;
-                }
-            }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.classList) {
+        for (const cls of labels) {
+            if (node.classList.contains(cls)) { convertcurrency(); return; }
         }
-        for (let childnode of node.childNodes) {
-            processnode(childnode);
+    }
+    for (const child of node.childNodes) { processnode(child); }
+}
+
+
+const WALLET_CLASSES = new Set(['_79DIT7RUQ5g-', 'lHc2D8LzCAM-', 'global_action_link', 'account_name', 'user_info_text', 'HOrB6lehQpg-']);
+
+function isWalletNode(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+
+    if (node.classList) {
+        for (const cls of WALLET_CLASSES) {
+            if (node.classList.contains(cls)) return true;
+        }
+    }
+
+    for (const cls of WALLET_CLASSES) {
+        if (node.querySelector && node.querySelector(`.${cls}`)) return true;
+    }
+    return false;
+}
+
+function handlemutations(mutationsList) {
+    for (const mutation of mutationsList) {
+        if (mutation.type !== 'childList') continue;
+        for (const node of mutation.addedNodes) {
+            if (!GotAllPrices()) continue;
+            if (isWalletNode(node)) {
+
+                clearTimeout(handlemutations._walletTimer);
+                handlemutations._walletTimer = setTimeout(() => {
+                    if (CurrRegion === 'UAH') UAHtoTomanW();
+                    else if (CurrRegion === 'USD') USDtoTomanW();
+                    else if (CurrRegion === 'EUR') EURtoTomanW();
+                }, 150);
+            } else {
+
+
+                processnode(node);
+            }
         }
     }
 }
 
-const observer = new MutationObserver(handlemutations);
+const domObserver = new MutationObserver(handlemutations);
+domObserver.observe(document.body, { childList: true, subtree: true });
 
-observer.observe(document.body, { childList: true, subtree: true });
+if (GotAllPrices()) processnode(document.body);
 
-if (GotAllPrices()) {
-    processnode(document.body);
-}
+if (window.location.href.includes('wishlist')) {
+    window.addEventListener('scroll', convertcurrency);
 
-if (window.location.href.indexOf("wishlist") != -1) {
-    window.addEventListener('scroll', () => {
-        convertcurrency();
-    });
-
-    const observer = new MutationObserver(() => {
-        const innerScrollElement = document.querySelector('body.VuAIAiWhjcg- .khI3dKnN9c8-.o5zcnn2HXfA-');
-        if (innerScrollElement) {
-            if (document.readyState === "complete") {
-                innerScrollElement.addEventListener('scroll', () => {
-                    convertcurrency();
-                });
-                observer.disconnect();
-            } else {
-                window.addEventListener('load', () => {
-                    innerScrollElement.addEventListener('scroll', () => {
-                        convertcurrency();
-                    });
-                    observer.disconnect();
-                });
-            }
+    const wishlistObserver = new MutationObserver(() => {
+        const inner = document.querySelector('body.VuAIAiWhjcg- .khI3dKnN9c8-.o5zcnn2HXfA-');
+        if (!inner) return;
+        const addScrollListener = () => { inner.addEventListener('scroll', convertcurrency); };
+        if (document.readyState === 'complete') {
+            addScrollListener();
+        } else {
+            window.addEventListener('load', addScrollListener, { once: true });
         }
+        wishlistObserver.disconnect();
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
+    wishlistObserver.observe(document.body, { childList: true, subtree: true });
 }
 
-window.onload = function () {
-    convertcurrency();
-};
+if (window.location.href.includes('/inventory')) {
+    window.addEventListener('scroll', convertcurrency);
 
+    setInterval(() => {
+        if (!GotAllPrices()) return;
+        document.querySelectorAll('.f6hU22EA7Z8peFWZVBJU').forEach(el => {
+            if (el.innerHTML.includes('🔑')) return;
+            if (!el.textContent.includes('₴')) return;
+            convertTextNodes(el);
+        });
+    }, 300);
 
+    if (!RegionCheck) {
+        let _invRetries = 0;
+        const _retryCheckRegion = () => {
+            if (RegionCheck || _invRetries++ > 20) return;
+            CheckRegion(labelsr);
+            if (!RegionCheck) setTimeout(_retryCheckRegion, 500);
+        };
+        setTimeout(_retryCheckRegion, 300);
+    }
+}
+
+window.addEventListener('load', convertcurrency);
