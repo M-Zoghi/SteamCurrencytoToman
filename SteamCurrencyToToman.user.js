@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.70
+// @version            1.71
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -23,10 +23,15 @@ const LOG_STYLES = ['color:#2196F3; font-weight:bold;', ''];
 
 const STEAM_FEE = 0.87;
 
+const SCTT_OWN_PRICE_CLASSES = [
+    'popupfksteamprice', 'popupirsteamprice', 'popupdragonsteamprice', 'popupmarketsteamprice',
+    'fksteamprice', 'irsteamprice', 'dragonsteamprice', 'marketsteamprice',
+];
+
 const PROVIDERS = {
-    fk: { name: 'Fast Keys', url: 'https://fastkeys.ir/buy/tf2-key', cls: 'fksteamprice', popupCls: 'popupfksteamprice' },
-    ir: { name: 'Iranian Steam',url: 'https://iraniansteam.ir/tf2', cls: 'irsteamprice', popupCls: 'popupirsteamprice' },
-    dr: { name: 'Dragon Steam', url: 'https://dragonsteam.net/tf2/mann-co-supply-crate-key', cls: 'dragonsteamprice', popupCls: 'popupdragonsteamprice' },
+    fk: { name: 'Fast Keys', url: 'https://fastkeys.ir/products/tf2-key', cls: 'fksteamprice', popupCls: 'popupfksteamprice', favicon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACzklEQVR4AXxTTUhbQRD+dqNt1LMWiUWCwVQjSk4aDBKoxB/wZiEWDx56bYM/p0YPhR48KCTYQ3u0akUkGhQPetCojdWDJkrRVDQitRjjTVCTqnmd2VaoBft4s+y+t/PNN9/MSPx5jEbjI7vd7unu7v46NjaWnJyc1IaHh7WhoSFtYmJC8/v9qd7e3mhdXd3boqKix3/coACKi4uflJWVfWxtbX2Tl5dnCQQCD/v7++H1euHz+dDX14eRkZEHUkpzS0vLa5vN9qm0tNTKIJIjE4CvubnZGY1GdYODg9jZ2cHFxQU0TVOWTCZxcHCA0dFRLC4uioaGBrvVan1XWFholPn5+S8aGxufbm5uIhgMKgedTgchBAdQJoQARVcWDocxNzcHp9Nps1gsL2V1dbULgG5paUldEELQ8f6Xwbe2tnB0dCQcDsczWVFRYVpbW8P19bXySqfTioU6/GdZXV2FyWQyyOzsbP3h4aGiXFBQgNraWuTk5NwBYfqMdasJnxOJBK6uroS8ubnB5eWlAqCcYDAY0NHRAbfbrYz3Ho8HXV1d6OnpQX19PWOxM05PT3+Xkb8w+tnZGTIzM8F6LCwsgG1+fh6zs7NglpQu4vH4XXYsSlZWlmKwsbGB6elpLhUikQhY8fX1dYRCISwvL2NgYABcTg7IgXJzcyHPz89/Uj3B4qVSKZycnCgwBr41vnx8fIwglZlZMltqOMVWUv1jlZWVyMjIYGBVSrX5ZxFC3PlXVVWF3d3duFxZWfEDSNfU1CgWjE7ne18Wvby8XIlNXRmQRPnDzMxMiAVyOByKPl/6G4j3nCIbtTB3IQsbjsViXrm/v/+dhHGPj49/MZvNWltbG0pKSkD9ocCEENDr9aCZAQ0SmOnU1FSEUn/1jR41jdvb2+G9vb3nNL5eatEfTU1N6OzsRHt7u+oF7gGXywUaqgRN5XuqkIt8PnOevwAAAP//4InftgAAAAZJREFUAwA0DlaXQT/VpwAAAABJRU5ErkJggg==' },
+    ir: { name: 'Iranian Steam',url: 'https://iraniansteam.ir/tf2', cls: 'irsteamprice', popupCls: 'popupirsteamprice', favicon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABx0lEQVR4AaSRTUhUURTHf+8+nBlp3mhFThRCTcxUtMhajBAPYqZFi9pERESkURFItaiFbYImojZtZt1CW1gDZQMtQjeiDIPgiGs/QBTUjfg5ouPIeMf34M3gVUcFL1z+5x7O/3fuvUdwxHU4QDcn6vt5lE6nI5lMpn57z4MBSUIeD/3+Y7wzTbM3HA5PHR7Qod+tcjMQMrioIzLbjaVYlAJFf6OL7+Kza37zX1BS69EYLyzIj0qNc9gNiHFaG9d6vLPyw6UzCOOUliouYw5FmHM8iqiAV5xkg3SdKN48fw7chohX54q3riVeZpui0bOK0zmogCJNNVVcOF6rYboeDjePxb2ta/8HrwcCWc/o2PRTITocX1lUgGSuWoPA/A3ueJsvGz7fi5n2Hw2LsU96YGYaa34rZacTqIAREnKD1ppVf3s+l38fbGvrcnf+Ibieo1GIuC7lG8dXFhXQR2H2K98SX5LPQvfvJX2p1O0g5BvhcUTKtzEolJ1OoAKcpC0uaDBA1EGLdfVfdm6vXRGwBkNWu+xr+LuXsZSrCLgKE+vw3Jrmzweglww7tSLALrwCnX54EgXrFXZm994XYJdbH7fUApNUWFsAAAD//7TtisYAAAAGSURBVAMA3Zp1IYz5quEAAAAASUVORK5CYII=' },
+    dr: { name: 'Dragon Steam', url: 'https://dragonsteam.net/tf2/mann-co-supply-crate-key', cls: 'dragonsteamprice', popupCls: 'popupdragonsteamprice', favicon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADHklEQVR4AVyS3W8UVRjGf2dmh+7sDmuRllVi3e2mUPstUSP1ZjcQ02pMFMOVRGJIavRKL4z/hBdeEG5oJJGYKBol0ZhIwkVNcAX8gFC+2tKlmy7Q7XbZj86y3Z2dOZxpmyYwOU/eOTPv85znfc+r8dQTj8eTCt8ozMfjMamiD/Ue978ln0rnCYFYLHZSJUwpHFNIhEyXsEI82kpsD7nHpJRTmznq98baElAn/SGEmDBNSbTDI9HlsW8Q9vbA/kGNkV6HaNQlGGTCz92gs+FgU3XMMCSvDHh8+q7LF+87fJRqMXbwOdp7jtC/7yAD/TvpjjuEw3Jsk4Om1JKaJiYsC/r6dN4b0xkY1uja00nq9QBvJdd4qfdZ9GA/nbv2MzT0PIluD8NYd5JUJcijkYhkdDTA6GsewoTFRpQrhR7+Xh4hk5cU8j9x/eL3lAv3aLW6GBk2VTnrRRzVQKR0XdDT3eLQuGS1pqPrNfLL8N3ZIBf+iZG+lOPi1QzFcoaFbJMXXwix4xmJampKAxKlkuTGLRfNcQms2VRXPGZvV1laqnHixCVm5+oMvdxO1RbUHzVo2k3aDA9NI+ELKA3J6qrD4kydWKDB/+k8l/+dx6ldQ/dWyWQC5BZ3USm3USisICs2NFvKwcYtZASC+7kWV/+rU19p4NoNysUH3Jh5yFefBzn8Zjux3RWq1RKaV8Iu2lTL+AIZ38GUJwUh1YfmWou5xSbDnQ4HXg3ywSGLmXmXjkCeju02kVCN3s4KuaUmhYqOmpspX+C0qoGyHaC2ZtCxQ8dsE8QiDtPTDt+e1zl7WZDPO7yxp8He3Q5zSyaVuu7TTmsLCwt/qm5OlmyDO8Uw0grR1xviwwM6n70j+PIwfPK2xhG1H+zWuX7fIls08Twx6XN9B2Sz2Y8R2rnpbJAf0iF+n7VI5y0eahGsnRbutjAXbpqc+SvMlbsmDUc7t85RHtYFVESpjds1MTl9x+DMeYPjv2zj6x91jv9scPI3g1/TAeZyOk0H/+Rxn+NjS8Df+KquK1K2zanlghpCfwqLUKnIjOtySuWk/BwVt9ZjAAAA///2DmFTAAAABklEQVQDANLIU6Diw3D7AAAAAElFTkSuQmCC' },
 };
 
 const MARKET_URLS = {
@@ -36,6 +41,8 @@ const MARKET_URLS = {
 };
 
 const MARKET_KEY_URL = 'https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key';
+const MARKET_FAVICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADF0lEQVR4AVSRa0gUURiG33POzGw7MzuzbheNtciKLkbRSleyIgszutcPIyXDoIKIILpRFEK3H9GN6EYlKGlZidW/LINSKQoq0Iwwak0tS1utxGrdPdM5lrYNPMycw/u855sZithr5EiXlZiSYfkDV+3EiU2CbkFE0CT3rMTAAohMrNJXYAycnKB3eY9whxRz0Myow/wCRcAinPojHJkRTor0LvuIzPaW9BTIDa6Qc9yhmyOcxQnQSzhCoBsWkpKS4PMNiItykRFZ6cgSiuRkLczU3VFHWcodBbHIkjmzpqPg7EGcP7YPl88fRm72SlDmWiod6VJXaOBcRpQsQhTE4jgMo0YMQ96O9Wj+0IbXb96jpu4t1mUvQ0baDHBOs6RLCVXWgKg+QlRR8A9ZMHNaCkLtnRjiT0Bu1mKkz5mKmpdvMT9tOlTm8kmXcs5SpUypBvoXufZ547AkYyYURYEDIl9XIO6EipWAqqBUS6WZK+bG+xMHgyguEKaBirtkbfZCpKdNwpSUMWho/Iz84nLce/gCE8aNQEVVTU+eaf0S6KUTW3GzIA97t2UjEBiL+MHxWLQgFVvWL4fCGLy2ibWr0jE5MArjk4ejsPQB7j9+Bc1tgLnc4kBV+Txu9FDs3LQSpRd3oSx/N3Iy56G+4ROiUS4+loPqZ/XYc7wUubsuoPD2I3AxJXPrYP30Fpp/s7qq8vkbdP0MY1B/G+PHDMXsackIfmzH05dBnCy+jw0HilBZ24BQtwNqmiACGCYcw6iiW0+UFeTsvxLKOXAF1TVBfO/6BVVVYIrR7zytx9FrlQhFAMW2QD1/ZGIaIIYeYrpRSL8N8lR0OKyovLYRB0sqUVb9CgXlz9EY6sSLphB+qFqPCMNALOL0olZbq6C4nhdWVPWQapm3njR14HRFLe7UNePGsyCqgm0gHg8cMfJ/6O5blKmHpEvFz0Xr9R0t1KNthOk+Vd/Z3X733RfUfQ3D8ViAGL0Py9MuMzIrHen2FMiH1jObWuKofzvxmKtVyyqhXrsZXjsCW2BZzcQwS7juzpIZmZWO5DcAAAD//9mcDx8AAAAGSURBVAMAuGEjOcYdU2UAAAAASUVORK5CYII=';
+const LAST_UPDATE_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACBElEQVR4AaSST2hTQRDGf/NeSRMUTUsvWsWLgiCCRUUQPIiCR0UoWqwgBT3VJHoQL0KusVCSgAcFFaUHJQj2JCh68KRQi3gRCvUQ/yIUG9T+0+w4u8WQlkYPHd43b3Znvm/mvd2IVdqKAnqeHs1R0CxPDY/0At2t+iwRsMKUZnhCB+MoWSOlUTpJ8EOz8VnNRdc1Fw9oJj6qF9lseRoCmieJ44P5w9Q4KSWSht1SZp8UqDnRbro4R1pvInrbatcuEeAbD0nSibLBiPdZZpG6Z8zZZqTm3GMp8tYCwgQ2+k7SHGGWYzLEF1Yyocp3ecGUXibJCePs8GVBwLr2M828jTtKK5vhIx31AzZdgTnqztHvSxcFHD22eGVo+cgNfkme375AYcyIu3xsb2wAHxLiEP3HCdStxF4skkR4Dew1oL3EmqfNx//AHqeM+XzougAjpIyY4RIb4+dMs4kWpjmOs55E1MZdXxIE2ku8sROo0GUnvk7324BbfHI5wuVJ8UBrVGSYCZ8PAjrIdvuaQ6hAO7g4OuiTzbDOp0hQZYZ38om+v7kgQIKfRh5gSs64r1yLkKoR0natX2qWccM8axhxs9yjg21Swf/EoBF5L8O8l3J91HAnLrtBKdZv2X4KYUKVSZQrLLA1LtEneRxNFgSa1o1QinyWEqejMr12wa7KEJONZFPwBwAA///Nt6gKAAAABklEQVQDANSPqiHtvF0gAAAAAElFTkSuQmCC';
 
 let MarketPrice;
 let MarketPriceGlobal;
@@ -150,7 +157,6 @@ CheckRegion(labelsr);
 
 function CheckRegion(labelsr) {
     const href = window.location.href;
-
     const wallet = document.getElementById('header_wallet_balance');
     const isStore = href.includes('steampowered');
     const isMkt = href.includes('market');
@@ -299,10 +305,11 @@ function GetFKSteamPrice(retryCount = 0) {
 function LoadFKSteamPrice(response) {
     try {
         const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
-        const rawPrice = doc.getElementById('item_price_irt').innerHTML;
-        const availEl = doc.querySelector('p.h6.text-white');
+        const priceEl = doc.querySelector('.font-semibold.text-base:not(.toman-price)');
+        const rawPrice = priceEl.textContent.trim();
+        const availEl = doc.querySelector('p.bg-primary-800');
         FKSteamPrice = rawPrice;
-        FKSteamPriceGlobal = Math.ceil(rawPrice.replace(',', '.'));
+        FKSteamPriceGlobal = Math.ceil(parseFloat(rawPrice.replace(/,/g, '')));
         FKSteamAvailGlobal = parseInt(availEl.textContent.match(/\d+/)[0], 10);
         clog(`Fast Keys Price: ${FKSteamPriceGlobal} Toman`);
         clog(`Fast Keys Quantity: ${FKSteamAvailGlobal} Keys`);
@@ -851,6 +858,7 @@ function UAHtoTomanW() {
     const pricew = document.querySelectorAll('.global_action_link, ._79DIT7RUQ5g-, .account_name, .lHc2D8LzCAM-, .HOrB6lehQpg-');
     for (const el of pricew) {
         if (el.textContent.includes('🔑')) continue;
+        if (SCTT_OWN_PRICE_CLASSES.some(c => el.classList.contains(c))) continue;
         if (!rew.test(el.textContent)) continue;
         const matchItemw = rew.exec(el.textContent);
         if (matchItemw[0].indexOf('₴') < 0) continue;
@@ -921,6 +929,7 @@ function USDtoTomanW() {
     const rew = /(\D*)(\d\S*$)/;
     const pricew = document.querySelectorAll('.global_action_link');
     for (const el of pricew) {
+        if (SCTT_OWN_PRICE_CLASSES.some(c => el.classList.contains(c))) continue;
         if (!rew.test(el.textContent)) continue;
         const matchItemw = rew.exec(el.textContent);
         if (matchItemw[0].indexOf('$') < 0) continue;
@@ -978,6 +987,7 @@ function EURtoTomanW() {
     const rew = /(\D*)(\d\S*€)/;
     const pricew = document.querySelectorAll('.global_action_link');
     for (const el of pricew) {
+        if (SCTT_OWN_PRICE_CLASSES.some(c => el.classList.contains(c))) continue;
         if (!rew.test(el.textContent)) continue;
         const matchItemw = rew.exec(el.textContent);
         if (matchItemw[0].indexOf('€') < 0) continue;
@@ -1104,7 +1114,7 @@ function waitForElements(selector, callback) {
         .widget            { font-family: "Motiva Sans", Arial, Helvetica, sans-serif; }
         .key               { width: 52px; height: 52px; float: right; opacity: 0.5; transition: opacity 0.1s ease-in-out; }
         .widget:hover .key { opacity: 1; }
-        .leftcolumn        { min-width: 90px; margin-right: 5px; display: inline-block; }
+        .leftcolumn { width: 110px; margin-right: 5px; display: inline-block; padding-left: 20px; background-repeat: no-repeat; background-position: 0 50%; background-size: 16px 16px; }
         .rightcolumn       { color: #67c1f5; position: absolute; }
         .U1qtAHnPvEo-:not(.eHC015acU04-)     { display: block; text-align: center; }
         .WlnQdqsCe5s- > .NI9oaXH36YQ-:not(.KX9eQJSfx5A-):not(.U1qtAHnPvEo-):not(.LB7oRJG7djU-):not(.ifBXpA-M7mM-)  { display: block; text-align: right; }
@@ -1119,15 +1129,33 @@ function waitForElements(selector, callback) {
 
     document.head.appendChild(sheet);
 
+    function getCachedPopupText(cls) {
+        if (cls === 'popupfksteamprice' && FKSteamPriceCheck) {
+            return isValidValue(FKSteamPrice) ? `${FKSteamPrice} T (${FKSteamAvailGlobal})` : 'Error!';
+        }
+        if (cls === 'popupirsteamprice' && IRSteamPriceCheck) {
+            return isValidValue(IRSteamPrice) ? `${IRSteamPrice} T (${IRSteamAvailGlobal})` : 'Error!';
+        }
+        if (cls === 'popupdragonsteamprice' && DRSteamPriceCheck) {
+            return isValidValue(DRSteamPrice) ? `${DRSteamPrice} T (${DRSteamAvailGlobal})` : 'Error!';
+        }
+        if (cls === 'popupmarketsteamprice' && MarketPriceCheck && isValidValue(MarketPriceGlobal)) {
+            if (CurrRegion === 'UAH') return `${String(MarketPrice).replace('.', ',')}₴ (${MarketPriceGlobal}₴)`;
+            if (CurrRegion === 'USD') return `$${MarketPrice} ($${MarketPriceGlobal})`;
+            if (CurrRegion === 'EUR') return `${String(MarketPrice).replace('.', ',')}€ (${String(MarketPriceGlobal).replace('.', ',')}€)`;
+        }
+        return null;
+    }
+
     function injectPopupItems(popup, isNewStyle = false) {
         if (!popup || popup.dataset.scttInjected) return;
         popup.dataset.scttInjected = 'true';
 
         const popupEntries = [
-            { cls: 'popupfksteamprice', href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: ' Fast Keys: ', favicon: 'https://fastkeys.ir/favicon.ico' },
-            { cls: 'popupirsteamprice', href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: ' Iranian Steam: ', favicon: 'https://iraniansteam.ir/favicon.ico' },
-            { cls: 'popupdragonsteamprice', href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: ' Dragon Steam: ', favicon: 'https://dragonsteam.net/images/logo/favicon.ico' },
-            { cls: 'popupmarketsteamprice', href: MARKET_KEY_URL, title: 'View keys on Community Market', label: ' Steam Market: ', favicon: 'https://store.steampowered.com/favicon.ico' },
+            { cls: 'popupfksteamprice', href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: ' Fast Keys: ', favicon: PROVIDERS.fk.favicon },
+            { cls: 'popupirsteamprice', href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: ' Iranian Steam: ', favicon: PROVIDERS.ir.favicon },
+            { cls: 'popupdragonsteamprice', href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: ' Dragon Steam: ', favicon: PROVIDERS.dr.favicon },
+            { cls: 'popupmarketsteamprice', href: MARKET_KEY_URL, title: 'View keys on Community Market', label: ' Steam Market: ', favicon: MARKET_FAVICON },
         ];
         for (const entry of popupEntries) {
             const item = document.createElement('a');
@@ -1141,7 +1169,8 @@ function waitForElements(selector, callback) {
             item.setAttribute('tabindex', '0');
 
             const priceEl = document.createElement(isNewStyle ? 'span' : 'a');
-            priceEl.textContent = 'Loading...';
+            const cached = getCachedPopupText(entry.cls);
+            priceEl.textContent = cached || 'Loading...';
             priceEl.className = isNewStyle
                 ? `HOrB6lehQpg- account_name ${entry.cls}`
                 : `account_name ${entry.cls}`;
@@ -1185,10 +1214,10 @@ function waitForElements(selector, callback) {
     blockInner.appendChild(keyLink);
 
     const widgetRows = [
-        { cls: PROVIDERS.fk.cls, href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: 'Fast Keys: ' },
-        { cls: PROVIDERS.ir.cls, href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: 'Iranian Steam: ' },
-        { cls: PROVIDERS.dr.cls, href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: 'Dragon Steam: ' },
-        { cls: 'marketsteamprice', href: MARKET_KEY_URL, title: 'View on Community Market', label: 'Steam Market: ' },
+        { cls: PROVIDERS.fk.cls, href: PROVIDERS.fk.url, title: 'Buy keys from Fast Keys', label: 'Fast Keys: ', favicon: PROVIDERS.fk.favicon },
+        { cls: PROVIDERS.ir.cls, href: PROVIDERS.ir.url, title: 'Buy keys from Iranian Steam', label: 'Iranian Steam: ', favicon: PROVIDERS.ir.favicon },
+        { cls: PROVIDERS.dr.cls, href: PROVIDERS.dr.url, title: 'Buy keys from Dragon Steam', label: 'Dragon Steam: ', favicon: PROVIDERS.dr.favicon },
+        { cls: 'marketsteamprice', href: MARKET_KEY_URL, title: 'View on Community Market', label: 'Steam Market: ', favicon: MARKET_FAVICON },
     ];
 
     for (const row of widgetRows) {
@@ -1202,7 +1231,9 @@ function waitForElements(selector, callback) {
         const line = document.createElement('p');
         const lineText = document.createElement('span');
         lineText.className = 'leftcolumn';
+        lineText.style.backgroundImage = `url("${row.favicon}")`;
         lineText.textContent = row.label;
+
         line.appendChild(lineText);
         line.appendChild(priceLink);
         blockInner.appendChild(line);
@@ -1221,6 +1252,7 @@ function waitForElements(selector, callback) {
     const updateLine = document.createElement('p');
     const updateLineText = document.createElement('span');
     updateLineText.className = 'leftcolumn';
+    updateLineText.style.backgroundImage = `url("${LAST_UPDATE_ICON}")`;
     updateLineText.textContent = 'Last Update On: ';
     updateLine.appendChild(updateLineText);
     updateLine.appendChild(lastupdated);
@@ -1235,6 +1267,7 @@ function waitForElements(selector, callback) {
         buyLink.className = 'btnv6_blue_hoverfade btn_medium buytf2btn';
         buyLink.target = '_blank';
         buyLink.href = PROVIDERS.dr.url;
+        buyLink.style.marginLeft = '5px';
         const buySpan = document.createElement('span');
         buySpan.dataset.tooltipText = 'Buy TF2 Keys';
         buySpan.innerHTML = '<span>Buy 🔑</span>';
@@ -1250,8 +1283,16 @@ function convertcurrency() {
     else if (CurrRegion === 'EUR') EURtoToman(labels);
 }
 
+function isSctteOwnNode(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+    if (node.classList && SCTT_OWN_PRICE_CLASSES.some(c => node.classList.contains(c))) return true;
+    if (node.querySelector && SCTT_OWN_PRICE_CLASSES.some(c => node.querySelector(`.${c}`))) return true;
+    return false;
+}
+
 function processnode(node) {
     if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (isSctteOwnNode(node)) return;
     if (node.classList) {
         for (const cls of labels) {
             if (node.classList.contains(cls)) { convertcurrency(); return; }
@@ -1260,18 +1301,16 @@ function processnode(node) {
     for (const child of node.childNodes) { processnode(child); }
 }
 
-
 const WALLET_CLASSES = new Set(['_79DIT7RUQ5g-', 'lHc2D8LzCAM-', 'global_action_link', 'account_name', 'user_info_text', 'HOrB6lehQpg-']);
 
 function isWalletNode(node) {
     if (node.nodeType !== Node.ELEMENT_NODE) return false;
-
+    if (SCTT_OWN_PRICE_CLASSES.some(c => node.classList && node.classList.contains(c))) return false;
     if (node.classList) {
         for (const cls of WALLET_CLASSES) {
             if (node.classList.contains(cls)) return true;
         }
     }
-
     for (const cls of WALLET_CLASSES) {
         if (node.querySelector && node.querySelector(`.${cls}`)) return true;
     }
