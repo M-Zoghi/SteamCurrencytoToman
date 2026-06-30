@@ -7,7 +7,6 @@
 // @icon               http://store.steampowered.com/favicon.ico
 // @match              http*://store.steampowered.com/*
 // @match              http*://steamcommunity.com/*
-// @require            http://code.jquery.com/jquery.min.js
 // @grant              GM_xmlhttpRequest
 // @connect            fastkeys.ir
 // @connect            iraniansteam.ir
