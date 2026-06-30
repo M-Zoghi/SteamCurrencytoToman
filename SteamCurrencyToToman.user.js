@@ -8,6 +8,8 @@
 // @match              http*://store.steampowered.com/*
 // @match              http*://steamcommunity.com/*
 // @grant              GM_xmlhttpRequest
+// @updateURL          https://raw.githubusercontent.com/M-Zoghi/SteamCurrencytoToman/main/SteamCurrencyToToman.user.js
+// @downloadURL        https://raw.githubusercontent.com/M-Zoghi/SteamCurrencytoToman/main/SteamCurrencyToToman.user.js
 // @connect            fastkeys.ir
 // @connect            iraniansteam.ir
 // @connect            dragonsteam.net
