@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.71
+// @version            1.72
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -138,6 +138,7 @@ const labels = [
     'Thio3V0imwc-',
     'f6hU22EA7Z8peFWZVBJU',
     '_3hEeummFKRey8l5VXxZwxz',
+    '_90cZ1dqsBUk-',
 ];
 
 function clog(msg) {
