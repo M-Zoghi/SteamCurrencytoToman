@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.72
+// @version            1.73
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -308,10 +308,10 @@ function LoadFKSteamPrice(response) {
     try {
         const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
         const priceEl = doc.querySelector('.font-semibold.text-base:not(.toman-price)');
-        const rawPrice = priceEl.textContent.trim();
+        const rawToman = Math.ceil(parseFloat(priceEl.textContent.trim().replace(/,/g, '')));
         const availEl = doc.querySelector('p.bg-primary-800');
-        FKSteamPrice = rawPrice;
-        FKSteamPriceGlobal = Math.ceil(parseFloat(rawPrice.replace(/,/g, '')));
+        FKSteamPrice = rawToman.toLocaleString('en-US');
+        FKSteamPriceGlobal = Math.ceil(rawToman / 1000);
         FKSteamAvailGlobal = parseInt(availEl.textContent.match(/\d+/)[0], 10);
         clog(`Fast Keys Price: ${FKSteamPriceGlobal} Toman`);
         clog(`Fast Keys Quantity: ${FKSteamAvailGlobal} Keys`);
@@ -337,8 +337,9 @@ function LoadIRSteamPrice(response) {
     try {
         const doc = new DOMParser().parseFromString(response.responseText, 'text/html');
         const json = JSON.parse(doc.getElementById('__NEXT_DATA__').innerHTML);
-        IRSteamPrice = json.props.pageProps.tf2.prices.keyPrice;
-        IRSteamPriceGlobal = Math.ceil(String(IRSteamPrice).replace(',', '.'));
+        const rawToman = Math.ceil(parseFloat(String(json.props.pageProps.tf2.prices.keyPrice).replace(/,/g, '')));
+        IRSteamPrice = rawToman.toLocaleString('en-US');
+        IRSteamPriceGlobal = Math.ceil(rawToman / 1000);
         IRSteamAvailGlobal = Math.ceil(json.props.pageProps.tf2.quantity);
         clog(`Iranian Steam Price: ${IRSteamPriceGlobal} Toman`);
         clog(`Iranian Steam Quantity: ${IRSteamAvailGlobal} Keys`);
@@ -363,8 +364,9 @@ function GetDRSteamPrice(retryCount = 0) {
 function LoadDRSteamPrice(response) {
     try {
         const json = JSON.parse(response.responseText);
-        DRSteamPriceGlobal = Math.ceil(json.keySell);
-        DRSteamPrice = DRSteamPriceGlobal.toLocaleString('en-US');
+        const rawToman = Math.ceil(json.keySell);
+        DRSteamPriceGlobal = Math.ceil(rawToman / 1000);
+        DRSteamPrice = rawToman.toLocaleString('en-US');
         clog(`Dragon Steam Price: ${DRSteamPriceGlobal} Toman`);
         makeRequest({ url: 'https://dragonsteam.net/api/tf2/inventory-summary', method: 'GET', timeout: 10000, retryCount: 0,
             onload: (res) => {
