@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.74
+// @version            1.75
 // @description        Converts Steam Currency to Toman
 // @author             EmZi
 // @namespace          SteamCurrencyToToman
@@ -224,17 +224,18 @@ function detectRegionFallback() {
     }
 }
 
-function handleNewWishlistUI() {
-    if (!window.location.href.includes('/wishlist/')) return;
+function convertBarePriceDivs() {
     if (!isValidValue(FinalKeyPrice) || !isValidValue(MarketPriceGlobal)) return;
+    const walletValue = getCurrentWalletValue();
+    if (walletValue !== null) WalletValue = walletValue;
 
     document.querySelectorAll('div').forEach(el => {
         if (el.children.length > 0) return;
-        if (el.closest('header, dialog, [popover]')) return;
         const m = /^(\d[\d\s]*,\d{2})\s*₴$/.exec(el.textContent.trim());
         if (!m) return;
         const pm = normalizeUAH(m[1].replace(/\s/g, ''));
         if (!pm || isNaN(pm)) return;
+        if (walletValue !== null && Math.abs(pm - walletValue) < 0.001) return;
 
         let cs, cf;
         if (pm > MarketPriceGlobal) {
@@ -246,24 +247,35 @@ function handleNewWishlistUI() {
         }
 
         el.textContent = `${cf} T (${cs}🔑)`;
+
+        const origDisplay = pm.toLocaleString('en-US') + '₴';
+        const tooltipText = buildTooltipText(pm, origDisplay);
+        if (tooltipText) {
+            el.setAttribute('ogpricetooltip', tooltipText);
+            el.removeAttribute('ogpricetooltip-initialized');
+        }
     });
+
+    initializeTooltips();
 }
 
 function handleWalletMirrors() {
     if (!isValidValue(MarketPriceGlobal)) return;
-    document.querySelectorAll('header, dialog, [popover]').forEach(scope => {
-        scope.querySelectorAll('*').forEach(el => {
-            if (el.dataset.scttDone) return;
-            if (el.children.length > 0) return;
-            const text = el.textContent.trim();
-            const m = /(\d[\d\s]*,\d{2})\s*₴/.exec(text);
-            if (!m) return;
-            const pw = normalizeUAH(m[1].replace(/\s/g, ''));
-            if (!pw || isNaN(pw)) return;
-            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
-            el.textContent = `${text} (${calpricesteamw}🔑)`;
-            el.dataset.scttDone = '1';
-        });
+    const walletValue = getCurrentWalletValue();
+    if (walletValue === null) return;
+    WalletValue = walletValue;
+
+    document.querySelectorAll('header *, dialog *, [popover] *').forEach(el => {
+        if (el.dataset.scttDone) return;
+        if (el.children.length > 0) return;
+        const text = el.textContent.trim();
+        const m = /(\d[\d\s]*,\d{2})\s*₴/.exec(text);
+        if (!m) return;
+        const pw = normalizeUAH(m[1].replace(/\s/g, ''));
+        if (!pw || isNaN(pw) || Math.abs(pw - walletValue) > 0.001) return;
+        const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+        el.textContent = `${text} (${calpricesteamw}🔑)`;
+        el.dataset.scttDone = '1';
     });
 }
 
@@ -776,6 +788,15 @@ function isUAHPrice(text) {
     return text.includes('₴') || /\bUAH\b/i.test(text);
 }
 
+function getCurrentWalletValue() {
+    const walletLink = document.querySelector('a[href*="addfunds"]');
+    if (!walletLink) return null;
+    const m = /(\d[\d\s]*,\d{2})\s*₴/.exec(walletLink.textContent);
+    if (!m) return null;
+    const v = normalizeUAH(m[1].replace(/\s/g, ''));
+    return (!v || isNaN(v)) ? null : v;
+}
+
 function UAHtoToman(labels) {
     if (window.location.href.includes('steampowered')) {
         const re = /(\D*)(\d[\d,]*(?:\s\d{3})*(?:,\d+)?[^\s\d,]*)/;
@@ -1150,34 +1171,43 @@ function parseTooltipText(text) {
 function addTooltip(element, tooltipText) {
     const tooltip = document.createElement('span');
     tooltip.setAttribute('class', 'ogprice-tooltip');
+    tooltip.setAttribute('popover', 'manual');
     tooltip.innerHTML = parseTooltipText(tooltipText);
     Object.assign(tooltip.style, {
-        position:        'absolute',
+        position:        'fixed',
         backgroundColor: '#c2c2c2',
         color:           '#3d3d3f',
         fontFamily:      'Motiva Sans',
         fontSize:        '11px',
         textAlign:       'left',
         padding:         '5px',
+        margin:          '0',
+        border:          'none',
         borderRadius:    '2px',
         boxShadow:       '0 0 3px #000',
-        zIndex:          '9999',
-        opacity:         '0',
         transition:      'opacity 0.2s ease',
         whiteSpace:      'pre-line',
         pointerEvents:   'none',
+        opacity:         '0',
     });
     document.body.appendChild(tooltip);
 
+    let hideTimer;
     element.addEventListener('mouseover', e => {
-        tooltip.style.left = `${e.pageX + 10}px`;
-        tooltip.style.top = `${e.pageY + 10}px`;
+        tooltip.style.left = `${e.clientX + 10}px`;
+        tooltip.style.top = `${e.clientY + 10}px`;
+        try { tooltip.showPopover(); } catch {}
         tooltip.style.opacity = '1';
         element.style.cursor = 'help';
-        setTimeout(() => { tooltip.style.opacity = '0'; }, 7000);
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => {
+            tooltip.style.opacity = '0';
+            try { tooltip.hidePopover(); } catch {}
+        }, 7000);
     });
     element.addEventListener('mouseout', () => {
         tooltip.style.opacity = '0';
+        try { tooltip.hidePopover(); } catch {}
         element.style.cursor = 'default';
     });
 }
@@ -1470,10 +1500,20 @@ domObserver.observe(document.body, { childList: true, subtree: true });
 
 if (GotAllPrices()) processnode(document.body);
 
+if (window.location.href.includes('/personalcalendar')) {
+    setInterval(() => {
+        if (!GotAllPrices()) return;
+        convertBarePriceDivs();
+        handleWalletMirrors();
+        injectPopupItemsNew();
+        updatePopupItemsNew();
+    }, 500);
+}
+
 if (window.location.href.includes('wishlist')) {
     setInterval(() => {
         if (!GotAllPrices()) return;
-        handleNewWishlistUI();
+        convertBarePriceDivs();
         handleWalletMirrors();
         injectPopupItemsNew();
         updatePopupItemsNew();
