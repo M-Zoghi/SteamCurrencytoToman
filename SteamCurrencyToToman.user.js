@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name               Steam Currency To Toman
-// @version            1.73
+// @version            1.74
 // @description        Converts Steam Currency to Toman
 // @author             M-Zoghi
 // @namespace          SteamCurrencyToToman
@@ -157,6 +157,16 @@ function formatTime(date) {
 
 CheckRegion(labelsr);
 
+if (!RegionCheck) {
+    let _fallbackRetries = 0;
+    const _retryFallback = () => {
+        if (RegionCheck || _fallbackRetries++ > 20) return;
+        detectRegionFallback();
+        if (!RegionCheck) setTimeout(_retryFallback, 500);
+    };
+    setTimeout(_retryFallback, 300);
+}
+
 function CheckRegion(labelsr) {
     const href = window.location.href;
     const wallet = document.getElementById('header_wallet_balance');
@@ -200,6 +210,118 @@ function CheckRegion(labelsr) {
         clog(`Currency: "${CurrRegion}"`);
         CheckStorage();
     }
+}
+
+function detectRegionFallback() {
+    if (RegionCheck) return;
+    const bodyText = document.body.innerText || '';
+    if (bodyText.includes('₴')) { CurrRegion = 'UAH'; RegionCheck = true; }
+    else if (/\$\d/.test(bodyText)) { CurrRegion = 'USD'; RegionCheck = true; }
+    else if (bodyText.includes('€')) { CurrRegion = 'EUR'; RegionCheck = true; }
+    if (RegionCheck) {
+        clog(`Currency (fallback): "${CurrRegion}"`);
+        CheckStorage();
+    }
+}
+
+function handleNewWishlistUI() {
+    if (!window.location.href.includes('/wishlist/')) return;
+    if (!isValidValue(FinalKeyPrice) || !isValidValue(MarketPriceGlobal)) return;
+
+    document.querySelectorAll('div').forEach(el => {
+        if (el.children.length > 0) return;
+        if (el.closest('header, dialog, [popover]')) return;
+        const m = /^(\d[\d\s]*,\d{2})\s*₴$/.exec(el.textContent.trim());
+        if (!m) return;
+        const pm = normalizeUAH(m[1].replace(/\s/g, ''));
+        if (!pm || isNaN(pm)) return;
+
+        let cs, cf;
+        if (pm > MarketPriceGlobal) {
+            cs = Math.ceil(pm / MarketPriceGlobal);
+            cf = (cs * FinalKeyPrice).toLocaleString('en-US');
+        } else {
+            cs = (pm / MarketPriceGlobal).toPrecision(2);
+            cf = Math.ceil(cs * FinalKeyPrice).toLocaleString('en-US');
+        }
+
+        el.textContent = `${cf} T (${cs}🔑)`;
+    });
+}
+
+function handleWalletMirrors() {
+    if (!isValidValue(MarketPriceGlobal)) return;
+    document.querySelectorAll('header, dialog, [popover]').forEach(scope => {
+        scope.querySelectorAll('*').forEach(el => {
+            if (el.dataset.scttDone) return;
+            if (el.children.length > 0) return;
+            const text = el.textContent.trim();
+            const m = /(\d[\d\s]*,\d{2})\s*₴/.exec(text);
+            if (!m) return;
+            const pw = normalizeUAH(m[1].replace(/\s/g, ''));
+            if (!pw || isNaN(pw)) return;
+            const calpricesteamw = (pw / MarketPriceGlobal).toPrecision(3);
+            el.textContent = `${text} (${calpricesteamw}🔑)`;
+            el.dataset.scttDone = '1';
+        });
+    });
+}
+
+function injectPopupItemsNew() {
+    const walletLink = document.querySelector('[popover] a[href*="addfunds"]');
+    if (!walletLink) return;
+    const popup = walletLink.closest('[popover]');
+    if (!popup || popup.dataset.scttInjected) return;
+    popup.dataset.scttInjected = 'true';
+
+    const valueSpan = walletLink.querySelector('span');
+    const anchorClass = walletLink.className;
+    const spanClass = valueSpan ? valueSpan.className : '';
+
+    const entries = [
+        { cls: PROVIDERS.fk.cls, href: PROVIDERS.fk.url, label: 'Fast Keys: ', favicon: PROVIDERS.fk.favicon },
+        { cls: PROVIDERS.ir.cls, href: PROVIDERS.ir.url, label: 'Iranian Steam: ', favicon: PROVIDERS.ir.favicon },
+        { cls: PROVIDERS.dr.cls, href: PROVIDERS.dr.url, label: 'Dragon Steam: ', favicon: PROVIDERS.dr.favicon },
+        { cls: 'marketsteamprice', href: MARKET_KEY_URL, label: 'Steam Market: ', favicon: MARKET_FAVICON },
+    ];
+
+    let anchor = walletLink;
+    for (const entry of entries) {
+        const item = document.createElement('a');
+        item.className = anchorClass;
+        item.href = entry.href;
+        item.target = '_blank';
+        item.rel = 'noopener';
+        item.tabIndex = 0;
+
+        const icon = document.createElement('img');
+        icon.className = 'ico16sc';
+        icon.src = entry.favicon;
+        item.appendChild(icon);
+        item.appendChild(document.createTextNode(' '));
+        item.appendChild(document.createTextNode(entry.label));
+
+        const valueEl = document.createElement('span');
+        valueEl.className = spanClass;
+        valueEl.dataset.scttPopupCls = entry.cls;
+        valueEl.textContent = 'Loading...';
+        item.appendChild(valueEl);
+
+        anchor.insertAdjacentElement('afterend', item);
+        anchor = item;
+    }
+}
+
+function updatePopupItemsNew() {
+    document.querySelectorAll('[data-sctt-popup-cls]').forEach(el => {
+        const cls = el.dataset.scttPopupCls;
+        let text = null;
+        if (cls === PROVIDERS.fk.cls && FKSteamPriceCheck) text = isValidValue(FKSteamPrice) ? `${FKSteamPrice} T (${FKSteamAvailGlobal})` : 'Error!';
+        if (cls === PROVIDERS.ir.cls && IRSteamPriceCheck) text = isValidValue(IRSteamPrice) ? `${IRSteamPrice} T (${IRSteamAvailGlobal})` : 'Error!';
+        if (cls === PROVIDERS.dr.cls && DRSteamPriceCheck) text = isValidValue(DRSteamPrice) ? `${DRSteamPrice} T (${DRSteamAvailGlobal})` : 'Error!';
+        if (cls === 'marketsteamprice' && MarketPriceCheck && isValidValue(MarketPriceGlobal)) text = `${MarketPrice}₴ (${MarketPriceGlobal}₴)`;
+        if (text) el.textContent = text;
+    });
 }
 
 function CheckStorage() {
@@ -1349,6 +1471,13 @@ domObserver.observe(document.body, { childList: true, subtree: true });
 if (GotAllPrices()) processnode(document.body);
 
 if (window.location.href.includes('wishlist')) {
+    setInterval(() => {
+        if (!GotAllPrices()) return;
+        handleNewWishlistUI();
+        handleWalletMirrors();
+        injectPopupItemsNew();
+        updatePopupItemsNew();
+    }, 500);
     window.addEventListener('scroll', convertcurrency);
 
     const wishlistObserver = new MutationObserver(() => {
