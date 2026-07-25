@@ -28,7 +28,7 @@
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/InfoMarket.png?raw=true)
 
 ## Steam Upcoming Iranian Date
-- Adds Iranian Date to Upcoming games on Steam store
+- Adds Iranian Date to Upcoming games on Steam store and Personal Calendar page
 
 ![](https://github.com/M-Zoghi/SteamCurrencytoToman/blob/main/Images/UpcomingIranianDate.png?raw=true)
 
