@@ -2,7 +2,7 @@
 // @name               Steam Currency To Toman
 // @version            1.74
 // @description        Converts Steam Currency to Toman
-// @author             M-Zoghi
+// @author             EmZi
 // @namespace          SteamCurrencyToToman
 // @icon               http://store.steampowered.com/favicon.ico
 // @match              http*://store.steampowered.com/*
